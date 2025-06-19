@@ -1,5 +1,13 @@
-C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\BackendApplication.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ClienteRepository.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\UsuarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Producto.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ClienteService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\BackendApplication.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Usuario.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\UsuarioRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProductoRepository.java

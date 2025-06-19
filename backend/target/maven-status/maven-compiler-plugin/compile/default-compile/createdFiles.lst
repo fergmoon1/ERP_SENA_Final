@@ -1,5 +1,5 @@
+com\empresa\erp\services\ProductoService.class
+com\empresa\erp\repositories\ProductoRepository.class
 com\empresa\erp\models\Producto.class
 com\empresa\erp\BackendApplication.class
 com\empresa\erp\controllers\ProductoController.class
-com\empresa\erp\services\ProductoService.class
-com\empresa\erp\repositories\ProductoRepository.class
