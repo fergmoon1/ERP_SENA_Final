@@ -1,0 +1,55 @@
+
+
+
+
+
+ERP_SENA_Final/
+├── backend/                 # Spring Boot API
+│   ├── src/main/java/
+│   │   ├── controllers/     # REST Controllers
+│   │   ├── services/        # Business Logic
+│   │   ├── models/          # JPA Entities
+│   │   ├── repositories/    # Data Access
+│   │   └── config/          # Configuration
+│   └── src/main/resources/
+│       └── application.properties
+├── frontend/                # React App
+│   ├── src/
+│   │   ├── components/      # React Components
+│   │   ├── pages/           # Page Components
+│   │   ├── services/        # API Calls
+│   │   └── styles/          # CSS Files
+│   └── public/
+└── database/                # SQL Scripts
+
+Recomendación de Migración
+1. Comienza por el Backend (Spring Boot + MySQL)
+Ventaja: Permite definir claramente los datos y la lógica de negocio, y te da APIs RESTful reutilizables para cualquier frontend.
+Acción:
+Crea un proyecto Spring Boot con módulos para cada entidad (Producto, Usuario, Cliente, Pedido, Inventario, etc.).
+Define los modelos (basados en los formularios HTML actuales).
+Implementa los controladores REST (GET, POST, PUT, DELETE).
+Usa JPA/Hibernate para mapear las entidades a tablas MySQL.
+Prueba los endpoints con Postman (puedes ir validando cada uno antes de avanzar).
+2. Continúa con el Frontend (React)
+Ventaja: Puedes reutilizar el diseño y CSS actual, migrando poco a poco cada vista.
+Acción:
+Crea un proyecto React.
+Por cada módulo (productos, usuarios, etc.), crea un componente de listado y un formulario de edición/creación.
+Usa axios o fetch para consumir los endpoints del backend.
+Aplica el CSS y estructura visual de tus archivos HTML actuales (puedes copiar el HTML y adaptarlo a JSX).
+3. Migración Progresiva y Validación
+Haz la migración por módulos:
+Por ejemplo, primero productos, luego usuarios, etc. Así puedes ir validando y corrigiendo sobre la marcha.
+Valida cada endpoint y cada pantalla con Postman y el navegador.
+4. Mantén la App Monolítica Actual como Referencia
+No elimines tu app actual hasta que la nueva esté completamente funcional.
+Puedes comparar comportamientos y diseño en paralelo.
+¿Por qué este orden?
+El backend define la estructura de datos y la lógica, y es más fácil adaptar el frontend a una API ya establecida.
+El frontend puede avanzar en paralelo, usando mocks o datos reales a medida que los endpoints estén listos.
+Permite pruebas y validaciones incrementales, reduciendo el riesgo de errores grandes.
+¿Qué necesitas tener instalado?
+Java 17+ y Maven (para Spring Boot)
+Node.js y npm (para React)
+MySQL (puede ser local o en la nube)
