@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Systems - Configuracion</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="./contenidos/configuracion.css"> <!-- Estilos específicos del área de trabajo -->
+    <link rel="stylesheet" href="imagenes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-columns"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-star"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-left"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </div>
+            
+            <!-- Nuevo contenedor para los círculos -->
+            <div class="user-circles">
+                <span class="user-circle user-photo"><img src="imagenes/foto01 mujer.png" alt="Usuario"></span>
+                <span class="user-circle"><i class="fa-solid fa-bell"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-star"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-sliders"></i></span>
+            </div>
+            <ul class="menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i><i class="fa-solid fa-chevron-right"></i> Dashboard</a></li>
+                <li><a href="inventario.html"><i class="fa-solid fa-box"></i><i class="fa-solid fa-chevron-right"></i> Inventario</a></li>
+                <li><a href="productos.html"><i class="fa-solid fa-tag"></i><i class="fa-solid fa-chevron-right"></i> Productos</a></li>
+                <li><a href="pedidos.html"><i class="fa-solid fa-truck"></i><i class="fa-solid fa-chevron-right"></i> Pedidos</a></li>
+                <li><a href="clientes.html"><i class="fa-solid fa-user"></i><i class="fa-solid fa-chevron-right"></i> Clientes</a></li>
+                <li><a href="usuarios.html"><i class="fa-solid fa-users"></i><i class="fa-solid fa-chevron-right"></i> Usuarios</a></li>
+                <li class="activo"><a href="configuracion.html"><i class="fa-solid fa-cogs"></i><i class="fa-solid fa-chevron-right"></i> Configuración</a></li>
+            </ul>
+            <div class="footer-icons">
+                <span class="icon-circle"><i class="fa-solid fa-arrow-left"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-headphones"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-gear"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-arrow-up"></i></span>
+            </div>
+        </nav>
+        
+        <!-- Contenido Principal -->
+        <main class="contenido">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="topbar-content">
+                    <div class="dashboard-texto">
+                        <h1>Configuración</h1>
+                        <p>Ajustes del Sistema</p>
+                    </div>
+                    <div class="perfil">
+                        <div class="perfil-texto">
+                            <div class="avatar-circle"><img src="imagenes/foto01 mujer.png" alt="Usuario"></div>
+                            <strong>Juana Pérez</strong>
+                            <span>Administrador</span>
+                        </div>
+                    </div>
+                    <div class="busqueda">
+                        <input type="text" placeholder="Buscar...">
+                        <i class="fa-solid fa-moon"></i>
+                        <i class="fa-solid fa-magnifying-glass-plus"></i> <!-- Zoom in -->
+                        <i class="fa-solid fa-magnifying-glass-minus"></i> <!-- Zoom out -->
+                    </div>
+                    <div class="hora">
+                        <div>7:01 AM</div>
+                        <div>15/03/2025</div>
+                    </div>
+                </div>
+            </header>
+            <section class="work-area">
+                <div class="config-container">
+                    <h1>Configuración del Sistema</h1>
+                    
+                    <div class="config-system-params">
+                        <div class="config-section-header">
+                            <i class="fas fa-cogs"></i>
+                            Parámetros del Sistema
+                        </div>
+                        <div class="config-form-grid">
+                            <div class="form-group">
+                                <label>Umbral de Stock Bajo</label>
+                                <input type="number" value="10">
+                                <p>Número mínimo de unidades para alertas de stock bajo.</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Días de Retención de Movimientos</label>
+                                <input type="number" value="30">
+                                <p>Días que se guardan los movimientos de inventario.</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Moneda Predeterminada</label>
+                                <input type="text" value="USD">
+                                <p>Moneda para mostrar precios.</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Tasa de IVA (%)</label>
+                                <input type="number" value="19">
+                                <p>Porcentaje de IVA para aplicar a los pedidos.</p>
+                            </div>
+                        </div>
+                        <div class="config-section-footer">
+                            <button>
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+            
+                    <div class="config-low-stock">
+                        <div class="config-section-header warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Productos con Stock Bajo
+                        </div>
+                        <div class="config-section-content">
+                            <p>No hay productos con stock bajo.</p>
+                        </div>
+                    </div>
+            
+                    <div class="config-history">
+                        <div class="config-section-header history">
+                            <i class="fas fa-history"></i>
+                            Historial de Cambios
+                        </div>
+                        <div class="config-section-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Clave</th>
+                                        <th>Valor Anterior</th>
+                                        <th>Valor Nuevo</th>
+                                        <th>Usuario</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Agrega filas aquí si es necesario -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    </body>
+</html>

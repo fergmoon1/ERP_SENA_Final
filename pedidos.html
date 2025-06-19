@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Systems - Pedidos</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="./contenidos/pedidos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-columns"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-star"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-left"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </div>
+            <div class="user-circles">
+                <span class="user-circle user-photo"><img src="imagenes/foto01 mujer.png" alt="Usuario"></span>
+                <span class="user-circle"><i class="fa-solid fa-bell"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-star"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-sliders"></i></span>
+            </div>
+            <ul class="menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i><i class="fa-solid fa-chevron-right"></i> Dashboard</a></li>
+                <li><a href="inventario.html"><i class="fa-solid fa-box"></i><i class="fa-solid fa-chevron-right"></i> Inventario</a></li>
+                <li><a href="productos.html"><i class="fa-solid fa-tag"></i><i class="fa-solid fa-chevron-right"></i> Productos</a></li>
+                <li class="activo"><a href="pedidos.html"><i class="fa-solid fa-truck"></i><i class="fa-solid fa-chevron-right"></i> Pedidos</a></li>
+                <li><a href="clientes.html"><i class="fa-solid fa-user"></i><i class="fa-solid fa-chevron-right"></i> Clientes</a></li>
+                <li><a href="usuarios.html"><i class="fa-solid fa-users"></i><i class="fa-solid fa-chevron-right"></i> Usuarios</a></li>
+                <li><a href="configuracion.html"><i class="fa-solid fa-cogs"></i><i class="fa-solid fa-chevron-right"></i> Configuración</a></li>
+            </ul>
+            <div class="footer-icons">
+                <span class="icon-circle"><i class="fa-solid fa-arrow-left"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-headphones"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-gear"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-arrow-up"></i></span>
+            </div>
+        </nav>
+        
+        <!-- Contenido Principal -->
+        <main class="contenido">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="topbar-content">
+                    <div class="dashboard-texto">
+                        <h1>Pedidos</h1>
+                        <p>Gestión de Pedidos</p>
+                    </div>
+                    <div class="perfil">
+                        <div class="perfil-texto">
+                            <div class="avatar-circle"><img src="imagenes/foto01 mujer.png" alt="Usuario"></div>
+                            <strong>Juana Pérez</strong>
+                            <span>Administrador</span>
+                        </div>
+                    </div>
+                    <div class="busqueda">
+                        <input type="text" placeholder="Buscar...">
+                        <i class="fa-solid fa-moon"></i>
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        <i class="fa-solid fa-magnifying-glass-minus"></i>
+                    </div>
+                    <div class="hora">
+                        <div>7:01 AM</div>
+                        <div>15/03/2025</div>
+                    </div>
+                </div>
+            </header>
+            <section class="work-area">
+                <div class="pedidos-container">
+                    <h1>Gestión de Pedidos</h1>
+
+                    <!-- Agregar/Editar Pedido -->
+                    <div class="pedidos-form-section">
+                        <h2>Agregar/Editar Pedido</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="cliente">Cliente</label>
+                                <select id="cliente">
+                                    <option>Seleccione un cliente</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha">Fecha</label>
+                                <input type="date" id="fecha">
+                            </div>
+                            <div class="form-group">
+                                <label for="estado">Estado</label>
+                                <select id="estado">
+                                    <option>Pendiente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="producto">Productos</label>
+                                <select id="producto">
+                                    <option>Seleccione un producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="add-product-btn">Agregar Producto</button>
+                            </div>
+                            <div class="form-group">
+                                <button aria-label="Eliminar">Eliminar</button>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="save-btn">Guardar</button>
+                            <button class="clear-btn">Limpiar</button>
+                        </div>
+                    </div>
+
+                    <!-- Buscar Pedidos -->
+                    <div class="pedidos-search-section">
+                        <h2>Buscar Pedidos</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="buscar-cliente">Cliente</label>
+                                <select id="buscar-cliente">
+                                    <option>Todos los clientes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="buscar-fecha">Fecha</label>
+                                <input type="date" id="buscar-fecha">
+                            </div>
+                            <div class="form-group">
+                                <label for="buscar-estado">Estado</label>
+                                <select id="buscar-estado">
+                                    <option>Todos los estados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="search-btn">Buscar</button>
+                            <button class="clear-btn">Limpiar</button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Pedidos -->
+                    <div class="pedidos-table-section">
+                        <h2>Lista de Pedidos</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Productos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Juan Pérez</td>
+                                    <td>2025-03-29</td>
+                                    <td>pendiente</td>
+                                    <td>
+                                        <ul>
+                                            <li>Producto A (Cantidad: 2)</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <button class="edit-btn">Editar</button>
+                                        <button class="delete-btn">Eliminar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>María Gómez</td>
+                                    <td>2025-03-29</td>
+                                    <td>completado</td>
+                                    <td>
+                                        <ul>
+                                            <li>Producto A (Cantidad: 1)</li>
+                                            <li>Producto B (Cantidad: 3)</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <button class="edit-btn">Editar</button>
+                                        <button class="delete-btn">Eliminar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <button class="prev-btn">Anterior</button>
+                            <span>1</span>
+                            <button class="next-btn">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="container mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Gestión de Pedidos</h1>
+
+        <!-- Agregar/Editar Pedido -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Agregar/Editar Pedido</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
+                    <select id="cliente" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option>Seleccione un cliente</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="fecha" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="date" id="fecha" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select id="estado" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option>Pendiente</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label for="producto" class="block text-sm font-medium text-gray-700">Productos</label>
+                    <select id="producto" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option>Seleccione un producto</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm">Agregar Producto</button>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm">Guardar</button>
+                <button class="bg-gray-500 text-white px-4 py-2 rounded-md shadow-sm">Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Buscar Pedidos -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Buscar Pedidos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label for="buscar-cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
+                    <select id="buscar-cliente" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option>Todos los clientes</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="buscar-fecha" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="date" id="buscar-fecha" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label for="buscar-estado" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select id="buscar-estado" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option>Todos los estados</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm">Buscar</button>
+                <button class="bg-gray-500 text-white px-4 py-2 rounded-md shadow-sm">Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Lista de Pedidos -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Lista de Pedidos</h2>
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">ID</th>
+                        <th class="py-2 px-4 border-b">Cliente</th>
+                        <th class="py-2 px-4 border-b">Fecha</th>
+                        <th class="py-2 px-4 border-b">Estado</th>
+                        <th class="py-2 px-4 border-b">Productos</th>
+                        <th class="py-2 px-4 border-b">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="py-2 px-4 border-b">1</td>
+                        <td class="py-2 px-4 border-b">Juan Pérez</td>
+                        <td class="py-2 px-4 border-b">2025-03-29</td>
+                        <td class="py-2 px-4 border-b">pendiente</td>
+                        <td class="py-2 px-4 border-b">
+                            <ul>
+                                <li>Producto A (Cantidad: 2)</li>
+                            </ul>
+                        </td>
+                        <td class="py-2 px-4 border-b">
+                            <button class="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-sm">Editar</button>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-md shadow-sm">Eliminar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 px-4 border-b">2</td>
+                        <td class="py-2 px-4 border-b">María Gómez</td>
+                        <td class="py-2 px-4 border-b">2025-03-29</td>
+                        <td class="py-2 px-4 border-b">completado</td>
+                        <td class="py-2 px-4 border-b">
+                            <ul>
+                                <li>Producto A (Cantidad: 1)</li>
+                                <li>Producto B (Cantidad: 3)</li>
+                            </ul>
+                        </td>
+                        <td class="py-2 px-4 border-b">
+                            <button class="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-sm">Editar</button>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-md shadow-sm">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="flex justify-between mt-4">
+                <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md shadow-sm">Anterior</button>
+                <span class="text-gray-700">1</span>
+                <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md shadow-sm">Siguiente</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

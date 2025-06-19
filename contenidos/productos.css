@@ -1,0 +1,151 @@
+/* productos.css */
+
+/* Contenedor principal */
+.productos-container {
+    padding: 16px;
+}
+
+/* Encabezado */
+.productos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.productos-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+}
+
+.productos-header a {
+    color: #3b82f6; /* Azul para el enlace "Home" */
+    text-decoration: none;
+}
+
+/* Secciones de formulario y tabla */
+.productos-form-section,
+.productos-table-section {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+}
+
+.productos-form-section h2,
+.productos-table-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: black;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    color: #1f2937; /* Gris oscuro */
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase; /* Mayúsculas como en las otras páginas */
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db; /* Borde gris claro */
+    border-radius: 4px;
+    font-size: 14px;
+    color: #6b7280; /* Gris para placeholders */
+}
+
+.form-group textarea {
+    resize: vertical; /* Permite redimensionar verticalmente */
+    min-height: 100px; /* Altura mínima para la descripción */
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #9ca3af; /* Gris claro para placeholders */
+}
+
+/* Botones de formularios */
+.form-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start; /* Alineado a la izquierda como en las otras páginas */
+}
+
+.form-buttons .save-btn {
+    background: #2563eb; /* Azul para "Guardar" */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-buttons .clear-btn {
+    background: #9ca3af; /* Gris para "Limpiar" */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Tabla */
+.productos-table-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.productos-table-section th,
+.productos-table-section td {
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb; /* Borde gris claro, como en inventario.html */
+    text-align: left;
+    font-size: 14px;
+}
+
+.productos-table-section th {
+    background: #e5e7eb; /* Gris claro para encabezados */
+    font-weight: 600;
+    color: black;
+    text-transform: uppercase; /* Mayúsculas como en las otras páginas */
+}
+
+.productos-table-section td {
+    color: black;
+}
+
+/* Botones de acciones */
+.edit-btn {
+    background: #f59e0b; /* Amarillo para "Editar" */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.delete-btn {
+    background: #ef4444; /* Rojo para "Eliminar" */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}

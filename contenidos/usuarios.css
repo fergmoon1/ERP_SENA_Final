@@ -1,0 +1,180 @@
+/* Estilos específicos para la sección de Usuarios */
+
+/* Contenedor principal */
+.work-area {
+    padding: 20px;
+}
+
+/* Estilos para titulares y navegación de breadcrumb */
+.work-area h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.work-area p a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.work-area p a:hover {
+    text-decoration: underline;
+}
+
+/* Sección de agregar/editar usuario */
+.work-area h2 {
+    font-size: 1.3rem;
+    margin: 25px 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+/* Formulario */
+form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 25px;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+form input:focus, form select:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+form button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+button[type="submit"] {
+    background-color: #1890ff;
+    color: white;
+}
+
+button[type="reset"] {
+    background-color: #f0f0f0;
+    color: #555;
+}
+
+button[type="submit"]:hover {
+    background-color: #40a9ff;
+}
+
+button[type="reset"]:hover {
+    background-color: #e0e0e0;
+}
+
+/* Tabla de usuarios */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+table th {
+    background-color: #f5f5f5;
+    font-weight: 500;
+    color: #555;
+}
+
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Botones de acción en la tabla */
+table button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+table button:first-child {
+    background-color: #faad14;
+    color: white;
+}
+
+table button:last-child {
+    background-color: #ff4d4f;
+    color: white;
+}
+
+table button:first-child:hover {
+    background-color: #ffc53d;
+}
+
+table button:last-child:hover {
+    background-color: #ff7875;
+}
+
+/* Estilos para combinar con la imagen de referencia */
+.work-area > div {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Estilo para breadcrumb */
+.work-area p {
+    margin-bottom: 20px;
+    color: #777;
+}
+
+/* Ajustar estilo de botones para coincidir con la imagen */
+form button[type="submit"] {
+    background-color: #007bff;
+}
+
+form button[type="reset"] {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Estilo para tabla que coincida con la imagen */
+table th {
+    background-color: #f8f9fa;
+}
+
+/* Estilo para botones de acción en tabla */
+table button:first-child {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+table button:last-child {
+    background-color: #dc3545;
+}
+

@@ -1,0 +1,81 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">Usuarios</h1>
+            <a href="#" class="text-blue-500">Home / Usuarios</a>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Agregar/Editar Usuario</h2>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="username">Nombre del Usuario</label>
+                    <input class="w-full px-3 py-2 border rounded-lg" type="text" id="username" placeholder="Ingrese el nombre del usuario">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="email">Correo Electrónico</label>
+                    <input class="w-full px-3 py-2 border rounded-lg" type="email" id="email" placeholder="Ingrese el correo electrónico">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="password">Contraseña</label>
+                    <input class="w-full px-3 py-2 border rounded-lg" type="password" id="password" placeholder="Ingrese una nueva contraseña">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="role">Rol</label>
+                    <select class="w-full px-3 py-2 border rounded-lg" id="role">
+                        <option>Admin</option>
+                        <option>Usuario</option>
+                    </select>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg">Guardar</button>
+                    <button class="bg-gray-500 text-white px-4 py-2 rounded-lg">Limpiar</button>
+                </div>
+            </form>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Lista de Usuarios</h2>
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">ID</th>
+                        <th class="py-2 px-4 border-b">Nombre</th>
+                        <th class="py-2 px-4 border-b">Email</th>
+                        <th class="py-2 px-4 border-b">Rol</th>
+                        <th class="py-2 px-4 border-b">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="py-2 px-4 border-b">1</td>
+                        <td class="py-2 px-4 border-b">Admin User</td>
+                        <td class="py-2 px-4 border-b">admin@example.com</td>
+                        <td class="py-2 px-4 border-b">admin</td>
+                        <td class="py-2 px-4 border-b">
+                            <button class="bg-yellow-500 text-white px-2 py-1 rounded-lg">Editar</button>
+                            <button class="bg-red-500 text-white px-2 py-1 rounded-lg">Eliminar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 px-4 border-b">2</td>
+                        <td class="py-2 px-4 border-b">Regular User</td>
+                        <td class="py-2 px-4 border-b">user@example.com</td>
+                        <td class="py-2 px-4 border-b">usuario</td>
+                        <td class="py-2 px-4 border-b">
+                            <button class="bg-yellow-500 text-white px-2 py-1 rounded-lg">Editar</button>
+                            <button class="bg-red-500 text-white px-2 py-1 rounded-lg">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

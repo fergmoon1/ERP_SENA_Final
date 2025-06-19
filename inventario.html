@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Systems - Inventario</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="./contenidos/inventario.css"> <!-- Estilos específicos del área de trabajo -->
+    <link rel="stylesheet" href="imagenes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-columns"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-star"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-left"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </div>
+            
+            <!-- Nuevo contenedor para los círculos -->
+            <div class="user-circles">
+                <span class="user-circle user-photo"><img src="imagenes/foto01 mujer.png" alt="Usuario"></span>
+                <span class="user-circle"><i class="fa-solid fa-bell"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-star"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-sliders"></i></span>
+            </div>
+            <ul class="menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i><i class="fa-solid fa-chevron-right"></i> Dashboard</a></li>
+                <li class="activo"><a href="inventario.html"><i class="fa-solid fa-box"></i><i class="fa-solid fa-chevron-right"></i> Inventario</a></li>
+                <li><a href="productos.html"><i class="fa-solid fa-tag"></i><i class="fa-solid fa-chevron-right"></i> Productos</a></li>
+                <li><a href="pedidos.html"><i class="fa-solid fa-truck"></i><i class="fa-solid fa-chevron-right"></i> Pedidos</a></li>
+                <li><a href="clientes.html"><i class="fa-solid fa-user"></i><i class="fa-solid fa-chevron-right"></i> Clientes</a></li>
+                <li><a href="usuarios.html"><i class="fa-solid fa-users"></i><i class="fa-solid fa-chevron-right"></i> Usuarios</a></li>
+                <li><a href="configuracion.html"><i class="fa-solid fa-cogs"></i><i class="fa-solid fa-chevron-right"></i> Configuración</a></li>
+            </ul>
+            <div class="footer-icons">
+                <span class="icon-circle"><i class="fa-solid fa-arrow-left"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-headphones"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-gear"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-arrow-up"></i></span>
+            </div>
+        </nav>
+        
+        <!-- Contenido Principal -->
+        <main class="contenido">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="topbar-content">
+                    <div class="dashboard-texto">
+                        <h1>Inventario</h1>
+                        <p>Gestión de Stock</p>
+                    </div>
+                    <div class="perfil">
+                        <div class="perfil-texto">
+                            <div class="avatar-circle"><img src="imagenes/foto01 mujer.png" alt="Usuario"></div>
+                            <strong>Juana Pérez</strong>
+                            <span>Administrador</span>
+                        </div>
+                    </div>
+                    <div class="busqueda">
+                        <input type="text" placeholder="Buscar...">
+                        <i class="fa-solid fa-moon"></i>
+                        <i class="fa-solid fa-magnifying-glass-plus"></i> <!-- Zoom in -->
+                        <i class="fa-solid fa-magnifying-glass-minus"></i> <!-- Zoom out -->
+                    </div>
+                    <div class="hora">
+                        <div>7:01 AM</div>
+                        <div>15/03/2025</div>
+                    </div>
+                </div>
+            </header>
+            <section class="work-area">
+                <div class="inventario-container">
+                    <div class="inventario-header">
+                        <h1>Inventario</h1>
+                        <a href="#">Home / Inventario</a>
+                    </div>
+                    
+                    <div class="inventario-alert">
+                        <h2>Alerta de Stock Bajo</h2>
+                        <p>Los siguientes productos tienen un stock por debajo del umbral mínimo (10 unidades):</p>
+                        <ul>
+                            <li>Producto B (Stock actual: 5)</li>
+                        </ul>
+                        <p>Por favor, actualice el inventario para evitar problemas de disponibilidad.</p>
+                    </div>
+                    
+                    <div class="inventario-form-section">
+                        <h2>Agregar/Editar Registro de Inventario</h2>
+                        <form>
+                            <div class="form-group">
+                                <label for="producto">Producto</label>
+                                <select id="producto">
+                                    <option>Seleccione un producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad</label>
+                                <input type="number" id="cantidad" placeholder="Ingrese la cantidad">
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit">Guardar</button>
+                                <button type="reset">Limpiar</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="inventario-table-section">
+                        <h2>Lista de Inventario</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Fecha de Actualización</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Producto A</td>
+                                    <td>50</td>
+                                    <td>2025-03-29 07:29:42</td>
+                                    <td>
+                                        <button class="edit-btn">Editar</button>
+                                        <button class="delete-btn">Eliminar</button>
+                                        <button class="history-btn">Historial</button>
+                                    </td>
+                                </tr>
+                                <tr class="low-stock">
+                                    <td>2</td>
+                                    <td>Producto B</td>
+                                    <td>5</td>
+                                    <td>2025-03-29 07:29:42</td>
+                                    <td>
+                                        <button class="edit-btn">Editar</button>
+                                        <button class="delete-btn">Eliminar</button>
+                                        <button class="history-btn">Historial</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    </body>
+</html>
