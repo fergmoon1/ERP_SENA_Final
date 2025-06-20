@@ -1,11 +1,11 @@
--- Eliminar la tabla si ya existe
-DROP TABLE IF EXISTS ejemplo;
+SHOW CREATE TABLE pedido;
+DELETE FROM pedido
+WHERE cliente_id IS NULL
+   OR producto_id IS NULL
+   OR precio_unitario IS NULL
+   OR fecha_entrega IS NULL;
+   
+   TRUNCATE TABLE pedido;
+   
+   ALTER TABLE pedido AUTO_INCREMENT = 1;
 
--- Crear la tabla con utf8mb4 y utf8mb4_unicode_ci
-CREATE TABLE ejemplo (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT
-) 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci;

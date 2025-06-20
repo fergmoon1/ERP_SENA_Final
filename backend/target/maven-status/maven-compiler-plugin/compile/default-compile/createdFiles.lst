@@ -1,5 +1,17 @@
+com\empresa\erp\services\UsuarioService.class
+com\empresa\erp\services\ClienteService.class
 com\empresa\erp\services\ProductoService.class
 com\empresa\erp\repositories\ProductoRepository.class
+com\empresa\erp\controllers\UsuarioController.class
+com\empresa\erp\repositories\PedidoRepository.class
+com\empresa\erp\models\Cliente.class
 com\empresa\erp\models\Producto.class
 com\empresa\erp\BackendApplication.class
 com\empresa\erp\controllers\ProductoController.class
+com\empresa\erp\repositories\ClienteRepository.class
+com\empresa\erp\controllers\PedidoController.class
+com\empresa\erp\repositories\UsuarioRepository.class
+com\empresa\erp\services\PedidoService.class
+com\empresa\erp\controllers\ClienteController.class
+com\empresa\erp\models\Pedido.class
+com\empresa\erp\models\Usuario.class
