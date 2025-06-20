@@ -20,6 +20,8 @@ public class PedidoController {
     @GetMapping
     public List<Pedido> getAll() {
         return pedidoService.findAll();
+        
+        
     }
 
     @GetMapping("/{id}")
