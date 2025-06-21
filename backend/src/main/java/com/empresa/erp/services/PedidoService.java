@@ -2,6 +2,7 @@ package com.empresa.erp.services;
 
 import com.empresa.erp.models.Cliente;
 import com.empresa.erp.models.DetallePedido;
+import com.empresa.erp.models.MovimientoInventario;
 import com.empresa.erp.models.Pedido;
 import com.empresa.erp.models.Producto;
 import com.empresa.erp.repositories.ClienteRepository;
@@ -19,11 +20,19 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final ProductoRepository productoRepository;
+    private final MovimientoInventarioService movimientoInventarioService;
+    private final ValidacionService validacionService;
 
-    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, ProductoRepository productoRepository) {
+    public PedidoService(PedidoRepository pedidoRepository, 
+                        ClienteRepository clienteRepository, 
+                        ProductoRepository productoRepository,
+                        MovimientoInventarioService movimientoInventarioService,
+                        ValidacionService validacionService) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.productoRepository = productoRepository;
+        this.movimientoInventarioService = movimientoInventarioService;
+        this.validacionService = validacionService;
     }
 
     public List<Pedido> findAll() {
@@ -36,21 +45,42 @@ public class PedidoService {
 
     @Transactional
     public Pedido save(Pedido pedido) {
+        // Validaciones previas al procesamiento
+        validacionService.validarPedido(pedido);
+        validacionService.validarPedidoNoVacio(pedido);
+        validacionService.validarStockSuficiente(pedido);
 
         Pedido pedidoParaGuardar;
+        boolean esActualizacion = pedido.getId() != null;
 
-        // Si es una ACTUALIZACIÓN, restaura el stock del pedido original
-        if (pedido.getId() != null) {
+        // Si es una ACTUALIZACIÓN, restaura el stock del pedido original y genera movimientos de reversión
+        if (esActualizacion) {
             pedidoParaGuardar = pedidoRepository.findById(pedido.getId())
                     .orElseThrow(() -> new RuntimeException("Pedido a actualizar no encontrado con id: " + pedido.getId()));
 
             // Crea una copia de la lista de detalles viejos para iterar de forma segura
             List<DetallePedido> detallesViejos = new ArrayList<>(pedidoParaGuardar.getDetalles());
-            // Devuelve el stock de los detalles antiguos
+            
+            // Devuelve el stock de los detalles antiguos y genera movimientos de reversión
             for (DetallePedido detalleViejo : detallesViejos) {
                 Producto producto = detalleViejo.getProducto();
+                Integer stockAnterior = producto.getStock();
                 producto.setStock(producto.getStock() + detalleViejo.getCantidad());
+                
+                // Validar que el stock no sea negativo después de la reversión
+                validacionService.validarStockNoNegativo(producto);
+                
+                // Generar movimiento de reversión (ENTRADA) para el pedido anterior
+                MovimientoInventario movimientoReversion = new MovimientoInventario();
+                movimientoReversion.setProducto(producto);
+                movimientoReversion.setTipo(MovimientoInventario.TipoMovimiento.ENTRADA);
+                movimientoReversion.setCantidad(detalleViejo.getCantidad());
+                movimientoReversion.setStockAnterior(stockAnterior);
+                movimientoReversion.setStockPosterior(producto.getStock());
+                movimientoReversion.setMotivo("Reversión de pedido #" + pedido.getId() + " - Actualización");
+                movimientoInventarioService.save(movimientoReversion);
             }
+            
             // Ahora que el stock está restaurado, limpia la lista de detalles en la entidad
             pedidoParaGuardar.getDetalles().clear();
         } else {
@@ -72,11 +102,11 @@ public class PedidoService {
         
         // Si es una creación, la lista original en el objeto "pedido" debe ser limpiada
         // para llenarla con las entidades procesadas y manejadas por JPA.
-        if (pedido.getId() == null) {
+        if (!esActualizacion) {
             pedidoParaGuardar.getDetalles().clear();
         }
 
-        // 2. Procesar nuevos detalles: validar, REDUCIR stock y calcular total
+        // 2. Procesar nuevos detalles: validar, REDUCIR stock, calcular total y generar movimientos
         for (DetallePedido detalleNuevo : detallesNuevos) {
             Producto producto = productoRepository.findById(detalleNuevo.getProducto().getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + detalleNuevo.getProducto().getId()));
@@ -85,13 +115,28 @@ public class PedidoService {
                 throw new RuntimeException("Stock insuficiente para el producto: " + producto.getNombre());
             }
 
+            Integer stockAnterior = producto.getStock();
             producto.setStock(producto.getStock() - detalleNuevo.getCantidad());
+            
+            // Validar que el stock no sea negativo después de la reducción
+            validacionService.validarStockNoNegativo(producto);
 
             detalleNuevo.setProducto(producto);
             detalleNuevo.setPedido(pedidoParaGuardar);
             pedidoParaGuardar.getDetalles().add(detalleNuevo);
 
             totalCalculado += producto.getPrecio() * detalleNuevo.getCantidad();
+            
+            // Generar movimiento de inventario (SALIDA) para el nuevo pedido
+            MovimientoInventario movimientoSalida = new MovimientoInventario();
+            movimientoSalida.setProducto(producto);
+            movimientoSalida.setTipo(MovimientoInventario.TipoMovimiento.SALIDA);
+            movimientoSalida.setCantidad(detalleNuevo.getCantidad());
+            movimientoSalida.setStockAnterior(stockAnterior);
+            movimientoSalida.setStockPosterior(producto.getStock());
+            movimientoSalida.setMotivo("Pedido #" + (esActualizacion ? pedido.getId() : "NUEVO") + 
+                                     " - Cliente: " + cliente.getNombre());
+            movimientoInventarioService.save(movimientoSalida);
         }
 
         pedidoParaGuardar.setTotal(totalCalculado);
@@ -109,10 +154,24 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido a eliminar no encontrado con id: " + id));
 
-        // Devolver el stock de los productos al inventario
+        // Devolver el stock de los productos al inventario y generar movimientos de reversión
         for (DetallePedido detalle : pedido.getDetalles()) {
             Producto producto = detalle.getProducto();
+            Integer stockAnterior = producto.getStock();
             producto.setStock(producto.getStock() + detalle.getCantidad());
+            
+            // Validar que el stock no sea negativo después de la restauración
+            validacionService.validarStockNoNegativo(producto);
+            
+            // Generar movimiento de reversión (ENTRADA) para la eliminación del pedido
+            MovimientoInventario movimientoReversion = new MovimientoInventario();
+            movimientoReversion.setProducto(producto);
+            movimientoReversion.setTipo(MovimientoInventario.TipoMovimiento.ENTRADA);
+            movimientoReversion.setCantidad(detalle.getCantidad());
+            movimientoReversion.setStockAnterior(stockAnterior);
+            movimientoReversion.setStockPosterior(producto.getStock());
+            movimientoReversion.setMotivo("Reversión de pedido #" + id + " - Eliminación");
+            movimientoInventarioService.save(movimientoReversion);
         }
 
         // Eliminar el pedido
