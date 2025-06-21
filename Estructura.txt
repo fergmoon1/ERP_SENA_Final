@@ -32,6 +32,11 @@ Implementa los controladores REST (GET, POST, PUT, DELETE).
 Usa JPA/Hibernate para mapear las entidades a tablas MySQL.
 Prueba los endpoints con Postman (puedes ir validando cada uno antes de avanzar).
 2. Continúa con el Frontend (React)
+Actúa como un desarrollador full stack experto en migración de arquitecturas monolíticas a aplicaciones desacopladas con frontend en React y backend persistente en MySQL. Se debe hacer una aplicación en Spring Framework con base de datos MySQL, que debe crearse: 🧩 Objetivo de la migración: Migrar progresivamente la aplicación a una arquitectura frontend-backend desacoplada. El frontend debe construirse en React, y el backend puede mantenerse en Spring Boot pero conectado a la misma base de datos MySQL. 🎯 Lo que necesitas hacer: Realiza la estructura del proyecto Spring (controladores, servicios, modelos, repositorios).
+Diseña un backend RESTful para cada entidad, que exponga endpoints como: GET /producto GET /producto/:id POST /producto PUT /producto/:id DELETE /producto/:id, y asi con las demas entidades del proyecto. Construye un frontend en React con: Listado de productos, usarios, clientes, etc. Formulario para agregar/editar entidades. Eliminación de entidades con confirmación. Usa axios o fetch para conectar el frontend al backend. Explica la estructura de carpetas final tanto en el frontend como en el backend. Entrega el paso a paso detallado con comandos, configuración y archivos clave modificados o creados. El resultado debe ser una guía funcional para completar la migración de la funcionalidad de la aplicacion Respuestas en español. Se usará postman para verificar los endpoints que deberan ser JSON. Se requiere paso a paso con mi verificacion entre cada uno para poder continuar. Debe usarse los archivos presentes en el proyecto (html , css y js) como base del diseño y la funcionalidad de la aplicacion. Deme inicialmente su vision sobre el proyecto y la forma de poder hacerlo de una manera mas facil y rapida, si tiene dudas pregunteme. revise la carpeta del proyecto para ver con lo que se cuenta.
+
+
+
 Ventaja: Puedes reutilizar el diseño y CSS actual, migrando poco a poco cada vista.
 Acción:
 Crea un proyecto React.

@@ -10,6 +10,7 @@ import com.empresa.erp.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,12 +44,15 @@ public class PedidoService {
             pedidoParaGuardar = pedidoRepository.findById(pedido.getId())
                     .orElseThrow(() -> new RuntimeException("Pedido a actualizar no encontrado con id: " + pedido.getId()));
 
+            // Crea una copia de la lista de detalles viejos para iterar de forma segura
+            List<DetallePedido> detallesViejos = new ArrayList<>(pedidoParaGuardar.getDetalles());
             // Devuelve el stock de los detalles antiguos
-            for (DetallePedido detalleViejo : pedidoParaGuardar.getDetalles()) {
+            for (DetallePedido detalleViejo : detallesViejos) {
                 Producto producto = detalleViejo.getProducto();
                 producto.setStock(producto.getStock() + detalleViejo.getCantidad());
             }
-            pedidoParaGuardar.getDetalles().clear(); // Limpia la lista de detalles para llenarla con los nuevos
+            // Ahora que el stock está restaurado, limpia la lista de detalles en la entidad
+            pedidoParaGuardar.getDetalles().clear();
         } else {
             // Si es una CREACIÓN, usa el objeto nuevo
             pedidoParaGuardar = pedido;
@@ -63,8 +67,17 @@ public class PedidoService {
 
         double totalCalculado = 0.0;
 
+        // Crea una copia de los detalles entrantes para iterar sobre ella y evitar ConcurrentModificationException
+        List<DetallePedido> detallesNuevos = new ArrayList<>(pedido.getDetalles());
+        
+        // Si es una creación, la lista original en el objeto "pedido" debe ser limpiada
+        // para llenarla con las entidades procesadas y manejadas por JPA.
+        if (pedido.getId() == null) {
+            pedidoParaGuardar.getDetalles().clear();
+        }
+
         // 2. Procesar nuevos detalles: validar, REDUCIR stock y calcular total
-        for (DetallePedido detalleNuevo : pedido.getDetalles()) {
+        for (DetallePedido detalleNuevo : detallesNuevos) {
             Producto producto = productoRepository.findById(detalleNuevo.getProducto().getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + detalleNuevo.getProducto().getId()));
 
@@ -84,7 +97,11 @@ public class PedidoService {
         pedidoParaGuardar.setTotal(totalCalculado);
         pedidoParaGuardar.setFecha(pedido.getFecha());
 
-        return pedidoRepository.save(pedidoParaGuardar);
+        Pedido pedidoGuardado = pedidoRepository.save(pedidoParaGuardar);
+
+        // Se busca de nuevo para devolver el objeto completamente poblado por JPA
+        return pedidoRepository.findById(pedidoGuardado.getId())
+               .orElseThrow(() -> new RuntimeException("Error al recuperar el pedido recién guardado"));
     }
 
     @Transactional
