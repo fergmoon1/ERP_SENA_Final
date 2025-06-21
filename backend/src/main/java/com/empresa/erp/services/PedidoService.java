@@ -10,7 +10,6 @@ import com.empresa.erp.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,43 +35,70 @@ public class PedidoService {
 
     @Transactional
     public Pedido save(Pedido pedido) {
+
+        Pedido pedidoParaGuardar;
+
+        // Si es una ACTUALIZACIÓN, restaura el stock del pedido original
+        if (pedido.getId() != null) {
+            pedidoParaGuardar = pedidoRepository.findById(pedido.getId())
+                    .orElseThrow(() -> new RuntimeException("Pedido a actualizar no encontrado con id: " + pedido.getId()));
+
+            // Devuelve el stock de los detalles antiguos
+            for (DetallePedido detalleViejo : pedidoParaGuardar.getDetalles()) {
+                Producto producto = detalleViejo.getProducto();
+                producto.setStock(producto.getStock() + detalleViejo.getCantidad());
+            }
+            pedidoParaGuardar.getDetalles().clear(); // Limpia la lista de detalles para llenarla con los nuevos
+        } else {
+            // Si es una CREACIÓN, usa el objeto nuevo
+            pedidoParaGuardar = pedido;
+        }
+
+        // --- Lógica común para CREAR y ACTUALIZAR ---
+
         // 1. Validar y adjuntar el cliente
         Cliente cliente = clienteRepository.findById(pedido.getCliente().getId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + pedido.getCliente().getId()));
-        pedido.setCliente(cliente);
+        pedidoParaGuardar.setCliente(cliente);
 
         double totalCalculado = 0.0;
 
-        // 2. Validar productos, actualizar stock y calcular total
-        for (DetallePedido detalle : pedido.getDetalles()) {
-            Producto producto = productoRepository.findById(detalle.getProducto().getId())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + detalle.getProducto().getId()));
-            
-            // Validar stock suficiente
-            if (producto.getStock() < detalle.getCantidad()) {
+        // 2. Procesar nuevos detalles: validar, REDUCIR stock y calcular total
+        for (DetallePedido detalleNuevo : pedido.getDetalles()) {
+            Producto producto = productoRepository.findById(detalleNuevo.getProducto().getId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + detalleNuevo.getProducto().getId()));
+
+            if (producto.getStock() < detalleNuevo.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para el producto: " + producto.getNombre());
             }
 
-            // Actualizar stock del producto
-            producto.setStock(producto.getStock() - detalle.getCantidad());
-            productoRepository.save(producto);
+            producto.setStock(producto.getStock() - detalleNuevo.getCantidad());
 
-            // Adjuntar el producto completo y el pedido al detalle
-            detalle.setProducto(producto);
-            detalle.setPedido(pedido);
+            detalleNuevo.setProducto(producto);
+            detalleNuevo.setPedido(pedidoParaGuardar);
+            pedidoParaGuardar.getDetalles().add(detalleNuevo);
 
-            // Sumar al total
-            totalCalculado += producto.getPrecio() * detalle.getCantidad();
+            totalCalculado += producto.getPrecio() * detalleNuevo.getCantidad();
         }
 
-        // 3. Asignar el total calculado al pedido
-        pedido.setTotal(totalCalculado);
-        
-        // 4. Guardar el pedido principal
-        return pedidoRepository.save(pedido);
+        pedidoParaGuardar.setTotal(totalCalculado);
+        pedidoParaGuardar.setFecha(pedido.getFecha());
+
+        return pedidoRepository.save(pedidoParaGuardar);
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        pedidoRepository.deleteById(id);
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido a eliminar no encontrado con id: " + id));
+
+        // Devolver el stock de los productos al inventario
+        for (DetallePedido detalle : pedido.getDetalles()) {
+            Producto producto = detalle.getProducto();
+            producto.setStock(producto.getStock() + detalle.getCantidad());
+        }
+
+        // Eliminar el pedido
+        pedidoRepository.delete(pedido);
     }
 }
