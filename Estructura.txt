@@ -85,3 +85,27 @@ Repositorio (ClienteRepository.java)
 Servicio (ClienteService.java)
 Controlador REST (ClienteController.java)
 Probar endpoints en Postman
+
+************************************************
+
+Análisis de los Movimientos de Inventario:
+✅ Integración Automática Funcionando:
+Movimientos 5, 6, 7, 8 son automáticos generados por pedidos
+Se crearon con el motivo: "Pedido #NUEVO - Cliente: Distribuidora XYZ Ltda"
+Stock anterior y posterior calculados correctamente
+Tipo SALIDA para ventas automáticas
+📈 Trazabilidad Completa:
+Producto 1: 4 movimientos (ENTRADA → SALIDA → AJUSTE → ENTRADA)
+Producto 2: 2 movimientos automáticos de SALIDA por pedidos
+Producto 3: 2 movimientos automáticos de SALIDA por pedidos
+�� Auditoría Perfecta:
+Stock actual del Producto 2: 8 unidades (correcto después de las ventas)
+Stock actual del Producto 3: 4 unidades (correcto después de las ventas)
+Fechas y horas registradas automáticamente
+Motivos descriptivos para cada movimiento
+
+✅ Integración automática - Los pedidos generan movimientos automáticamente
+✅ Validaciones robustas - Stock insuficiente detectado correctamente
+✅ Auditoría completa - Historial de todos los cambios
+✅ Reportes funcionando - Dashboard y estadísticas disponibles
+✅ Sistema profesional - Listo para producción
