@@ -16,13 +16,33 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Dumping data for table `pedido`
+-- Table structure for table `detalle_pedido`
 --
 
-LOCK TABLES `pedido` WRITE;
-/*!40000 ALTER TABLE `pedido` DISABLE KEYS */;
-INSERT INTO `pedido` VALUES ('2024-07-29',830,1,1),('2024-07-28',210,1,2),('2024-07-28',210,1,3),('2024-07-28',210,1,4);
-/*!40000 ALTER TABLE `pedido` ENABLE KEYS */;
+DROP TABLE IF EXISTS `detalle_pedido`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `detalle_pedido` (
+  `cantidad` int DEFAULT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `pedido_id` bigint DEFAULT NULL,
+  `producto_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKgqvba9e7dildyw45u0usdj1k2` (`pedido_id`),
+  KEY `FK2yc3nts8mdyqf6dw6ndosk67a` (`producto_id`),
+  CONSTRAINT `FK2yc3nts8mdyqf6dw6ndosk67a` FOREIGN KEY (`producto_id`) REFERENCES `producto` (`id`),
+  CONSTRAINT `FKgqvba9e7dildyw45u0usdj1k2` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `detalle_pedido`
+--
+
+LOCK TABLES `detalle_pedido` WRITE;
+/*!40000 ALTER TABLE `detalle_pedido` DISABLE KEYS */;
+INSERT INTO `detalle_pedido` VALUES (1,3,2,1),(1,4,2,2),(1,5,3,1),(1,6,3,2),(1,7,4,1),(1,8,4,2),(5,9,1,1),(3,10,1,2),(2,11,5,1);
+/*!40000 ALTER TABLE `detalle_pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -34,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-21 11:27:46
+-- Dump completed on 2025-06-21 11:54:24
