@@ -5,8 +5,12 @@ import com.empresa.erp.models.DetallePedido;
 import com.empresa.erp.models.MovimientoInventario;
 import com.empresa.erp.models.Pedido;
 import com.empresa.erp.models.Producto;
+import com.empresa.erp.models.Proveedor;
+import com.empresa.erp.models.Compra;
+import com.empresa.erp.models.DetalleCompra;
 import com.empresa.erp.repositories.ClienteRepository;
 import com.empresa.erp.repositories.ProductoRepository;
+import com.empresa.erp.repositories.ProveedorRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,15 +22,17 @@ public class ValidacionService {
     
     private final ClienteRepository clienteRepository;
     private final ProductoRepository productoRepository;
+    private final ProveedorRepository proveedorRepository;
     
     // Patrones de validación
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{7,15}$");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,100}$");
     
-    public ValidacionService(ClienteRepository clienteRepository, ProductoRepository productoRepository) {
+    public ValidacionService(ClienteRepository clienteRepository, ProductoRepository productoRepository, ProveedorRepository proveedorRepository) {
         this.clienteRepository = clienteRepository;
         this.productoRepository = productoRepository;
+        this.proveedorRepository = proveedorRepository;
     }
     
     // ===== VALIDACIONES DE CLIENTE =====
@@ -270,5 +276,186 @@ public class ValidacionService {
             throw new RuntimeException("El stock del producto '" + producto.getNombre() + 
                                      "' no puede ser negativo. Stock actual: " + producto.getStock());
         }
+    }
+    
+    // ===== VALIDACIONES DE PROVEEDOR =====
+    
+    /**
+     * Valida los datos de un proveedor
+     */
+    public void validarProveedor(Proveedor proveedor) {
+        List<String> errores = new java.util.ArrayList<>();
+        
+        // Validar nombre
+        if (proveedor.getNombre() == null || proveedor.getNombre().trim().isEmpty()) {
+            errores.add("El nombre del proveedor es obligatorio");
+        } else if (!NAME_PATTERN.matcher(proveedor.getNombre()).matches()) {
+            errores.add("El nombre del proveedor debe contener solo letras y espacios (2-100 caracteres)");
+        }
+        
+        // Validar correo si se proporciona
+        if (proveedor.getCorreo() != null && !proveedor.getCorreo().trim().isEmpty()) {
+            if (!EMAIL_PATTERN.matcher(proveedor.getCorreo()).matches()) {
+                errores.add("El formato del correo electrónico no es válido");
+            }
+        }
+        
+        // Validar teléfono si se proporciona
+        if (proveedor.getTelefono() != null && !proveedor.getTelefono().trim().isEmpty()) {
+            if (!PHONE_PATTERN.matcher(proveedor.getTelefono()).matches()) {
+                errores.add("El formato del teléfono no es válido (7-15 dígitos)");
+            }
+        }
+        
+        // Validar teléfono de contacto si se proporciona
+        if (proveedor.getTelefonoContacto() != null && !proveedor.getTelefonoContacto().trim().isEmpty()) {
+            if (!PHONE_PATTERN.matcher(proveedor.getTelefonoContacto()).matches()) {
+                errores.add("El formato del teléfono de contacto no es válido (7-15 dígitos)");
+            }
+        }
+        
+        // Validar tipo si se proporciona
+        if (proveedor.getTipo() != null && !proveedor.getTipo().trim().isEmpty()) {
+            String[] tiposValidos = {"Nacional", "Internacional", "Distribuidor", "Fabricante"};
+            boolean tipoValido = false;
+            for (String tipo : tiposValidos) {
+                if (tipo.equals(proveedor.getTipo())) {
+                    tipoValido = true;
+                    break;
+                }
+            }
+            if (!tipoValido) {
+                errores.add("El tipo de proveedor debe ser: Nacional, Internacional, Distribuidor o Fabricante");
+            }
+        }
+        
+        // Validar NIT si se proporciona
+        if (proveedor.getNit() != null && !proveedor.getNit().trim().isEmpty()) {
+            if (proveedor.getNit().length() < 8 || proveedor.getNit().length() > 20) {
+                errores.add("El NIT debe tener entre 8 y 20 caracteres");
+            }
+        }
+        
+        if (!errores.isEmpty()) {
+            throw new RuntimeException("Errores de validación: " + String.join(", ", errores));
+        }
+    }
+    
+    /**
+     * Valida que no exista un proveedor con el mismo NIT
+     */
+    public void validarNitUnico(Proveedor proveedor) {
+        if (proveedor.getNit() != null && !proveedor.getNit().trim().isEmpty()) {
+            List<Proveedor> proveedoresExistentes = proveedorRepository.findAll();
+            for (Proveedor existente : proveedoresExistentes) {
+                if (!existente.getId().equals(proveedor.getId()) && 
+                    proveedor.getNit().equalsIgnoreCase(existente.getNit())) {
+                    throw new RuntimeException("Ya existe un proveedor con el NIT: " + proveedor.getNit());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Valida que no exista un proveedor con el mismo correo
+     */
+    public void validarCorreoProveedorUnico(Proveedor proveedor) {
+        if (proveedor.getCorreo() != null && !proveedor.getCorreo().trim().isEmpty()) {
+            List<Proveedor> proveedoresExistentes = proveedorRepository.findAll();
+            for (Proveedor existente : proveedoresExistentes) {
+                if (!existente.getId().equals(proveedor.getId()) && 
+                    proveedor.getCorreo().equalsIgnoreCase(existente.getCorreo())) {
+                    throw new RuntimeException("Ya existe un proveedor con el correo: " + proveedor.getCorreo());
+                }
+            }
+        }
+    }
+    
+    // ===== VALIDACIONES DE COMPRA =====
+    
+    /**
+     * Valida los datos de una compra
+     */
+    public void validarCompra(Compra compra) {
+        List<String> errores = new java.util.ArrayList<>();
+        
+        // Validar proveedor
+        if (compra.getProveedor() == null || compra.getProveedor().getId() == null) {
+            errores.add("El proveedor de la compra es obligatorio");
+        }
+        
+        // Validar fecha
+        if (compra.getFecha() == null) {
+            errores.add("La fecha de la compra es obligatoria");
+        } else if (compra.getFecha().isAfter(LocalDate.now())) {
+            errores.add("La fecha de la compra no puede ser futura");
+        }
+        
+        // Validar número de factura si se proporciona
+        if (compra.getNumeroFactura() != null && compra.getNumeroFactura().length() > 50) {
+            errores.add("El número de factura no puede exceder 50 caracteres");
+        }
+        
+        // Validar estado
+        if (compra.getEstado() != null && !compra.getEstado().trim().isEmpty()) {
+            String[] estadosValidos = {"PENDIENTE", "RECIBIDA", "CANCELADA"};
+            boolean estadoValido = false;
+            for (String estado : estadosValidos) {
+                if (estado.equals(compra.getEstado())) {
+                    estadoValido = true;
+                    break;
+                }
+            }
+            if (!estadoValido) {
+                errores.add("El estado de la compra debe ser: PENDIENTE, RECIBIDA o CANCELADA");
+            }
+        }
+        
+        // Validar detalles
+        if (compra.getDetalles() == null || compra.getDetalles().isEmpty()) {
+            errores.add("La compra debe tener al menos un detalle");
+        } else {
+            for (int i = 0; i < compra.getDetalles().size(); i++) {
+                DetalleCompra detalle = compra.getDetalles().get(i);
+                errores.addAll(validarDetalleCompra(detalle, i + 1));
+            }
+        }
+        
+        if (!errores.isEmpty()) {
+            throw new RuntimeException("Errores de validación: " + String.join(", ", errores));
+        }
+    }
+    
+    /**
+     * Valida un detalle de compra específico
+     */
+    private List<String> validarDetalleCompra(DetalleCompra detalle, int numeroDetalle) {
+        List<String> errores = new java.util.ArrayList<>();
+        
+        // Validar producto
+        if (detalle.getProducto() == null || detalle.getProducto().getId() == null) {
+            errores.add("Detalle " + numeroDetalle + ": El producto es obligatorio");
+        } else {
+            if (!productoRepository.existsById(detalle.getProducto().getId())) {
+                errores.add("Detalle " + numeroDetalle + ": El producto especificado no existe");
+            }
+        }
+        
+        // Validar cantidad
+        if (detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+            errores.add("Detalle " + numeroDetalle + ": La cantidad debe ser mayor a 0");
+        }
+        
+        // Validar precio unitario
+        if (detalle.getPrecioUnitario() == null || detalle.getPrecioUnitario() <= 0) {
+            errores.add("Detalle " + numeroDetalle + ": El precio unitario debe ser mayor a 0");
+        }
+        
+        // Validar descuento
+        if (detalle.getDescuento() != null && detalle.getDescuento() < 0) {
+            errores.add("Detalle " + numeroDetalle + ": El descuento no puede ser negativo");
+        }
+        
+        return errores;
     }
 } 
