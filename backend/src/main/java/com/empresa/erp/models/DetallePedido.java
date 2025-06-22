@@ -20,6 +20,8 @@ public class DetallePedido {
     private Producto producto;
 
     private Integer cantidad;
+    
+    private Double precioUnitario;
 
     // Getters y Setters
     public Long getId() {
@@ -52,5 +54,13 @@ public class DetallePedido {
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+    
+    public Double getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(Double precioUnitario) {
+        this.precioUnitario = precioUnitario;
     }
 } 

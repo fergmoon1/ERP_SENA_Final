@@ -5,6 +5,8 @@ import com.empresa.erp.models.DetallePedido;
 import com.empresa.erp.models.MovimientoInventario;
 import com.empresa.erp.models.Pedido;
 import com.empresa.erp.models.Producto;
+import com.empresa.erp.models.CrearPedidoDTO;
+import com.empresa.erp.models.DetallePedidoDTO;
 import com.empresa.erp.repositories.ClienteRepository;
 import com.empresa.erp.repositories.PedidoRepository;
 import com.empresa.erp.repositories.ProductoRepository;
@@ -176,5 +178,45 @@ public class PedidoService {
 
         // Eliminar el pedido
         pedidoRepository.delete(pedido);
+    }
+
+    @Transactional
+    public Pedido saveFromDTO(CrearPedidoDTO dto) {
+        // Crear el pedido desde el DTO
+        Pedido pedido = new Pedido();
+        
+        // Buscar y asignar el cliente
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + dto.getClienteId()));
+        pedido.setCliente(cliente);
+        
+        // Asignar fecha y estado
+        pedido.setFecha(dto.getFechaPedido());
+        pedido.setEstado(dto.getEstado());
+        
+        // Crear los detalles del pedido
+        List<DetallePedido> detalles = new ArrayList<>();
+        for (DetallePedidoDTO detalleDTO : dto.getDetalles()) {
+            DetallePedido detalle = new DetallePedido();
+            
+            // Buscar y asignar el producto
+            Producto producto = productoRepository.findById(detalleDTO.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + detalleDTO.getProductoId()));
+            detalle.setProducto(producto);
+            
+            // Asignar cantidad y precio unitario
+            detalle.setCantidad(detalleDTO.getCantidad());
+            detalle.setPrecioUnitario(detalleDTO.getPrecioUnitario());
+            
+            // Asignar la referencia al pedido
+            detalle.setPedido(pedido);
+            
+            detalles.add(detalle);
+        }
+        
+        pedido.setDetalles(detalles);
+        
+        // Guardar usando el método existente
+        return save(pedido);
     }
 }

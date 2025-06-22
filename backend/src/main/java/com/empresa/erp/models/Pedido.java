@@ -20,6 +20,8 @@ public class Pedido {
     private List<DetallePedido> detalles;
 
     private Double total;
+    
+    private String estado;
 
     // Getters y Setters
     public Long getId() {
@@ -60,5 +62,13 @@ public class Pedido {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+    
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }

@@ -1,6 +1,7 @@
 package com.empresa.erp.controllers;
 
 import com.empresa.erp.models.Pedido;
+import com.empresa.erp.models.CrearPedidoDTO;
 import com.empresa.erp.services.PedidoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,6 @@ public class PedidoController {
     @GetMapping
     public List<Pedido> getAll() {
         return pedidoService.findAll();
-        
-        
     }
 
     @GetMapping("/{id}")
@@ -30,8 +29,8 @@ public class PedidoController {
     }
 
     @PostMapping
-    public Pedido create(@RequestBody Pedido pedido) {
-        return pedidoService.save(pedido);
+    public Pedido create(@RequestBody CrearPedidoDTO crearPedidoDTO) {
+        return pedidoService.saveFromDTO(crearPedidoDTO);
     }
 
     @PutMapping("/{id}")
