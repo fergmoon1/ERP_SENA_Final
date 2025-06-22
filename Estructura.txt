@@ -109,3 +109,50 @@ Motivos descriptivos para cada movimiento
 ✅ Auditoría completa - Historial de todos los cambios
 ✅ Reportes funcionando - Dashboard y estadísticas disponibles
 ✅ Sistema profesional - Listo para producción
+
+**********************************************************
+Opciones para la Siguiente Fase:
+🔄 Opción 1: Nuevas Entidades ERP
+Proveedores - Para gestionar proveedores y compras
+Categorías de Productos - Para organizar mejor el inventario
+Facturas - Para generar documentos de venta
+Configuración del Sistema - Parámetros generales del ERP
+�� Opción 2: Frontend Integration
+Conectar con tu HTML/CSS - Integrar los endpoints con tu interfaz web
+Crear nuevas páginas - Para gestionar inventario, reportes, etc.
+Mejorar la UX - Validaciones en el frontend, mensajes de error, etc.
+�� Opción 3: Autenticación y Autorización
+Sistema de Login - Autenticación de usuarios
+Roles y Permisos - Diferentes niveles de acceso
+Seguridad - JWT tokens, encriptación, etc.
+📊 Opción 4: Funcionalidades Avanzadas
+Notificaciones - Alertas de stock bajo, etc.
+Backup y Exportación - Funciones para respaldar datos
+Reportes PDF/Excel - Exportar reportes en diferentes formatos
+*********************************************************
+Plan de Implementación:
+Fase 1: Entidades
+Proveedor - Datos del proveedor
+Compra - Encabezado de la compra
+DetalleCompra - Productos en cada compra
+Fase 2: Integración
+Repositorios y Servicios - CRUD completo
+Controladores REST - Endpoints para la API
+Integración con Inventario - Las compras generan movimientos de ENTRADA automáticamente
+
+***********************************************************
+
+Resumen de lo que hemos logrado:
+✅ Estructura de datos mejorada: Cambiamos de un pedido con un solo producto a un pedido con múltiples productos usando DetallePedido.
+✅ API funcional: El endpoint POST /api/pedidos ahora acepta la estructura JSON correcta con clienteId, detalles con productoId, cantidad y precioUnitario.
+✅ Lógica de negocio implementada:
+Cálculo automático del total usando precioUnitario × cantidad
+Validación de stock suficiente
+Actualización automática del inventario
+Generación de movimientos de inventario
+✅ Validaciones robustas: Stock insuficiente, productos y clientes existentes, etc.
+✅ Respuesta completa: El JSON de respuesta incluye todos los datos relacionados (cliente, productos, detalles) sin valores null.
+Próximos pasos sugeridos:
+Probar otros endpoints: GET, PUT, DELETE de pedidos
+Probar casos edge: Stock insuficiente, productos inexistentes, etc.
+Implementar funcionalidades adicionales: Filtros por fecha, cliente, estado, etc.
