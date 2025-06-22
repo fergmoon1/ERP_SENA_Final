@@ -127,7 +127,7 @@ public class PedidoService {
             detalleNuevo.setPedido(pedidoParaGuardar);
             pedidoParaGuardar.getDetalles().add(detalleNuevo);
 
-            totalCalculado += producto.getPrecio() * detalleNuevo.getCantidad();
+            totalCalculado += detalleNuevo.getPrecioUnitario() * detalleNuevo.getCantidad();
             
             // Generar movimiento de inventario (SALIDA) para el nuevo pedido
             MovimientoInventario movimientoSalida = new MovimientoInventario();
