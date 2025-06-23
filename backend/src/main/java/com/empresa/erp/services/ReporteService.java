@@ -3,6 +3,10 @@ package com.empresa.erp.services;
 import com.empresa.erp.models.MovimientoInventario;
 import com.empresa.erp.models.Pedido;
 import com.empresa.erp.models.Producto;
+import com.empresa.erp.models.ReporteVentasPorClienteDTO;
+import com.empresa.erp.models.Cliente;
+import com.empresa.erp.models.ReporteProductosMasVendidosDTO;
+import com.empresa.erp.models.ReporteStockBajoDTO;
 import com.empresa.erp.repositories.MovimientoInventarioRepository;
 import com.empresa.erp.repositories.PedidoRepository;
 import com.empresa.erp.repositories.ProductoRepository;
@@ -264,5 +268,71 @@ public class ReporteService {
         ));
         
         return dashboard;
+    }
+
+    public List<ReporteVentasPorClienteDTO> obtenerVentasPorCliente() {
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        Map<Long, ReporteVentasPorClienteDTO> reporte = new HashMap<>();
+
+        for (Pedido pedido : pedidos) {
+            Cliente cliente = pedido.getCliente();
+            if (cliente == null) continue;
+            ReporteVentasPorClienteDTO dto = reporte.get(cliente.getId());
+            if (dto == null) {
+                dto = new ReporteVentasPorClienteDTO(
+                    cliente.getId(),
+                    cliente.getNombre(),
+                    pedido.getTotal() != null ? pedido.getTotal() : 0.0,
+                    1L
+                );
+            } else {
+                dto.setTotalVentas(dto.getTotalVentas() + (pedido.getTotal() != null ? pedido.getTotal() : 0.0));
+                dto.setCantidadPedidos(dto.getCantidadPedidos() + 1);
+            }
+            reporte.put(cliente.getId(), dto);
+        }
+        return new ArrayList<>(reporte.values());
+    }
+
+    public List<ReporteProductosMasVendidosDTO> obtenerProductosMasVendidos() {
+        Map<Long, ReporteProductosMasVendidosDTO> reporte = new HashMap<>();
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        for (Pedido pedido : pedidos) {
+            if (pedido.getDetalles() == null) continue;
+            for (var detalle : pedido.getDetalles()) {
+                if (detalle.getProducto() == null) continue;
+                Long productoId = detalle.getProducto().getId();
+                String nombre = detalle.getProducto().getNombre();
+                Integer cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 0;
+                Double total = detalle.getPrecioUnitario() != null ? detalle.getPrecioUnitario() * cantidad : 0.0;
+                ReporteProductosMasVendidosDTO dto = reporte.get(productoId);
+                if (dto == null) {
+                    dto = new ReporteProductosMasVendidosDTO(productoId, nombre, cantidad, total);
+                } else {
+                    dto.setCantidadVendida(dto.getCantidadVendida() + cantidad);
+                    dto.setTotalVentas(dto.getTotalVentas() + total);
+                }
+                reporte.put(productoId, dto);
+            }
+        }
+        // Ordenar por cantidad vendida descendente
+        return reporte.values().stream()
+                .sorted((a, b) -> b.getCantidadVendida().compareTo(a.getCantidadVendida()))
+                .toList();
+    }
+
+    public List<ReporteStockBajoDTO> obtenerProductosStockBajo(int umbral) {
+        List<ReporteStockBajoDTO> resultado = new ArrayList<>();
+        List<Producto> productos = productoRepository.findAll();
+        for (Producto producto : productos) {
+            if (producto.getStock() != null && producto.getStock() <= umbral) {
+                resultado.add(new ReporteStockBajoDTO(
+                    producto.getId(),
+                    producto.getNombre(),
+                    producto.getStock()
+                ));
+            }
+        }
+        return resultado;
     }
 } 

@@ -31,7 +31,9 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ReporteContr
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PedidoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteProductosMasVendidosDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Usuario.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteVentasPorClienteDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\CompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedido.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\CompraService.java

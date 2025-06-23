@@ -1,5 +1,8 @@
 package com.empresa.erp.controllers;
 
+import com.empresa.erp.models.ReporteVentasPorClienteDTO;
+import com.empresa.erp.models.ReporteProductosMasVendidosDTO;
+import com.empresa.erp.models.ReporteStockBajoDTO;
 import com.empresa.erp.services.ReporteService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -143,5 +146,20 @@ public class ReporteController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping("/ventas-por-cliente")
+    public List<ReporteVentasPorClienteDTO> ventasPorCliente() {
+        return reporteService.obtenerVentasPorCliente();
+    }
+
+    @GetMapping("/productos-mas-vendidos")
+    public List<ReporteProductosMasVendidosDTO> productosMasVendidos() {
+        return reporteService.obtenerProductosMasVendidos();
+    }
+
+    @GetMapping("/stock-bajo")
+    public List<ReporteStockBajoDTO> productosStockBajo(@RequestParam(defaultValue = "5") int umbral) {
+        return reporteService.obtenerProductosStockBajo(umbral);
     }
 } 
