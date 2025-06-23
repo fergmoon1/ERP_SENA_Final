@@ -3,12 +3,14 @@ package com.empresa.erp.controllers;
 import com.empresa.erp.models.ReporteVentasPorClienteDTO;
 import com.empresa.erp.models.ReporteProductosMasVendidosDTO;
 import com.empresa.erp.models.ReporteStockBajoDTO;
+import com.empresa.erp.models.Pedido;
 import com.empresa.erp.services.ReporteService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -161,5 +163,12 @@ public class ReporteController {
     @GetMapping("/stock-bajo")
     public List<ReporteStockBajoDTO> productosStockBajo(@RequestParam(defaultValue = "5") int umbral) {
         return reporteService.obtenerProductosStockBajo(umbral);
+    }
+
+    @GetMapping("/pedidos-por-fecha")
+    public List<Pedido> pedidosPorFecha(
+            @RequestParam("desde") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam("hasta") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return reporteService.obtenerPedidosPorFecha(desde, hasta);
     }
 } 

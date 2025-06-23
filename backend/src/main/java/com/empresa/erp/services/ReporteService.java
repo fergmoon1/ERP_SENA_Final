@@ -13,6 +13,7 @@ import com.empresa.erp.repositories.ProductoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -334,5 +335,11 @@ public class ReporteService {
             }
         }
         return resultado;
+    }
+
+    public List<Pedido> obtenerPedidosPorFecha(LocalDate desde, LocalDate hasta) {
+        return pedidoRepository.findAll().stream()
+            .filter(p -> p.getFecha() != null && !p.getFecha().isBefore(desde) && !p.getFecha().isAfter(hasta))
+            .collect(Collectors.toList());
     }
 } 
