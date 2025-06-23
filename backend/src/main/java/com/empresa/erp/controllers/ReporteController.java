@@ -171,4 +171,11 @@ public class ReporteController {
             @RequestParam("hasta") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
         return reporteService.obtenerPedidosPorFecha(desde, hasta);
     }
+
+    @GetMapping("/ventas-resumen")
+    public Map<String, Object> resumenVentas(
+            @RequestParam("desde") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam("hasta") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return reporteService.obtenerResumenVentas(desde, hasta);
+    }
 } 

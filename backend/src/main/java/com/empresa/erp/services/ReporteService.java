@@ -342,4 +342,20 @@ public class ReporteService {
             .filter(p -> p.getFecha() != null && !p.getFecha().isBefore(desde) && !p.getFecha().isAfter(hasta))
             .collect(Collectors.toList());
     }
+
+    public Map<String, Object> obtenerResumenVentas(LocalDate desde, LocalDate hasta) {
+        List<Pedido> pedidos = pedidoRepository.findAll().stream()
+            .filter(p -> p.getFecha() != null && !p.getFecha().isBefore(desde) && !p.getFecha().isAfter(hasta))
+            .collect(Collectors.toList());
+
+        double totalVentas = pedidos.stream().mapToDouble(p -> p.getTotal() != null ? p.getTotal() : 0.0).sum();
+        int totalPedidos = pedidos.size();
+        double promedioPorPedido = totalPedidos > 0 ? totalVentas / totalPedidos : 0.0;
+
+        Map<String, Object> resumen = new HashMap<>();
+        resumen.put("totalPedidos", totalPedidos);
+        resumen.put("totalVentas", totalVentas);
+        resumen.put("promedioPorPedido", promedioPorPedido);
+        return resumen;
+    }
 } 
