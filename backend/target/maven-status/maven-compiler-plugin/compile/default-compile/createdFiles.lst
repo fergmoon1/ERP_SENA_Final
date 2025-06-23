@@ -5,6 +5,7 @@ com\empresa\erp\models\DetallePedido.class
 com\empresa\erp\repositories\DetallePedidoRepository.class
 com\empresa\erp\services\MovimientoInventarioService.class
 com\empresa\erp\repositories\PedidoRepository.class
+com\empresa\erp\models\ReporteStockBajoDTO.class
 com\empresa\erp\controllers\CompraController.class
 com\empresa\erp\services\CompraService.class
 com\empresa\erp\services\ProveedorService.class

@@ -10,6 +10,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoCont
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProveedorService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ReporteService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteStockBajoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProveedorRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ClienteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
