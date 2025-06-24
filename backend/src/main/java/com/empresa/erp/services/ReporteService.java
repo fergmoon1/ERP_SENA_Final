@@ -10,6 +10,7 @@ import com.empresa.erp.models.ReporteStockBajoDTO;
 import com.empresa.erp.repositories.MovimientoInventarioRepository;
 import com.empresa.erp.repositories.PedidoRepository;
 import com.empresa.erp.repositories.ProductoRepository;
+import com.empresa.erp.repositories.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +24,16 @@ public class ReporteService {
     private final ProductoRepository productoRepository;
     private final PedidoRepository pedidoRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
+    private final ClienteRepository clienteRepository;
     
     public ReporteService(ProductoRepository productoRepository,
                          PedidoRepository pedidoRepository,
-                         MovimientoInventarioRepository movimientoInventarioRepository) {
+                         MovimientoInventarioRepository movimientoInventarioRepository,
+                         ClienteRepository clienteRepository) {
         this.productoRepository = productoRepository;
         this.pedidoRepository = pedidoRepository;
         this.movimientoInventarioRepository = movimientoInventarioRepository;
+        this.clienteRepository = clienteRepository;
     }
     
     // ===== REPORTES DE INVENTARIO =====
@@ -228,46 +232,70 @@ public class ReporteService {
      * Obtiene dashboard con estadísticas generales
      */
     public Map<String, Object> getDashboard() {
-        List<Producto> productos = productoRepository.findAll();
-        List<Pedido> pedidos = pedidoRepository.findAll();
-        List<MovimientoInventario> movimientos = movimientoInventarioRepository.findAll();
-        
-        // Estadísticas de productos
-        int totalProductos = productos.size();
-        int productosSinStock = (int) productos.stream().filter(p -> p.getStock() == 0).count();
-        int productosStockBajo = (int) productos.stream().filter(p -> p.getStock() <= 5).count();
-        double valorTotalInventario = productos.stream().mapToDouble(p -> p.getStock() * p.getPrecio()).sum();
-        
-        // Estadísticas de ventas
-        int totalPedidos = pedidos.size();
-        double totalVentas = pedidos.stream().mapToDouble(Pedido::getTotal).sum();
-        double promedioVenta = totalPedidos > 0 ? totalVentas / totalPedidos : 0;
-        
-        // Estadísticas de movimientos
-        int totalMovimientos = movimientos.size();
-        int movimientosHoy = (int) movimientos.stream()
-                .filter(m -> m.getFecha().toLocalDate().equals(LocalDateTime.now().toLocalDate()))
-                .count();
-        
         Map<String, Object> dashboard = new HashMap<>();
-        dashboard.put("productos", Map.of(
-            "total", totalProductos,
-            "sinStock", productosSinStock,
-            "stockBajo", productosStockBajo,
-            "valorTotal", valorTotalInventario
-        ));
-        
-        dashboard.put("ventas", Map.of(
-            "totalPedidos", totalPedidos,
-            "totalVentas", totalVentas,
-            "promedioVenta", promedioVenta
-        ));
-        
-        dashboard.put("movimientos", Map.of(
-            "total", totalMovimientos,
-            "hoy", movimientosHoy
-        ));
-        
+        // Totales
+        int totalClientes = clienteRepository.findAll().size();
+        int totalProductos = productoRepository.findAll().size();
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        int totalPedidos = pedidos.size();
+        double totalVentas = pedidos.stream().mapToDouble(p -> p.getTotal() != null ? p.getTotal() : 0.0).sum();
+        dashboard.put("totalClientes", totalClientes);
+        dashboard.put("totalProductos", totalProductos);
+        dashboard.put("totalPedidos", totalPedidos);
+        dashboard.put("totalVentas", totalVentas);
+
+        // Producto más vendido
+        Map<Long, Integer> ventasPorProducto = new HashMap<>();
+        for (Pedido pedido : pedidos) {
+            if (pedido.getDetalles() == null) continue;
+            for (var detalle : pedido.getDetalles()) {
+                if (detalle.getProducto() == null) continue;
+                ventasPorProducto.put(
+                    detalle.getProducto().getId(),
+                    ventasPorProducto.getOrDefault(detalle.getProducto().getId(), 0) + (detalle.getCantidad() != null ? detalle.getCantidad() : 0)
+                );
+            }
+        }
+        Producto productoMasVendido = null;
+        int maxCantidad = 0;
+        for (var entry : ventasPorProducto.entrySet()) {
+            if (entry.getValue() > maxCantidad) {
+                maxCantidad = entry.getValue();
+                productoMasVendido = productoRepository.findById(entry.getKey()).orElse(null);
+            }
+        }
+        if (productoMasVendido != null) {
+            Map<String, Object> prod = new HashMap<>();
+            prod.put("productoId", productoMasVendido.getId());
+            prod.put("nombre", productoMasVendido.getNombre());
+            prod.put("cantidadVendida", maxCantidad);
+            dashboard.put("productoMasVendido", prod);
+        }
+
+        // Cliente con más compras
+        Map<Long, Double> comprasPorCliente = new HashMap<>();
+        for (Pedido pedido : pedidos) {
+            if (pedido.getCliente() == null) continue;
+            comprasPorCliente.put(
+                pedido.getCliente().getId(),
+                comprasPorCliente.getOrDefault(pedido.getCliente().getId(), 0.0) + (pedido.getTotal() != null ? pedido.getTotal() : 0.0)
+            );
+        }
+        Cliente clienteTop = null;
+        double maxCompras = 0.0;
+        for (var entry : comprasPorCliente.entrySet()) {
+            if (entry.getValue() > maxCompras) {
+                maxCompras = entry.getValue();
+                clienteTop = clienteRepository.findById(entry.getKey()).orElse(null);
+            }
+        }
+        if (clienteTop != null) {
+            Map<String, Object> cli = new HashMap<>();
+            cli.put("clienteId", clienteTop.getId());
+            cli.put("nombre", clienteTop.getNombre());
+            cli.put("totalCompras", maxCompras);
+            dashboard.put("clienteTop", cli);
+        }
         return dashboard;
     }
 

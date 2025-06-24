@@ -109,13 +109,8 @@ public class ReporteController {
     
     // GET - Dashboard con estadísticas generales
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<String, Object>> getDashboard() {
-        try {
-            Map<String, Object> dashboard = reporteService.getDashboard();
-            return ResponseEntity.ok(dashboard);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public Map<String, Object> dashboard() {
+        return reporteService.getDashboard();
     }
     
     // GET - Reporte completo del sistema
