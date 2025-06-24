@@ -299,3 +299,98 @@ Notas importantes
 El token solo es válido mientras no expire (en tu caso, 1 día).
 Si el token es inválido o falta, recibirás un error 401 Unauthorized o 403 Forbidden.
 No necesitas enviar el token en el login, solo en los endpoints protegidos.
+
+. ¿Qué endpoints deberían ser protegidos?
+Deben ser protegidos todos los endpoints que:
+Acceden, modifican o eliminan datos sensibles (usuarios, productos, pedidos, inventario, reportes, etc.).
+Solo deben ser accesibles por usuarios autenticados (y, si tienes roles, por usuarios con permisos específicos).
+En tu caso, deberías proteger:
+/api/usuarios/**
+/api/productos/**
+/api/pedidos/**
+/api/clientes/**
+/api/proveedores/**
+/api/compras/**
+/api/reportes/**
+/api/movimientos-inventario/**
+Cualquier otro endpoint que no sea de autenticación.
+Solo deberías dejar públicos:
+/api/auth/login
+(Opcional) /api/auth/register si permites registro público.
+En tu SecurityConfig ya tienes:
+
+.requestMatchers("/api/auth/**").permitAll()
+.anyRequest().authenticated()
+
+Esto significa que todo lo que no sea /api/auth/** está protegido. ¡Está bien configurado!
+
+2. ¿Cómo se valida el token en el frontend?
+El frontend no valida el token, solo lo almacena y lo envía en cada petición.
+El backend es quien valida el token en cada request protegida.
+Flujo típico en el frontend:
+Login:
+El usuario ingresa sus credenciales y recibe el token JWT.
+Guardar el token:
+Lo almacenas en localStorage, sessionStorage o en memoria (según tu framework y nivel de seguridad).
+Ejemplo con localStorage:
+
+     localStorage.setItem('token', token);
+
+3.Enviar el token en cada petición protegida:
+En cada request, agregas el header:
+
+     fetch('http://localhost:8081/api/usuarios', {
+       headers: {
+         'Authorization': 'Bearer ' + localStorage.getItem('token')
+       }
+     })
+
+Si usas Axios:
+
+     axios.get('/api/usuarios', {
+       headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+     });
+
+4.Manejo de expiración o error:
+Si el backend responde 401/403, el frontend debe redirigir al login o mostrar un mensaje de sesión expirada.
+
+----------------------
+
+¿Cómo manejar roles y autorizaciones en Spring Security?
+1. Define los roles en tu entidad Usuario
+Por ejemplo, en tu entidad Usuario ya tienes un campo rol:
+Apply to application....
+Puedes tener valores como:
+"ADMIN" (administrador)
+"USER" (usuario normal)
+"SUPERVISOR", "INVENTARIO", etc. (si necesitas más roles)
+2. Incluye el rol en el JWT
+¡Ya lo haces!
+En tu AuthService:
+
+.claim("rol", usuario.getRol())
+
+3. Configura la autorización en tu SecurityConfig
+Puedes proteger endpoints según el rol usando .hasRole("ADMIN"), .hasAnyRole("ADMIN", "USER"), etc.
+Ejemplo:
+
+http
+  .csrf(csrf -> csrf.disable())
+  .authorizeHttpRequests(auth -> auth
+      .requestMatchers("/api/auth/**").permitAll()
+      .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+      .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "SUPERVISOR")
+      .anyRequest().authenticated()
+  );
+
+> Nota: Spring espera el prefijo ROLE_ en la base de datos, pero si tu campo es solo "ADMIN", puedes personalizarlo o usar un GrantedAuthority personalizado.
+4. Extrae el rol del JWT en cada request
+Debes tener un filtro o componente que:
+Valide el JWT.
+Extraiga el rol del token.
+Lo agregue al contexto de seguridad de Spring (SecurityContextHolder).
+
+5. Uso en el frontend
+El frontend puede leer el rol del usuario desde el JWT (decodificando el token) para mostrar u ocultar opciones de menú, pero la seguridad real siempre está en el backend.
+¿Se puede implementar?
+¡Sí! Es una de las mejores prácticas en aplicaciones empresariales.
