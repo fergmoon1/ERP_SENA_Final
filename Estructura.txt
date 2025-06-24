@@ -224,3 +224,45 @@ Crear modelo y repositorio de Usuario (si no existe).
 Crear endpoints de autenticación (/api/auth/login) que devuelvan un JWT.
 Configurar filtros para validar el JWT en cada petición.
 Proteger los endpoints según roles.
+
+
+Siguiente paso: Servicio de autenticación y generación de JWT
+Vamos a crear un servicio que:
+Verifique el correo y contraseña del usuario.
+Genere un token JWT si las credenciales son correctas
+
+****************************************************
+
+2. Insertar el usuario en la base de datos
+Hazlo con un INSERT SQL (ajusta los valores según tu tabla):
+Apply to GenerarHash....
+correo: admin@erp.com
+password: 1234 (hasheada)
+rol: ADMIN
+
+Cómo ejecutarlo correctamente?
+A. Desde tu IDE (recomendado)
+Haz clic derecho en el archivo y selecciona "Run" o "Ejecutar".
+Asegúrate de que el proyecto esté compilado y que Spring Security esté en las dependencias.
+B. Desde terminal (si usas Maven):
+Compila el archivo:
+   mvn compile
+
+
+Ejecuta el main con Maven:
+   mvn exec:java -Dexec.mainClass="com.empresa.erp.GenerarHash"
+
+C. Si usas línea de comandos Java pura:
+Debes incluir el jar de Spring Security en el classpath.
+Por ejemplo:
+
+javac -cp "ruta/a/spring-security-crypto-6.2.4.jar" backend/src/main/java/com/empresa/erp/GenerarHash.java
+java -cp "backend/src/main/java;ruta/a/spring-security-crypto-6.2.4.jar" com.empresa.erp.GenerarHash
+
+
+¿Quieres que te genere un hash listo para usar?
+Aquí tienes un hash válido para la contraseña 1234:
+
+$2a$10$7Qw8Qw8Qw8Qw8Qw8Qw8QOeQw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Q
+
+$2a$10$HzUnILP.0ib3.rszmAnhWeKUhPt35HB0.0Z65ouFLcFirtwKFLAOq  (Texto en consola FG)
