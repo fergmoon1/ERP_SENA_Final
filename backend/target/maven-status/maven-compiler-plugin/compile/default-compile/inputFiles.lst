@@ -6,6 +6,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetalleCompra.jav
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\UsuarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Producto.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\PedidoController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\AuthService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProveedorService.java
@@ -28,10 +29,12 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraContro
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuthController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ReporteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PedidoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\SecurityConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteProductosMasVendidosDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Usuario.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteVentasPorClienteDTO.java
