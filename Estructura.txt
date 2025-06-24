@@ -266,3 +266,36 @@ Aquí tienes un hash válido para la contraseña 1234:
 $2a$10$7Qw8Qw8Qw8Qw8Qw8Qw8QOeQw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Qw8Q
 
 $2a$10$HzUnILP.0ib3.rszmAnhWeKUhPt35HB0.0Z65ouFLcFirtwKFLAOq  (Texto en consola FG)
+
+
+***************************************************************
+
+¿Cómo usar el token JWT en otros endpoints?
+Haz login y copia el valor del token que recibes (por ejemplo, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...).
+En cada petición a un endpoint protegido, debes agregar el token en la cabecera HTTP Authorization así:
+
+   Authorization: Bearer <tu_token>
+
+Ejemplo real:
+
+   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+En Postman
+Ve a la pestaña Headers de tu petición.
+Agrega una nueva cabecera:
+Key: Authorization
+Value: Bearer <tu_token>
+O usa la pestaña Authorization:
+Tipo: Bearer Token
+Token: pega tu token JWT
+Ejemplo de uso
+Supón que quieres consultar todos los usuarios:
+Endpoint: GET http://localhost:8081/api/usuarios
+En Headers:
+
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+Notas importantes
+El token solo es válido mientras no expire (en tu caso, 1 día).
+Si el token es inválido o falta, recibirás un error 401 Unauthorized o 403 Forbidden.
+No necesitas enviar el token en el login, solo en los endpoints protegidos.
