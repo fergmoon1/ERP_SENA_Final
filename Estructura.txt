@@ -209,3 +209,18 @@ Te recomiendo este orden:
 Reportes (te dará visibilidad y validación de datos)
 Seguridad (protegerás todo lo que ya tienes)
 Nuevo módulo (Compras o Facturación)
+
+**********************************************
+
+Siguiente paso: Seguridad con Spring Security + JWT
+Objetivo
+Proteger todos los endpoints de la API.
+Permitir login de usuarios y emisión de un token JWT.
+Permitir roles (por ejemplo, ADMIN, USUARIO) para restringir acceso a ciertas rutas.
+Plan de implementación (resumido y profesional):
+Agregar dependencias de Spring Security y JWT en tu pom.xml.
+Configurar Spring Security para proteger los endpoints.
+Crear modelo y repositorio de Usuario (si no existe).
+Crear endpoints de autenticación (/api/auth/login) que devuelvan un JWT.
+Configurar filtros para validar el JWT en cada petición.
+Proteger los endpoints según roles.
