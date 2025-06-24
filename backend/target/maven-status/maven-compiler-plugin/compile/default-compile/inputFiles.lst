@@ -27,6 +27,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PedidoRepos
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuthController.java
