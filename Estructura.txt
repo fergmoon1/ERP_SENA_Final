@@ -561,3 +561,76 @@ Crear el repositorio para RefreshToken.
 Modificar el login para generar y guardar un refresh token en la BD.
 Crear el endpoint /api/auth/refresh que valide el refresh token y devuelva un nuevo JWT.
 (Opcional) Permitir revocar refresh tokens (logout).
+
+¡Listo!
+Ya tienes implementado el flujo completo de refresh tokens persistentes en base de datos:
+Al hacer login (/api/auth/login), el backend devuelve tanto el JWT como el refresh token.
+El refresh token se guarda en la base de datos y es único por usuario.
+Nuevo endpoint /api/auth/refresh: recibe el refresh token, lo valida (incluyendo expiración) y, si es válido, genera un nuevo JWT y refresh token.
+
+¿Cómo probarlo?
+Haz login normalmente y guarda el refreshToken que recibes.
+Cuando tu JWT expire (o quieras renovarlo), haz un POST a /api/auth/refresh con:
+
+   {
+     "refreshToken": "el_refresh_token_que_recibiste"
+   }
+
+Recibirás un nuevo JWT y un nuevo refresh token.
+
+¡Perfecto!
+Ya tienes implementado el endpoint de logout (/api/auth/logout) que revoca el refresh token eliminándolo de la base de datos.
+Resumen completo del sistema de autenticación con refresh tokens:
+Endpoints disponibles:
+POST /api/auth/login - Login con correo y contraseña
+Devuelve: {"token": "jwt", "refreshToken": "refresh_token"}
+POST /api/auth/refresh - Renovar JWT usando refresh token
+Recibe: {"refreshToken": "refresh_token"}
+Devuelve: {"token": "nuevo_jwt", "refreshToken": "nuevo_refresh_token"}
+POST /api/auth/logout - Revocar refresh token
+Recibe: {"refreshToken": "refresh_token"}
+Devuelve: {"message": "Logout exitoso"}
+¿Qué sigue?
+Ahora puedes probar todo el flujo completo:
+Compila y reinicia tu backend
+Prueba el login y guarda el refresh token
+Prueba el refresh con el token guardado
+Prueba el logout para revocar el token
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Resumen de lo que hemos implementado:
+✅ Sistema de autenticación JWT completo
+✅ Refresh tokens persistentes en base de datos
+✅ Jerarquía de roles (ADMIN > SUPERVISOR > USER)
+✅ Permisos por método HTTP
+✅ Control de acceso por dueño de recursos
+✅ Filtro JWT personalizado
+✅ Endpoints de login, refresh y logout
+
+
+Paso 2: Prueba GET /api/usuarios con token ADMIN
+Endpoint: GET http://localhost:8081/api/usuarios
+Headers:
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlcnAuY29tIiwicm9sIjoiQURNSU4iLCJpYXQiOjE3NTA3OTI1NjEsImV4cCI6MTc1MDg3ODk2MX0.rudXptCIB3n3e7yOqZrn6T-fpLk6xTqlixTeAEiXARM
+En Postman:
+Método: GET
+URL: http://localhost:8081/api/usuarios
+Headers: Usa el nuevo token que recibiste
+Envía la petición
+Resultado esperado:
+✅ 200 OK con lista de usuarios (porque solo ADMIN puede acceder a usuarios)
+O una lista con al menos el usuario admin
+Ejecuta esta petición y dime qué respuesta obtienes. Luego continuamos con el siguiente paso.
+¿Qué resultado obtuviste?
+
+se refiere a este token de POST: http://localhost:8081/api/auth/login o a cual nuevo token. Al indicar que se use Bearer token, automaticamente se genera ocn el inicial y no sé como modificarlo si es que toca hacerlo
+
+¿Qué token usar?
+Usa el token que recibiste en la respuesta del primer endpoint (GET /api/productos):
+
+NO uses el token del login inicial. El token que recibiste en el primer endpoint es el nuevo token actualizado.
+¿Por qué se generó un nuevo token?
+Esto sucedió porque en tu configuración actual, cada petición autenticada está generando un nuevo token. Esto no es lo ideal, pero por ahora usemos el token más reciente.
+
+(Generacion de token de Autorizacion (FG) => en postman )

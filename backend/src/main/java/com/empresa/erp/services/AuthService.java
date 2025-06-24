@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.security.Key;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -69,7 +71,8 @@ public class AuthService {
         return generateTokens(usuario);
     }
 
-    private Map<String, String> generateTokens(Usuario usuario) {
+    @Transactional
+    public Map<String, String> generateTokens(Usuario usuario) {
         // Generar JWT
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         String jwt = Jwts.builder()
@@ -82,8 +85,13 @@ public class AuthService {
         // Generar refresh token
         String refreshTokenStr = UUID.randomUUID().toString();
         LocalDateTime expiry = LocalDateTime.now().plusDays(7); // 7 días de validez
-        // Eliminar refresh tokens anteriores del usuario
-        refreshTokenRepository.deleteByUsuario(usuario);
+        
+        // Eliminar refresh tokens anteriores del usuario de manera más segura
+        List<RefreshToken> tokensAnteriores = refreshTokenRepository.findByUsuario(usuario);
+        for (RefreshToken token : tokensAnteriores) {
+            refreshTokenRepository.delete(token);
+        }
+        
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(refreshTokenStr);
         refreshToken.setUsuario(usuario);
