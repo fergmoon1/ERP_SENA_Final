@@ -62,6 +62,14 @@ public class AuthService {
         if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
+        return generateTokens(usuario);
+    }
+
+    public Map<String, String> refreshTokens(Usuario usuario) {
+        return generateTokens(usuario);
+    }
+
+    private Map<String, String> generateTokens(Usuario usuario) {
         // Generar JWT
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         String jwt = Jwts.builder()

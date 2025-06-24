@@ -35,8 +35,8 @@ public class AuthController {
         if (refreshToken.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
             throw new RuntimeException("Refresh token expirado");
         }
-        // Generar nuevo JWT
-        return authService.loginWithRefresh(refreshToken.getUsuario().getCorreo(), refreshToken.getUsuario().getPassword());
+        // Generar nuevo JWT usando el método específico para refresh
+        return authService.refreshTokens(refreshToken.getUsuario());
     }
 
     @PostMapping("/logout")
