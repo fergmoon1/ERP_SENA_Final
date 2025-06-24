@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
+import java.security.Key;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthService {
@@ -32,13 +34,14 @@ public class AuthService {
         if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
-        // Generar JWT
+        // Adaptación JJWT 0.11.x
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         return Jwts.builder()
                 .setSubject(usuario.getCorreo())
                 .claim("rol", usuario.getRol())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 día
-                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 } 
