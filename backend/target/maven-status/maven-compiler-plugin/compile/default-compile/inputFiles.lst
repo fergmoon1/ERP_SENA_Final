@@ -2,11 +2,13 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Pedido.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ClienteRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetallePedidoRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\MovimientoInventarioService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\RefreshToken.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetalleCompra.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\UsuarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Producto.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\PedidoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\AuthService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\JwtAuthenticationFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProveedorService.java
@@ -43,3 +45,4 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\CompraRepos
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedido.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\CompraService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\UsuarioRepository.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\RefreshTokenRepository.java

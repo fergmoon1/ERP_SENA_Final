@@ -394,3 +394,170 @@ Lo agregue al contexto de seguridad de Spring (SecurityContextHolder).
 El frontend puede leer el rol del usuario desde el JWT (decodificando el token) para mostrar u ocultar opciones de menú, pero la seguridad real siempre está en el backend.
 ¿Se puede implementar?
 ¡Sí! Es una de las mejores prácticas en aplicaciones empresariales.
+
+*************************************************+
+
+¡Listo!
+Ahora tu sistema tiene jerarquía de roles:
+ADMIN incluye permisos de SUPERVISOR y USER.
+SUPERVISOR incluye permisos de USER.
+Puedes proteger endpoints con .hasRole("USER"), .hasRole("SUPERVISOR") o .hasRole("ADMIN") y la jerarquía se respeta automáticamente.
+Además, puedes usar anotaciones como @PreAuthorize("hasRole('USER')") en tus servicios o controladores, y la jerarquía también se aplicará.
+
+¡Listo!
+Ahora tienes permisos por método HTTP en el endpoint de productos:
+GET /api/productos/**: accesible para ADMIN, USER y SUPERVISOR.
+POST, PUT, DELETE /api/productos/**: solo accesible para ADMIN.
+Puedes aplicar este mismo patrón a cualquier otro endpoint y método HTTP que desees.
+
+
+Add to ChatCtrl+L
+Ctrl+K to generate a command
+todos estos
+
+¡Perfecto! Aquí tienes un resumen de cómo podrías implementar cada una de las personalizaciones mencionadas, con una breve explicación y sugerencia de cómo empezar cada una en tu proyecto:
+1. Más roles y jerarquía
+¿Cómo?
+Define más valores posibles en el campo rol de tu entidad Usuario y usa .hasRole("NOMBRE") o .hasAnyRole(...) en tu SecurityConfig.
+Extra: Puedes usar la anotación @PreAuthorize("hasRole('ADMIN')") en métodos específicos.
+2. Permisos por método HTTP
+¿Cómo?
+Usa .requestMatchers(HttpMethod.GET, "/api/productos/**").hasAnyRole("ADMIN", "USER") para GET y .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN") para POST, etc.
+3. Endpoints públicos adicionales
+¿Cómo?
+Agrega .requestMatchers("/api/productos/publicos/**").permitAll() para dejar rutas públicas.
+4. Control de acceso por atributos
+¿Cómo?
+En tus servicios/controladores, compara el usuario autenticado (SecurityContextHolder.getContext().getAuthentication().getName()) con el recurso solicitado.
+Ejemplo: Solo permitir editar un pedido si el usuario es el dueño.
+5. Expiración y renovación de tokens (Refresh Token)
+¿Cómo?
+Implementa un endpoint /api/auth/refresh que reciba un refresh token y devuelva un nuevo JWT si es válido.
+6. Logout y revocación de tokens
+¿Cómo?
+Mantén una blacklist de tokens revocados (en memoria o BD) y verifica en el filtro JWT si el token está revocado.
+7. Manejo de excepciones personalizado
+¿Cómo?
+Crea una clase con @ControllerAdvice y métodos con @ExceptionHandler para personalizar los mensajes de error.
+8. Auditoría y logs de seguridad
+¿Cómo?
+Agrega logs en tus filtros y servicios para registrar accesos, cambios y errores de seguridad.
+9. Seguridad avanzada
+¿Cómo?
+Limita intentos de login con un contador en memoria o BD.
+Implementa 2FA enviando un código por email/SMS.
+Configura CORS para aceptar solo orígenes confiables.
+10. Integración con OAuth2 o SSO
+¿Cómo?
+Usa el starter de Spring Security OAuth2 y configura proveedores como Google, Microsoft, etc.
+¿Por dónde quieres empezar?
+Dime cuál de estas personalizaciones quieres implementar primero (o el orden de prioridad) y te guío paso a paso con el código y la explicación.
+¡Puedes pedir una, varias o todas!
+¿Con cuál comenzamos?
+todas en el orden que me indica
+
+¡Perfecto! Vamos a implementar cada personalización en el orden sugerido.
+Te explicaré cada paso y, si lo deseas, puedo ir aplicando los cambios automáticamente en tu proyecto.
+1. Más roles y jerarquía
+a) Definir más roles
+En tu entidad Usuario, el campo rol puede tener valores como:
+"ADMIN", "USER", "SUPERVISOR", "INVENTARIO", "VENTAS", etc.
+b) Jerarquía de roles (opcional)
+Puedes definir una jerarquía en tu configuración de seguridad para que, por ejemplo, ADMIN incluya permisos de USER.
+¿Quieres que agregue la jerarquía de roles en tu configuración?
+2. Permisos por método HTTP
+Puedes proteger endpoints según el método HTTP y el rol.
+Ejemplo:
+Apply to SecurityConf...
+3. Endpoints públicos adicionales
+Puedes dejar públicos algunos endpoints, por ejemplo, para consultar productos sin autenticación:
+Apply to SecurityConf...
+4. Control de acceso por atributos
+En tus servicios/controladores, puedes validar que el usuario autenticado solo pueda modificar sus propios recursos.
+Ejemplo:
+Apply to SecurityConf...
+5. Expiración y renovación de tokens (Refresh Token)
+Implementar un endpoint /api/auth/refresh que reciba un refresh token y devuelva un nuevo JWT si es válido.
+Guardar el refresh token en la base de datos o en memoria.
+6. Logout y revocación de tokens
+Mantener una blacklist de tokens revocados y verificar en el filtro JWT si el token está revocado.
+7. Manejo de excepciones personalizado
+Crear una clase con @ControllerAdvice y métodos con @ExceptionHandler para personalizar los mensajes de error.
+8. Auditoría y logs de seguridad
+Agregar logs en tus filtros y servicios para registrar accesos, cambios y errores de seguridad.
+9. Seguridad avanzada
+Limitar intentos de login.
+Implementar 2FA.
+Configurar CORS avanzado.
+10. Integración con OAuth2 o SSO
+Permitir login con Google, Microsoft, etc.
+¿Cómo prefieres avanzar?
+¿Quieres que aplique cada punto uno por uno y te explique el cambio, o prefieres que te explique primero cada uno y luego los aplicamos juntos?
+¡Dime si quieres que empiece con el punto 1 (roles y jerarquía) y lo implemento ya!
+si
+
+¡Listo!
+Ahora tu sistema tiene jerarquía de roles:
+ADMIN incluye permisos de SUPERVISOR y USER.
+SUPERVISOR incluye permisos de USER.
+Puedes proteger endpoints con .hasRole("USER"), .hasRole("SUPERVISOR") o .hasRole("ADMIN") y la jerarquía se respeta automáticamente.
+Además, puedes usar anotaciones como @PreAuthorize("hasRole('USER')") en tus servicios o controladores, y la jerarquía también se aplicará.
+¿Quieres que continúe con el siguiente punto (permisos por método HTTP) y lo implemente?
+si
+
+¡Listo!
+Ahora tienes permisos por método HTTP en el endpoint de productos:
+GET /api/productos/**: accesible para ADMIN, USER y SUPERVISOR.
+POST, PUT, DELETE /api/productos/**: solo accesible para ADMIN.
+Puedes aplicar este mismo patrón a cualquier otro endpoint y método HTTP que desees.
+¿Quieres que continúe con el siguiente punto (endpoints públicos adicionales) y lo implemente?
+siguiente
+
+¡Listo!
+Ahora tienes un endpoint público de ejemplo:
+/api/productos/publicos/**
+Cualquier usuario (incluso sin autenticación) puede acceder a este endpoint.
+Puedes crear un método en tu ProductoController para exponer productos públicos, por ejemplo:
+
+Perfecto! Vamos a implementar el control de acceso por atributos para que, por ejemplo, un usuario solo pueda modificar o eliminar sus propios pedidos.
+¿Cómo se hace?
+Obtenemos el usuario autenticado desde el contexto de seguridad.
+Comparamos si el pedido pertenece a ese usuario antes de permitir la acción.
+Si no es el dueño, lanzamos un error 403.
+
+
+Ejemplo para el controlador de pedidos (PedidoController):
+Supón que el modelo Pedido tiene un campo Usuario usuario; (si no, deberías agregarlo).
+En el método update y delete:
+
+
+Tu modelo Pedido no tiene un campo Usuario usuario, por lo que no es posible (aún) asociar un pedido a un usuario específico para hacer control de acceso por dueño.
+¿Qué debes hacer?
+Agregar el campo Usuario usuario a la entidad Pedido.
+Actualizar la lógica de creación de pedidos para asignar el usuario autenticado.
+Modificar los métodos de actualización y eliminación para validar que solo el dueño pueda modificar/eliminar
+
+¡Listo!
+Ahora solo el usuario dueño de un pedido (asociado en el campo usuario del pedido) puede modificarlo o eliminarlo. Si otro usuario intenta hacerlo, recibirá un error 403 Forbidden.
+¿Qué sigue?
+Si quieres que al crear un pedido se asigne automáticamente el usuario autenticado como dueño, puedo hacer ese ajuste también.
+
+¡Listo!
+Ahora, al crear un pedido, el sistema asigna automáticamente el usuario autenticado como dueño del pedido (campo usuario).
+Esto garantiza que el control de acceso por dueño funcione correctamente desde la creación.
+
+¡Perfecto! Seguimos con el siguiente punto:
+Expiración y renovación de tokens (Refresh Token)
+¿Qué vamos a hacer?
+Agregar soporte para refresh tokens:
+Cuando el usuario hace login, se le entrega un JWT (acceso) y un refresh token.
+Cuando el JWT expira, el usuario puede pedir uno nuevo usando el refresh token.
+Guardar el refresh token en la base de datos o en memoria (para este ejemplo, lo haremos simple).
+Crear un endpoint /api/auth/refresh que reciba el refresh token y devuelva un nuevo JWT si es válido.
+
+Pasos a implementar:
+Crear una entidad RefreshToken (con campos: id, token, usuario, fecha expiración).
+Crear el repositorio para RefreshToken.
+Modificar el login para generar y guardar un refresh token en la BD.
+Crear el endpoint /api/auth/refresh que valide el refresh token y devuelva un nuevo JWT.
+(Opcional) Permitir revocar refresh tokens (logout).
