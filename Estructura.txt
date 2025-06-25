@@ -767,3 +767,329 @@ Login: Máximo 5 intentos por minuto por IP
 Endpoints generales: Máximo 100 peticiones por minuto por IP
 Bloqueo automático: Después de exceder los límites
 Detección de IP real: Maneja proxies y headers X-Forwarded-For
+
+***************************************************************
+
+crear un endpoint de prueba y configurar CORS.
+
+✅ Endpoints de prueba creados:
+GET / - Información básica del API (accesible desde navegador)
+GET /api - Información detallada del API
+GET /api/test/health - Estado de salud del backend
+GET /api/test/public - Endpoint público de prueba
+GET /api/test/protected - Endpoint protegido de prueba
+
+✅ CORS configurado:
+Permite acceso desde cualquier origen (*)
+Soporta todos los métodos HTTP (GET, POST, PUT, DELETE, OPTIONS)
+Permite todos los headers
+Configurado para credenciales
+
+Prueba en el navegador:
+http://localhost:8081/ - Debería mostrar información del API
+http://localhost:8081/api/test/health - Debería mostrar estado de salud
+Prueba el login en Postman:
+POST http://localhost:8081/api/auth/login
+
+-------------------000000000000000-------------------
+
+1. ¿Ya está implementada la protección con JWT y el uso del header Authorization?
+¡Sí!
+Tu backend ya tiene implementada la protección de endpoints usando JWT y el header Authorization con el esquema Bearer.
+Esto se logra principalmente con:
+JwtAuthenticationFilter:
+Este filtro revisa el header Authorization, valida el token JWT y autentica al usuario para todas las rutas excepto /api/auth/**.
+SecurityConfig:
+Aquí defines qué endpoints son públicos y cuáles requieren autenticación y/o roles específicos.
+Ejemplo:
+/api/auth/** y /api/test/** son públicos.
+/api/usuarios/** solo para ADMIN.
+/api/reportes/** para ADMIN y SUPERVISOR.
+Los métodos POST/PUT/DELETE de productos solo para ADMIN.
+El resto requiere autenticación.
+
+--------------------------0000000000000000000000------------------
+
+Personalizar los permisos de los endpoints es fundamental para la seguridad y el control de acceso en tu ERP.
+Te explico las mejores prácticas y cómo hacerlo en tu proyecto:
+1. ¿Qué es lo recomendado?
+Solo los endpoints realmente públicos deben ser accesibles sin autenticación (por ejemplo, login, registro, endpoints de prueba).
+Los endpoints sensibles (crear, editar, eliminar, reportes, etc.) deben estar protegidos y solo accesibles para usuarios con el rol adecuado (ADMIN, SUPERVISOR, USER, etc.).
+La protección debe hacerse en la configuración de seguridad global (SecurityConfig.java) y, si es necesario, también a nivel de método con anotaciones como @PreAuthorize.
+2. ¿Cómo personalizar los permisos?
+a) Desde SecurityConfig.java (recomendado y centralizado)
+Aquí defines reglas como:
+Solo ADMIN puede crear, editar o eliminar productos.
+SUPERVISOR y ADMIN pueden ver reportes.
+USER solo puede consultar productos, pedidos, etc.
+
+Puedes agregar o modificar reglas según tus necesidades.
+b) A nivel de método con anotaciones (@PreAuthorize)
+Si quieres un control más fino, puedes usar anotaciones en los métodos de tus controladores o servicios:
+Apply to SecurityConf...
+Esto requiere que tengas @EnableMethodSecurity en tu configuración (¡ya lo tienes!).
+
+3. ¿Qué te recomiendo hacer ahora?
+Revisar qué endpoints quieres proteger y con qué roles.
+Actualizar SecurityConfig.java para reflejar esas reglas.
+(Opcional) Agregar @PreAuthorize en métodos críticos si quieres doble protección o reglas más complejas.
+4. ¿Quieres un ejemplo concreto?
+Dime:
+¿Qué endpoints quieres que solo sean accesibles para ADMIN?
+¿Cuáles para SUPERVISOR?
+¿Cuáles para USER?
+¿Algún endpoint público?
+
+Propuesta de reglas de acceso (recomendadas para un ERP):
+/api/auth/ y /api/test/: Públicos (login, refresh, test de salud).
+/api/usuarios/: Solo ADMIN puede gestionar usuarios.
+/api/reportes/: ADMIN y SUPERVISOR pueden ver reportes.
+/api/productos/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar productos.
+POST/PUT/DELETE: Solo ADMIN puede crear, editar o eliminar productos.
+/api/clientes/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar clientes.
+POST/PUT/DELETE: Solo ADMIN y SUPERVISOR pueden modificar clientes.
+/api/pedidos/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar pedidos.
+POST/PUT/DELETE: ADMIN y SUPERVISOR pueden crear, editar o eliminar pedidos.
+/api/proveedores/:
+GET: ADMIN y SUPERVISOR pueden consultar proveedores.
+POST/PUT/DELETE: Solo ADMIN puede modificar proveedores.
+/api/compras/:
+GET: ADMIN y SUPERVISOR pueden consultar compras.
+POST/PUT/DELETE: Solo ADMIN puede modificar compras.
+/api/movimientos-inventario/:
+GET: ADMIN y SUPERVISOR pueden consultar movimientos.
+POST/PUT/DELETE: Solo ADMIN puede modificar movimientos.
+
+****----
+
+Resumen de la protección aplicada:
+Usuarios: solo ADMIN puede gestionar.
+Reportes: ADMIN y SUPERVISOR.
+Productos:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: solo ADMIN
+Clientes:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: ADMIN y SUPERVISOR
+Pedidos:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: ADMIN y SUPERVISOR
+Proveedores, Compras, Movimientos de inventario:
+Consultar: ADMIN y SUPERVISOR
+Crear/Editar/Eliminar: solo ADMIN
+
+
+*************************************
+
+1. Pruebas desde Postman (o cualquier cliente HTTP)
+A. Consigue un token JWT para cada usuario
+Haz una petición POST a /api/auth/login con el correo y contraseña del usuario (ADMIN, SUPERVISOR, USER).
+Obtén el campo "token" de la respuesta.
+B. Usa el token en tus peticiones
+En cada petición a un endpoint protegido, agrega el header:
+
+  Authorization: Bearer TU_TOKEN_AQUI
+
+C. Prueba los endpoints según el rol
+ADMIN:
+Puede acceder a todos los endpoints (usuarios, reportes, productos, clientes, pedidos, proveedores, compras, movimientos de inventario).
+SUPERVISOR:
+Puede consultar productos, clientes, pedidos, proveedores, compras, movimientos de inventario y ver reportes, pero NO puede crear/editar/eliminar productos, proveedores, compras, movimientos de inventario ni gestionar usuarios.
+USER:
+Solo puede consultar productos, clientes y pedidos.
+Ejemplo de prueba en Postman:
+Login como SUPERVISOR
+POST a /api/auth/login
+Body:
+   {
+     "correo": "supervisor@erp.com",
+     "password": "tu_password"
+   }
+
+Copia el token.
+Consultar productos (GET, permitido):
+GET a /api/productos
+Header:
+
+   Authorization: Bearer TU_TOKEN_SUPERVISOR
+
+Intentar crear producto (POST, NO permitido):
+POST a /api/productos
+Header:
+
+   Authorization: Bearer TU_TOKEN_SUPERVISOR
+
+
+Ctrl+K to generate a command
+revisa el código para verificar que esto no esta yas implementado, si no lo está hagamos todo esto sobre los endpoints
+
+¡Excelente pregunta!
+He revisado tu código y te explico el estado actual y lo que falta:
+1. ¿Ya está implementada la protección con JWT y el uso del header Authorization?
+¡Sí!
+Tu backend ya tiene implementada la protección de endpoints usando JWT y el header Authorization con el esquema Bearer.
+Esto se logra principalmente con:
+JwtAuthenticationFilter:
+Este filtro revisa el header Authorization, valida el token JWT y autentica al usuario para todas las rutas excepto /api/auth/**.
+SecurityConfig:
+Aquí defines qué endpoints son públicos y cuáles requieren autenticación y/o roles específicos.
+Ejemplo:
+/api/auth/** y /api/test/** son públicos.
+/api/usuarios/** solo para ADMIN.
+/api/reportes/** para ADMIN y SUPERVISOR.
+Los métodos POST/PUT/DELETE de productos solo para ADMIN.
+El resto requiere autenticación.
+2. ¿Qué significa esto para tus endpoints?
+Todos los endpoints (excepto login, refresh, test, etc.) ya requieren el header:
+Apply to SecurityConf...
+Si no envías el token, o es inválido, recibirás un error 401 o 403.
+Los roles se respetan según lo definido en SecurityConfig.
+3. ¿Qué podrías mejorar o agregar?
+Si quieres proteger más endpoints o cambiar los permisos, solo debes ajustar el archivo SecurityConfig.java.
+Si quieres que algunos endpoints sean públicos, agrégalos a .permitAll().
+Si quieres proteger más por roles, usa .hasRole("ROL") o .hasAnyRole("ROL1", "ROL2").
+4. ¿Qué NO está implementado?
+Si quieres protección a nivel de método (por ejemplo, con @PreAuthorize en los servicios o controladores), podrías agregarlo, pero no es obligatorio si ya lo controlas en SecurityConfig.
+Si quieres mensajes de error personalizados para acceso denegado, puedes personalizar el manejo de excepciones.
+Resumen
+¡No necesitas hacer nada extra!
+Tu backend ya exige el header Authorization con Bearer token en los endpoints protegidos.
+¿Quieres que te ayude a:
+Personalizar los permisos de algún endpoint?
+Agregar protección a algún endpoint específico?
+Hacer pruebas desde el frontend?
+Personalizar mensajes de error?
+¡Dime qué necesitas y lo hacemos!
+que es lo recomendado para los endpoints que ya tene mos; Agregar protección a algún endpoint específico?, o como hacemos esto?: Personalizar los permisos de algún endpoint?, para que solo algunos usuarios puedan acceder a ellos?, si hagamoslo
+
+¡Muy buena decisión!
+Personalizar los permisos de los endpoints es fundamental para la seguridad y el control de acceso en tu ERP.
+Te explico las mejores prácticas y cómo hacerlo en tu proyecto:
+1. ¿Qué es lo recomendado?
+Solo los endpoints realmente públicos deben ser accesibles sin autenticación (por ejemplo, login, registro, endpoints de prueba).
+Los endpoints sensibles (crear, editar, eliminar, reportes, etc.) deben estar protegidos y solo accesibles para usuarios con el rol adecuado (ADMIN, SUPERVISOR, USER, etc.).
+La protección debe hacerse en la configuración de seguridad global (SecurityConfig.java) y, si es necesario, también a nivel de método con anotaciones como @PreAuthorize.
+2. ¿Cómo personalizar los permisos?
+a) Desde SecurityConfig.java (recomendado y centralizado)
+Aquí defines reglas como:
+Solo ADMIN puede crear, editar o eliminar productos.
+SUPERVISOR y ADMIN pueden ver reportes.
+USER solo puede consultar productos, pedidos, etc.
+Ejemplo de reglas:
+Apply to SecurityConf...
+Puedes agregar o modificar reglas según tus necesidades.
+b) A nivel de método con anotaciones (@PreAuthorize)
+Si quieres un control más fino, puedes usar anotaciones en los métodos de tus controladores o servicios:
+Apply to SecurityConf...
+Esto requiere que tengas @EnableMethodSecurity en tu configuración (¡ya lo tienes!).
+3. ¿Qué te recomiendo hacer ahora?
+Revisar qué endpoints quieres proteger y con qué roles.
+Actualizar SecurityConfig.java para reflejar esas reglas.
+(Opcional) Agregar @PreAuthorize en métodos críticos si quieres doble protección o reglas más complejas.
+4. ¿Quieres un ejemplo concreto?
+Dime:
+¿Qué endpoints quieres que solo sean accesibles para ADMIN?
+¿Cuáles para SUPERVISOR?
+¿Cuáles para USER?
+¿Algún endpoint público?
+¡Dame tu lista o preferencias y te hago la configuración exacta en el código!
+Hay que haer todo esto (supongo es lo mejor) que ud recomienda, procedamos
+
+¡Perfecto!
+Ya tengo la configuración actual y la base es muy buena.
+Ahora vamos a mejorarla y personalizarla siguiendo las mejores prácticas para un ERP.
+Propuesta de reglas de acceso (recomendadas para un ERP):
+/api/auth/ y /api/test/: Públicos (login, refresh, test de salud).
+/api/usuarios/: Solo ADMIN puede gestionar usuarios.
+/api/reportes/: ADMIN y SUPERVISOR pueden ver reportes.
+/api/productos/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar productos.
+POST/PUT/DELETE: Solo ADMIN puede crear, editar o eliminar productos.
+/api/clientes/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar clientes.
+POST/PUT/DELETE: Solo ADMIN y SUPERVISOR pueden modificar clientes.
+/api/pedidos/:
+GET: ADMIN, SUPERVISOR y USER pueden consultar pedidos.
+POST/PUT/DELETE: ADMIN y SUPERVISOR pueden crear, editar o eliminar pedidos.
+/api/proveedores/:
+GET: ADMIN y SUPERVISOR pueden consultar proveedores.
+POST/PUT/DELETE: Solo ADMIN puede modificar proveedores.
+/api/compras/:
+GET: ADMIN y SUPERVISOR pueden consultar compras.
+POST/PUT/DELETE: Solo ADMIN puede modificar compras.
+/api/movimientos-inventario/:
+GET: ADMIN y SUPERVISOR pueden consultar movimientos.
+POST/PUT/DELETE: Solo ADMIN puede modificar movimientos.
+¿Te parece bien esta distribución?
+¿Quieres cambiar algún permiso o endpoint?
+Si estás de acuerdo, procederé a editar el archivo SecurityConfig.java para reflejar exactamente estas reglas.
+¡Confírmame o dime tus ajustes y lo hago!
+si hazlo
+
+¡Listo!
+He actualizado la configuración de seguridad para que cada endpoint tenga los permisos recomendados según el rol del usuario (ADMIN, SUPERVISOR, USER).
+¿Qué debes hacer ahora?
+Reinicia tu backend para que los cambios tengan efecto.
+Prueba los endpoints con usuarios de diferentes roles y verifica que solo puedan acceder a lo que corresponde.
+Si necesitas ajustar algún permiso, solo dime y lo modificamos.
+Resumen de la protección aplicada:
+Usuarios: solo ADMIN puede gestionar.
+Reportes: ADMIN y SUPERVISOR.
+Productos:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: solo ADMIN
+Clientes:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: ADMIN y SUPERVISOR
+Pedidos:
+Consultar: ADMIN, SUPERVISOR, USER
+Crear/Editar/Eliminar: ADMIN y SUPERVISOR
+Proveedores, Compras, Movimientos de inventario:
+Consultar: ADMIN y SUPERVISOR
+Crear/Editar/Eliminar: solo ADMIN
+¿Quieres que te ayude a probar con diferentes roles o necesitas ejemplos de pruebas?
+si por favor dime como
+
+¡Por supuesto!
+Te explico cómo probar los permisos de los endpoints según el rol del usuario, tanto desde Postman como desde el frontend (si lo necesitas).
+1. Pruebas desde Postman (o cualquier cliente HTTP)
+A. Consigue un token JWT para cada usuario
+Haz una petición POST a /api/auth/login con el correo y contraseña del usuario (ADMIN, SUPERVISOR, USER).
+Obtén el campo "token" de la respuesta.
+B. Usa el token en tus peticiones
+En cada petición a un endpoint protegido, agrega el header:
+Apply to SecurityConf...
+C. Prueba los endpoints según el rol
+ADMIN:
+Puede acceder a todos los endpoints (usuarios, reportes, productos, clientes, pedidos, proveedores, compras, movimientos de inventario).
+SUPERVISOR:
+Puede consultar productos, clientes, pedidos, proveedores, compras, movimientos de inventario y ver reportes, pero NO puede crear/editar/eliminar productos, proveedores, compras, movimientos de inventario ni gestionar usuarios.
+USER:
+Solo puede consultar productos, clientes y pedidos.
+Ejemplo de prueba en Postman:
+Login como SUPERVISOR
+POST a /api/auth/login
+Body:
+
+   {
+     "correo": "supervisor@erp.com",
+     "password": "tu_password"
+   }
+
+Copia el token.
+Consultar productos (GET, permitido):
+GET a /api/productos
+Header:
+
+   Authorization: Bearer TU_TOKEN_SUPERVISOR
+
+Intentar crear producto (POST, NO permitido):
+POST a /api/productos
+Header:
+
+   Authorization: Bearer TU_TOKEN_SUPERVISOR
+
+Body:

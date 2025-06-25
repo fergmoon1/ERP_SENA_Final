@@ -3,6 +3,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetallePedi
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetalleCompra.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\JwtAuthenticationFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\TestController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProveedorService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\BackendApplication.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedidoDTO.java
@@ -12,6 +13,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ValidacionServi
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PedidoRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\HomeController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
