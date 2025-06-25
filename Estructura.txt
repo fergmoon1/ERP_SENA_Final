@@ -622,7 +622,7 @@ Resultado esperado:
 ✅ 200 OK con lista de usuarios (porque solo ADMIN puede acceder a usuarios)
 O una lista con al menos el usuario admin
 Ejecuta esta petición y dime qué respuesta obtienes. Luego continuamos con el siguiente paso.
-¿Qué resultado obtuviste?
+
 
 se refiere a este token de POST: http://localhost:8081/api/auth/login o a cual nuevo token. Al indicar que se use Bearer token, automaticamente se genera ocn el inicial y no sé como modificarlo si es que toca hacerlo
 
@@ -634,3 +634,136 @@ NO uses el token del login inicial. El token que recibiste en el primer endpoint
 Esto sucedió porque en tu configuración actual, cada petición autenticada está generando un nuevo token. Esto no es lo ideal, pero por ahora usemos el token más reciente.
 
 (Generacion de token de Autorizacion (FG) => en postman )
+
+*********************
+
+
+Add to ChatCtrl+L
+Ctrl+K to generate a command
+Todos!, pero vamos por partes;comencemos con el punto 1
+
+¡Perfecto! Vamos a probar todos los endpoints protegidos con diferentes roles. Esto nos permitirá verificar que la seguridad y autorización funcionan correctamente.
+1. Prueba el nuevo JWT en endpoints protegidos
+Endpoint de Productos (GET) - Debería funcionar con ADMIN
+Apply to JwtAuthentic...
+Endpoint de Usuarios (GET) - Solo ADMIN debería acceder
+Apply to JwtAuthentic...
+Endpoint de Reportes (GET) - ADMIN y SUPERVISOR deberían acceder
+Apply to JwtAuthentic...
+2. Prueba endpoints sin token (deberían fallar con 403)
+Sin Authorization header
+Apply to JwtAuthentic...
+Debería devolver 403 Forbidden
+3. Prueba métodos HTTP restringidos
+POST Productos (solo ADMIN)
+Apply to JwtAuthentic...
+
+
+Paso 1: Prueba GET /api/productos con token ADMIN
+En Postman:
+Método: GET
+URL: http://localhost:8081/api/productos
+Headers: Agrega Authorization con el valor del Bearer token
+Envía la petición
+Resultado esperado:
+✅ 200 OK con lista de productos (porque ADMIN tiene acceso a GET productos)
+O una lista vacía [] si no hay productos en la base de datos
+
+Paso 2: Prueba GET /api/usuarios con token ADMIN
+En Postman:
+Método: GET
+URL: http://localhost:8081/api/usuarios
+Headers: Usa el token que recibiste en el primer paso
+Envía la petición
+Resultado esperado:
+✅ 200 OK con lista de usuarios (porque solo ADMIN puede acceder a usuarios)
+Debería mostrar al menos el usuario admin
+
+
+Paso 3: Prueba GET /api/reportes/ventas-por-cliente con token ADMIN
+Resultado esperado:
+✅ 200 OK con reporte de ventas por cliente (porque ADMIN puede acceder a reportes)
+O una lista vacía [] si no hay datos de ventas
+
+
+Paso 4: Prueba endpoints sin token (deberían fallar con 403)
+
+GET /api/productos sin Authorization header
+Endpoint: GET http://localhost:8081/api/productos
+En Postman:
+Método: GET
+URL: http://localhost:8081/api/productos
+NO agregues ningún header de Authorization
+Envía la petición
+Resultado esperado:
+❌ 403 Forbidden - Porque no hay token de autenticación
+
+Paso 5: Prueba métodos HTTP restringidos - POST Productos (solo ADMIN)
+
+En Postman:
+Método: POST
+URL: http://localhost:8081/api/productos
+Headers: Usa el token y Content-Type
+Body: Raw JSON con los datos del producto
+Envía la petición
+Resultado esperado:
+✅ 200 OK o 201 Created - Porque ADMIN puede crear productos
+Debería devolver el producto creado con ID
+
+Perfecto! �� El Paso 5 funcionó correctamente:
+✅ 200 OK - El endpoint respondió correctamente
+✅ ADMIN puede crear productos - La autorización por método HTTP funciona
+✅ Producto creado - Se generó el ID 4 y se guardaron todos los datos
+
+
+Paso 6: Prueba el logout para revocar el refresh token
+En Postman:
+Método: POST
+URL: http://localhost:8081/api/auth/logout
+Headers: Content-Type application/json
+Body: Raw JSON con el refresh token
+Envía la petición
+Resultado esperado:
+✅ 200 OK con mensaje de logout exitoso
+El refresh token será eliminado de la base de datos
+
+Paso 7: Prueba el refresh con el token revocado (debería fallar)
+En Postman:
+Método: POST
+URL: http://localhost:8081/api/auth/refresh
+Headers: Content-Type application/json
+Body: Raw JSON con el refresh token revocado
+Envía la petición
+Resultado esperado:
+❌ Error - "Refresh token inválido" o similar
+Porque el token ya fue eliminado en el logout
+
+****************************************************************
+ ¡RESUMEN COMPLETO DE LAS PRUEBAS EXITOSAS!
+✅ Todos los endpoints protegidos funcionan correctamente:
+GET /api/productos con token ADMIN → ✅ 200 OK
+GET /api/usuarios con token ADMIN → ✅ 200 OK
+GET /api/reportes con token ADMIN → ✅ 200 OK
+GET /api/productos sin token → ✅ 403 Forbidden
+POST /api/productos con token ADMIN → ✅ 200 OK (producto creado)
+POST /api/auth/logout → ✅ 200 OK (token revocado)
+POST /api/auth/refresh con token revocado → ✅ 403 Forbidden
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+¿Qué sigue?
+Ahora que hemos verificado que toda la seguridad funciona perfectamente, podemos continuar con:
+Implementar más funcionalidades de seguridad (rate limiting, auditoría, etc.)
+Crear documentación de la API (Swagger/OpenAPI)
+Integrar con el frontend para usar el sistema de autenticación
+Implementar nuevos módulos (Compras, Facturación, etc.)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Paso 1: Agregar dependencia de Rate Limiting
+Primero necesitamos agregar la dependencia de Bucket4j al pom.xml:
+¿Qué hemos implementado?
+✅ Rate Limiting configurado:
+Login: Máximo 5 intentos por minuto por IP
+Endpoints generales: Máximo 100 peticiones por minuto por IP
+Bloqueo automático: Después de exceder los límites
+Detección de IP real: Maneja proxies y headers X-Forwarded-For

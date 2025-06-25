@@ -39,8 +39,10 @@ com\empresa\erp\repositories\ProductoRepository.class
 com\empresa\erp\models\Compra.class
 com\empresa\erp\services\ReporteService.class
 com\empresa\erp\controllers\UsuarioController.class
+com\empresa\erp\services\RateLimitService.class
 com\empresa\erp\models\Producto.class
 com\empresa\erp\BackendApplication.class
+com\empresa\erp\config\RateLimitFilter.class
 com\empresa\erp\controllers\ProveedorController.class
 com\empresa\erp\services\AuthService.class
 com\empresa\erp\controllers\ClienteController.class

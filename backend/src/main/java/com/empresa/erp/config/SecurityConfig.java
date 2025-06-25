@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.http.HttpMethod;
+import com.empresa.erp.config.RateLimitFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -17,6 +18,9 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private RateLimitFilter rateLimitFilter;
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -41,7 +45,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
                 .anyRequest().authenticated() // El resto requiere autenticación
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 }
