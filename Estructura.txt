@@ -1092,4 +1092,171 @@ Header:
 
    Authorization: Bearer TU_TOKEN_SUPERVISOR
 
+Respuesta esperada: 403 Forbidden
+
+2. Pruebas desde el frontend
+Cuando el usuario inicia sesión, guarda el token JWT.
+En cada petición AJAX/fetch al backend, agrega el header
+
+js
+  headers: {
+    "Authorization": "Bearer " + token
+  }
+
+Si el backend responde 403 o 401, muestra un mensaje de acceso denegado.
+
+3. Resumen de pruebas recomendadas
+Rol	                       Endpoint	  Método     	  Esperado
+ADMIN	                     /api/usuarios	   GET	                   200 OK
+SUPERVISOR	     /api/usuarios         GET	              403 Forbidden
+USER	                     /api/usuarios	   GET	              403 Forbidden
+SUPERVISOR	    /api/productos	   GET	                   200 OK
+USER	                    /api/productos	  POST	              403 Forbidden
+ADMIN	                  /api/proveedores	  POST	                  200 OK
+SUPERVISOR	  /api/proveedores	  POST	              403 Forbidden
+ADMIN	                     /api/reportes	   GET	                  200 OK
+SUPERVISOR	      /api/reportes	   GET	                  200 OK
+USER	                       /api/reportes	   GET	              403 Forbidden
+¿Quieres ejemplos de JSON para login de cada rol?
+¿O necesitas ayuda para automatizar estas pruebas?
+¡Dime si tienes usuarios de prueba o necesitas que te ayude a crearlos!
+
+Automatizar pruebas de endpoints es una práctica profesional y te ahorra mucho tiempo, además de garantizar que los permisos y funcionalidades siempre funcionen como esperas.
+¿Cómo se pueden automatizar las pruebas de endpoints?
+1. Herramientas recomendadas
+Postman: Tiene una función llamada "Colecciones" y "Tests" para automatizar flujos completos, incluyendo login y pruebas de permisos.
+JUnit + Spring Boot Test: Puedes escribir pruebas automáticas en Java para tus controladores usando el framework de pruebas de Spring.
+Herramientas externas: Como RestAssured (Java), Cypress (JS), Supertest (Node), etc.
+Opción 1: Automatización con Postman
+Crea una colección en Postman con todos los endpoints que quieres probar.
+Agrega variables de entorno para los tokens de cada usuario.
+Haz una petición de login para cada usuario y guarda el token en una variable.
+En cada endpoint, usa el token correspondiente en el header Authorization.
+Agrega tests automáticos en la pestaña "Tests" de cada request para verificar el status esperado (200, 403, etc).
+¿Quieres que te prepare una colección de ejemplo y te explique cómo hacerlo paso a paso?
+Opción 2: Automatización con JUnit (Java, Spring Boot Test)
+Puedes crear una clase de pruebas en src/test/java/com/empresa/erp/ y escribir métodos que:
+Hagan login con cada usuario.
+Usen el token para llamar a los endpoints.
+Verifiquen el status de la respuesta (200, 403, etc).
+¿Quieres que te genere una clase de ejemplo para automatizar pruebas de seguridad en Java?
+
+*****************************************************
+
+Te explico el flujo completo de pruebas en Postman y aclaro cómo debes poner la URL y los parámetros en cada login.
+1. Parámetros y URL de los logins
+URL de login:
+Debe ser:
+Apply to SecurityConf...
+Donde {{base_url}} es la variable de entorno que ya creaste (por ejemplo, http://localhost:8081/api).
+Método:
+POST
 Body:
+En formato raw y JSON.
+Ejemplo para ADMIN:
+
+  {
+    "correo": "admin@erp.com",
+    "password": "admin123"
+  }
+
+Para SUPERVISOR y USER, solo cambia el correo y la contraseña.
+No necesitas parámetros en Params ni Headers (solo asegúrate de que el body sea JSON).
+2. Flujo completo de pruebas recomendado
+A. Login de cada usuario (ADMIN, SUPERVISOR, USER)
+Cada petición de login guarda el token correspondiente en una variable de entorno (token_admin, token_supervisor, token_user).
+B. Pruebas de endpoints protegidos
+Crea peticiones para los endpoints que quieras probar (por ejemplo, GET usuarios, POST productos, etc.).
+En cada petición, agrega el header:
+Key: Authorization
+Value: Bearer {{token_admin}} (o el token del rol que quieras probar)
+C. Agrega tests automáticos
+En la pestaña Tests de cada petición, agrega scripts para validar el status esperado:
+
+  pm.test("Debe responder 200 OK", function () {
+      pm.response.to.have.status(200);
+  });
+
+O para pruebas negativas:
+
+  pm.test("Debe responder 403 Forbidden", function () {
+      pm.response.to.have.status(403);
+  });
+
+3. Ejemplo de flujo en Postman
+Login ADMIN
+POST {{base_url}}/auth/login
+Body:
+
+     { "correo": "admin@erp.com", "password": "admin123" }
+
+Tests:
+
+     var json = pm.response.json();
+     pm.environment.set("token_admin", json.token);
+
+Login SUPERVISOR
+POST {{base_url}}/auth/login
+Body:
+
+     { "correo": "supervisor@erp.com", "password": "supervisor123" }
+
+*Tests:
+
+     var json = pm.response.json();
+     pm.environment.set("token_supervisor", json.token);
+
+4.GET usuarios (solo ADMIN debe poder)
+GET {{base_url}}/usuarios
+Header:
+Key: Authorization
+Value: Bearer {{token_admin}}
+
+Tests: 
+     pm.test("Debe responder 200 OK", function () {
+         pm.response.to.have.status(200);
+     });
+
+5.GET usuarios con SUPERVISOR (debe fallar)
+GET {{base_url}}/usuarios
+Header:
+Key: Authorization
+Value: Bearer {{token_supervisor}}
+Tests:
+
+     pm.test("Debe responder 403 Forbidden", function () {
+         pm.response.to.have.status(403);
+     });
+
+6.POST productos con USER (debe fallar)
+POST {{base_url}}/productos
+Header:
+Key: Authorization
+Value: Bearer {{token_user}}
+Body:
+     {
+       "nombre": "Producto Test",
+       "precio": 100,
+       "stock": 10
+     }
+
+Tests:
+     pm.test("Debe responder 403 Forbidden", function () {
+         pm.response.to.have.status(403);
+     });
+
+7.GET productos con USER (debe funcionar)
+GET {{base_url}}/productos
+Header:
+Key: Authorization
+Value: Bearer {{token_user}}
+Tests:
+
+     pm.test("Debe responder 200 OK", function () {
+         pm.response.to.have.status(200);
+     });
+
+4. Ejecuta el flujo completo
+Haz clic en el botón Runner (ícono de rayo).
+Selecciona tu colección y el entorno ERP_SENA_Test.
+Haz clic en Run y revisa los resultados de los tests.

@@ -1,0 +1,1455 @@
+{
+  "info": {
+    "name": "ERP_SENA_Automatizadas",
+    "_postman_id": "erp-sena-automatizadas-001",
+    "description": "Colección automatizada de pruebas de roles y permisos para ERP SENA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Login ADMIN",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"admin@erp.com\",\n  \"password\": \"admin123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "pm.environment.set(\"token_admin\", json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login SUPERVISOR",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"supervisor@erp.com\",\n  \"password\": \"supervisor123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "pm.environment.set(\"token_supervisor\", json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login USER",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"user@erp.com\",\n  \"password\": \"user123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "pm.environment.set(\"token_user\", json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET usuarios (solo ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_admin}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET usuarios (SUPERVISOR, debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_supervisor}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 403 Forbidden\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST productos (USER, debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_user}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Test\",\n  \"precio\": 100,\n  \"stock\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/productos",
+          "host": ["{{base_url}}"],
+          "path": ["productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 403 Forbidden\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET productos (USER, debe funcionar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_user}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/productos",
+          "host": ["{{base_url}}"],
+          "path": ["productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET productos (SUPERVISOR, debe funcionar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_supervisor}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/productos",
+          "host": ["{{base_url}}"],
+          "path": ["productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST productos (SUPERVISOR, debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_supervisor}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Test\",\n  \"precio\": 100,\n  \"stock\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/productos",
+          "host": ["{{base_url}}"],
+          "path": ["productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 403 Forbidden\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET clientes (USER, debe funcionar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_user}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/clientes",
+          "host": ["{{base_url}}"],
+          "path": ["clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "[ADMIN] PUT productos",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"descripcion\": \"Actualización automatizada\",\n  \"precio\": 150,\n  \"stock\": 20\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] PUT productos (debe fallar)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"descripcion\": \"Actualización automatizada\",\n  \"precio\": 150,\n  \"stock\": 20\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] PUT productos (debe fallar)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"descripcion\": \"Actualización automatizada\",\n  \"precio\": 150,\n  \"stock\": 20\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] DELETE productos",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] DELETE productos (debe fallar)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] DELETE productos (debe fallar)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET usuarios",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET usuarios (debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET usuarios (debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST usuarios",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Nuevo Usuario\",\n  \"correo\": \"nuevo@erp.com\",\n  \"password\": \"nuevo123\",\n  \"rol\": \"USER\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST usuarios (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Nuevo Usuario\",\n  \"correo\": \"nuevo@erp.com\",\n  \"password\": \"nuevo123\",\n  \"rol\": \"USER\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST usuarios (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Nuevo Usuario\",\n  \"correo\": \"nuevo@erp.com\",\n  \"password\": \"nuevo123\",\n  \"rol\": \"USER\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/usuarios", "host": ["{{base_url}}"], "path": ["usuarios"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET clientes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET clientes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET clientes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST clientes",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente Admin\",\n  \"correo\": \"clienteadmin@erp.com\",\n  \"telefono\": \"123456789\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST clientes",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente Supervisor\",\n  \"correo\": \"clientesupervisor@erp.com\",\n  \"telefono\": \"987654321\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST clientes (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente User\",\n  \"correo\": \"clienteuser@erp.com\",\n  \"telefono\": \"555555555\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/clientes", "host": ["{{base_url}}"], "path": ["clientes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET pedidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET pedidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET pedidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST pedidos",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": 1,\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 2,\n      \"precioUnitario\": 100\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST pedidos",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": 1,\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1,\n      \"precioUnitario\": 100\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST pedidos (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": 1,\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1,\n      \"precioUnitario\": 100\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET proveedores",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET proveedores",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET proveedores",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST proveedores",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Admin\",\n  \"correo\": \"proveedoradmin@erp.com\",\n  \"telefono\": \"111111111\",\n  \"direccion\": \"Dirección Admin\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST proveedores",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Supervisor\",\n  \"correo\": \"proveedorsupervisor@erp.com\",\n  \"telefono\": \"222222222\",\n  \"direccion\": \"Dirección Supervisor\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST proveedores (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor User\",\n  \"correo\": \"proveedoruser@erp.com\",\n  \"telefono\": \"333333333\",\n  \"direccion\": \"Dirección User\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/proveedores", "host": ["{{base_url}}"], "path": ["proveedores"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET reportes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes", "host": ["{{base_url}}"], "path": ["reportes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET reportes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes", "host": ["{{base_url}}"], "path": ["reportes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET reportes (debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes", "host": ["{{base_url}}"], "path": ["reportes"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET reportes/productos-mas-vendidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/productos-mas-vendidos", "host": ["{{base_url}}"], "path": ["reportes", "productos-mas-vendidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET reportes/productos-mas-vendidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/productos-mas-vendidos", "host": ["{{base_url}}"], "path": ["reportes", "productos-mas-vendidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET reportes/productos-mas-vendidos (debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/productos-mas-vendidos", "host": ["{{base_url}}"], "path": ["reportes", "productos-mas-vendidos"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET reportes/stock-bajo",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/stock-bajo", "host": ["{{base_url}}"], "path": ["reportes", "stock-bajo"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET reportes/stock-bajo",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/stock-bajo", "host": ["{{base_url}}"], "path": ["reportes", "stock-bajo"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET reportes/stock-bajo (debe fallar)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/reportes/stock-bajo", "host": ["{{base_url}}"], "path": ["reportes", "stock-bajo"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET movimientos-inventario",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET movimientos-inventario",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET movimientos-inventario",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST movimientos-inventario (entrada)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productoId\": 1,\n  \"tipo\": \"ENTRADA\",\n  \"cantidad\": 10,\n  \"motivo\": \"Compra de inventario\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST movimientos-inventario (salida)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productoId\": 1,\n  \"tipo\": \"SALIDA\",\n  \"cantidad\": 5,\n  \"motivo\": \"Venta de productos\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST movimientos-inventario (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productoId\": 1,\n  \"tipo\": \"AJUSTE\",\n  \"cantidad\": 2,\n  \"motivo\": \"Ajuste de inventario\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/movimientos-inventario", "host": ["{{base_url}}"], "path": ["movimientos-inventario"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET movimientos-inventario/producto/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario/producto/1", "host": ["{{base_url}}"], "path": ["movimientos-inventario", "producto", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET movimientos-inventario/producto/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario/producto/1", "host": ["{{base_url}}"], "path": ["movimientos-inventario", "producto", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET movimientos-inventario/producto/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/movimientos-inventario/producto/1", "host": ["{{base_url}}"], "path": ["movimientos-inventario", "producto", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET compras",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET compras",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET compras",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] POST compras",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proveedorId\": 1,\n  \"numeroFactura\": \"FAC-001\",\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 5,\n      \"precioUnitario\": 80,\n      \"descuento\": 0\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] POST compras",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proveedorId\": 1,\n  \"numeroFactura\": \"FAC-002\",\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 3,\n      \"precioUnitario\": 85,\n      \"descuento\": 5\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] POST compras (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proveedorId\": 1,\n  \"numeroFactura\": \"FAC-003\",\n  \"detalles\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 2,\n      \"precioUnitario\": 90,\n      \"descuento\": 0\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": { "raw": "{{base_url}}/compras", "host": ["{{base_url}}"], "path": ["compras"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 403 Forbidden\", function () {",
+          "    pm.response.to.have.status(403);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[ADMIN] GET compras/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras/1", "host": ["{{base_url}}"], "path": ["compras", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[SUPERVISOR] GET compras/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras/1", "host": ["{{base_url}}"], "path": ["compras", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    },
+    {
+      "name": "[USER] GET compras/1",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/compras/1", "host": ["{{base_url}}"], "path": ["compras", "1"] }
+      },
+      "event": [
+        { "listen": "test", "script": { "exec": [
+          "pm.test(\"Debe responder 200 OK\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});"
+        ], "type": "text/javascript" } }
+      ]
+    }
+  ]
+}
