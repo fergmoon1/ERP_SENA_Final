@@ -1260,3 +1260,19 @@ Tests:
 Haz clic en el botón Runner (ícono de rayo).
 Selecciona tu colección y el entorno ERP_SENA_Test.
 Haz clic en Run y revisa los resultados de los tests.
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+FRONTEND
+-----------------
+
+frontend-erp/
+  └── src/
+      ├── components/
+      ├── pages/
+      ├── styles/
+      ├── App.js
+      ├── index.js
+      └── ...
