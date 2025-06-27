@@ -2,6 +2,7 @@ package com.empresa.erp.models;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "proveedor")
@@ -43,6 +44,7 @@ public class Proveedor {
     
     // Relación con compras (opcional, para consultas)
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Compra> compras;
     
     // Constructor por defecto

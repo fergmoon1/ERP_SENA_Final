@@ -13,6 +13,7 @@ import com.empresa.erp.repositories.ProductoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -142,7 +143,8 @@ public class PedidoService {
         }
 
         pedidoParaGuardar.setTotal(totalCalculado);
-        pedidoParaGuardar.setFecha(pedido.getFecha());
+        pedidoParaGuardar.setFecha(LocalDate.now());
+        pedidoParaGuardar.setEstado("PENDIENTE");
 
         Pedido pedidoGuardado = pedidoRepository.save(pedidoParaGuardar);
 
@@ -190,9 +192,9 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + dto.getClienteId()));
         pedido.setCliente(cliente);
         
-        // Asignar fecha y estado
-        pedido.setFecha(dto.getFechaPedido());
-        pedido.setEstado(dto.getEstado());
+        // Asignar fecha actual y estado por defecto
+        pedido.setFecha(LocalDate.now());
+        pedido.setEstado("PENDIENTE");
         
         // Crear los detalles del pedido
         List<DetallePedido> detalles = new ArrayList<>();

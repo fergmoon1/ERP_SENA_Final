@@ -175,14 +175,25 @@ INSERT INTO producto (nombre, descripcion, precio, stock) VALUES
 -- =========================
 
 UPDATE usuario
-SET password = '$2a$12$KzldkpT2KF6SdZBtYFeKDOHL.nmn6EVAwxF4OMtFHcF7Miug138Ei'
+SET password = '$2a$12$sUSjklKzjNW1Bkq349lCjOXlIAO9UCKupl8u5lnUwpX7mxOT5swBO'
 WHERE correo = 'admin@erp.com';
 
 UPDATE usuario
-SET password = '$2a$12$/lJq/0w.2eyBPDiCgJ5eduv7lQkspEFLmN5HU/r5iXGw4TylK4yWa'
+SET password = '$2a$12$U7M/ChnpihGlZLj4e8GX4eev3COWxUxy4WmMyyLJQqJl6xzF7w6cy'
 WHERE correo = 'supervisor@erp.com';
 
 UPDATE usuario
-SET password = '$2a$12$O/JsCjswHfyj1qt6p89j5OL8EA7.JHWBo0rjqQkNqExibmpkS1wwe'
+SET password = '$2a$12$mGhgeYeMPc11W53UyVO6PuAFluy9nl6Uk8rE0AMoi5QneJ/3J.xGu'
 WHERE correo = 'user@erp.com';
+
+UPDATE usuario SET password = 'HASH_ADMIN' WHERE correo = 'admin@erp.com';
+UPDATE usuario SET password = 'HASH_SUPERVISOR' WHERE correo = 'supervisor@erp.com';
+UPDATE usuario SET password = 'HASH_USER' WHERE correo = 'user@erp.com';
+
+SELECT * FROM usuario WHERE correo = 'admin@erp.com';
+SELECT * FROM usuario WHERE correo = 'supervisor@erp.com';
+SELECT * FROM usuario WHERE correo = 'user@erp.com';
+
+SELECT id, correo, nombre, password, rol FROM usuario;
+
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "compra")
@@ -15,6 +16,7 @@ public class Compra {
     
     @ManyToOne
     @JoinColumn(name = "proveedor_id", nullable = false)
+    @JsonBackReference
     private Proveedor proveedor;
     
     @Column(nullable = false)

@@ -1,0 +1,1 @@
+SELECT * FROM erp_sena.usuario;
