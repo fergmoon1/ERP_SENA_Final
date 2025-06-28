@@ -1,17 +1,1 @@
 eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcnZpc29yQGVycC5jb20iLCJyb2wiOiJTVVBFUlZJU09SIiwiaWF0IjoxNzUwOTc0NzA1LCJleHAiOjE3NTEwNjExMDV9.TPLfpQnvqnCSUFZWJvkhzp3NaCbylxCryd9fN8-MPWQ
-
-
-76509011737-94jhot6p2t3bh8c0h2jgu6t8n275js00.apps.googleusercontent.com
-
-
-
-
-********************************* ERP-SENA*****************************************
-
-Cliente-OAuth-ErpSena
-
-1020550477577-p2agvl0se7daqnfv9k0vijg05fs1ol0d.apps.googleusercontent.com      ID Cliente
-
-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   secreto de cliente
-
-****************************************************************************************
