@@ -29,8 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // Saltarse el procesamiento JWT para endpoints de autenticación
-        if (request.getRequestURI().startsWith("/api/auth/")) {
+        // Saltarse el procesamiento JWT para endpoints de autenticación y OAuth2
+        if (request.getRequestURI().startsWith("/api/auth/") || 
+            request.getRequestURI().startsWith("/oauth2/") ||
+            request.getRequestURI().startsWith("/login/oauth2/") ||
+            request.getRequestURI().startsWith("/oauth/")) {
             filterChain.doFilter(request, response);
             return;
         }

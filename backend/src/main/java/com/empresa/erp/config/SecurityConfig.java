@@ -43,6 +43,9 @@ public class SecurityConfig {
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/api").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
+                .requestMatchers("/login/oauth2/code/**").permitAll()
+                .requestMatchers("/oauth/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "SUPERVISOR")
@@ -72,8 +75,29 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/movimientos-inventario/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("http://localhost:3000/dashboard", true)
+                .failureUrl("http://localhost:3000/login?error=oauth_failed")
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain oauth2FilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/oauth2/**", "/login/oauth2/**")
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("http://localhost:3000/dashboard", true)
+                .failureUrl("http://localhost:3000/login?error=oauth_failed")
+            );
+        
         return http.build();
     }
 
