@@ -1,26 +1,49 @@
 import React, { useEffect, useState } from "react";
 import "../styles/DashboardPage.css";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const DashboardPage = () => {
   const [user, setUser] = useState(null);
+  const location = window.location;
+  const navigate = (path) => { window.location.href = path; };
 
   useEffect(() => {
+    // Capturar token y refreshToken de la URL si existen
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const refreshToken = params.get("refreshToken");
+    let tokenToUse = localStorage.getItem("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      tokenToUse = token;
+    }
+    if (refreshToken) {
+      localStorage.setItem("refreshToken", refreshToken);
+    }
+    // Limpiar la URL (quitar los parámetros)
+    if (token || refreshToken) {
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
     // Verificar si el usuario está autenticado
-    const token = localStorage.getItem("token");
-    if (!token) {
-      // Si no hay token, redirigir al login
+    if (!tokenToUse) {
       window.location.href = "/login";
       return;
     }
-
     // Aquí puedes hacer una petición al backend para obtener información del usuario
-    // Por ahora, mostraremos un mensaje de bienvenida
-    setUser({ name: "Usuario OAuth" });
+    axios.get("http://localhost:8081/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${tokenToUse}`,
+      },
+    })
+      .then(res => setUser(res.data))
+      .catch(() => setUser({ name: "Usuario OAuth" }));
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    localStorage.removeItem("refreshToken");
+    navigate("/login");
   };
 
   if (!user) {
@@ -37,7 +60,7 @@ const DashboardPage = () => {
       </header>
       
       <main className="dashboard-content">
-        <h2>¡Bienvenido, {user.name}!</h2>
+        <h2>¡Bienvenido, {user.nombre || user.name}!</h2>
         <p>Has iniciado sesión exitosamente con OAuth.</p>
         
         <div className="dashboard-modules">

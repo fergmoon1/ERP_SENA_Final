@@ -3,10 +3,12 @@ package com.empresa.erp.controllers;
 import com.empresa.erp.services.AuthService;
 import com.empresa.erp.models.RefreshToken;
 import com.empresa.erp.repositories.RefreshTokenRepository;
+import com.empresa.erp.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,6 +17,8 @@ public class AuthController {
     private final AuthService authService;
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -46,5 +50,12 @@ public class AuthController {
             .orElseThrow(() -> new RuntimeException("Refresh token inválido"));
         refreshTokenRepository.delete(refreshToken);
         return Map.of("message", "Logout exitoso");
+    }
+
+    @GetMapping("/me")
+    public com.empresa.erp.models.Usuario getCurrentUser(Authentication authentication) {
+        String correo = authentication.getName();
+        return usuarioRepository.findByCorreo(correo)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 } 

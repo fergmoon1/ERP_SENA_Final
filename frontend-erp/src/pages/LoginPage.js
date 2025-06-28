@@ -69,7 +69,12 @@ const LoginPage = () => {
           />
         </label>
         <button className="submit" type="submit">Sign In</button>
-        <button type="button" id="googleLogin" className="submit" onClick={handleGoogleLogin}>
+        <div style={{margin: '16px 0', textAlign: 'center'}}>
+          <span style={{color: '#888'}}>o</span>
+        </div>
+        {/* Botón para iniciar sesión con Google (OAuth2) */}
+        <button type="button" id="googleLogin" className="submit" style={{background: '#4285F4', color: 'white', marginBottom: '8px'}} onClick={handleGoogleLogin}>
+          <img src="/images/google.png" alt="Google" style={{width: 20, marginRight: 8, verticalAlign: 'middle'}} />
           Iniciar sesión con Google
         </button>
         <p className="forgot-pass">Forgot password?</p>
