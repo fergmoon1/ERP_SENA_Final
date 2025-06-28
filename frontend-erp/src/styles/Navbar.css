@@ -1,0 +1,178 @@
+/* Topbar */
+.topbar {
+    display: flex;
+    align-items: center;
+    background: #dddcdc;
+    height: 100px;
+    padding: 0 15px;
+    border-radius: 26px;
+    margin: 6px;
+    box-sizing: border-box;
+    width: calc(100% - 8px);
+    margin-left: 0;
+    color: rgba(46, 46, 46, 0.911);
+    overflow: visible;
+    position: relative; /* Permite posicionar .busqueda de manera absoluta */
+}
+
+/* Contenedor de los elementos de la topbar */
+.topbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Ícono de hamburguesa */
+.hamburger {
+    display: none; /* Oculto por defecto en pantallas grandes */
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.dashboard-texto {
+    display: flex;
+    flex-direction: column;
+    text-align: left; /* Alinea el texto a la izquierda */
+}
+
+.perfil {
+    display: flex;
+    align-items: center; /* Centrado vertical */
+    justify-content: center;
+    flex-grow: 1;
+    gap: 10px;
+}
+
+.perfil-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrado horizontal */
+    justify-content: center; /* Centrado vertical */
+    text-align: center;
+}
+
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin: 0 auto; /* Sin márgenes adicionales */
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.perfil-texto strong,
+.perfil-texto span {
+    display: block; /* Fuerza que cada texto ocupe una línea */
+}
+
+.busqueda {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre input e íconos */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1; /* Asegura que .busqueda no se superponga con .hora */
+    /* left será ajustado por JavaScript */
+}
+
+.busqueda input {
+    padding: 5px 10px;
+    border-radius: 18px; /* Bordes más redondeados como en la imagen */
+    border: 1px solid #949494; /* Borde gris claro */
+    width: 250px; /* Ancho fijo para la barra de búsqueda */
+    height:36px;
+}
+
+.busqueda i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; /* Tamaño de los círculos */
+    height: 36px;
+    border-radius: 50%;
+    background-color: white; /* Fondo blanco */
+    border: .5px solid rgb(94, 94, 94); /* Borde gris claro */
+    color: rgb(94, 94, 94); /* Color del ícono */
+    font-size: 16px;
+}
+
+.hora {
+    text-align: right;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.8; /* Espacio entre líneas */
+    margin-left: auto; /* Asegura que .hora esté completamente a la derecha */
+    z-index: 2; /* Asegura que .hora esté por encima de .busqueda */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .topbar {
+        height: auto; /* Ajusta la altura */
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start; /* Alinea el ícono de hamburguesa a la izquierda */
+    }
+
+    .hamburger {
+        display: block; /* Muestra el ícono de hamburguesa */
+    }
+
+    .topbar-content {
+        display: none; /* Oculta el contenido por defecto */
+        flex-direction: column; /* Apila los elementos verticalmente */
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .topbar-content.active {
+        display: flex; /* Muestra el contenido cuando está activo */
+    }
+
+    .dashboard-texto {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .perfil {
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    .perfil-texto {
+        text-align: center;
+    }
+
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 10px;
+    }
+
+    .busqueda {
+        position: static; /* Vuelve a la posición estática */
+        transform: none;
+        margin-bottom: 15px;
+        justify-content: center;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .busqueda input {
+        width: 100%;
+    }
+
+    .hora {
+        text-align: center;
+        margin-left: 0;
+        margin-bottom: 15px;
+    }
+} 

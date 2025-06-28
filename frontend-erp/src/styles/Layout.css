@@ -1,0 +1,39 @@
+/* Reset General */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: white;
+    color: rgb(216, 216, 216); /*Color letras side bar*/
+    font-size: 12px; 
+}
+
+.container-fluid {
+    display: flex;
+    height: 100vh;
+    padding: 0; /* Elimina cualquier padding implícito */
+}
+
+/* Contenido */
+.contenido {
+    flex: 1;
+    padding: 0; /* Sin padding */
+}
+
+.work-area {
+    padding: 20px; /* Espacio interno */
+    height: calc(100vh - 118px); /* Ajustamos altura: 112px (topbar + márgenes) + 6px (nuevo margen inferior) */
+    width: calc(100% - 12px); /* Ajustamos ancho: 100% menos 6px de margen izquierdo + 6px de margen derecho implícito */
+    background: rgb(236, 236, 236); /* Fondo azul claro */
+    color: black; /* Texto negro */
+    overflow-y: auto; /* Scroll si es necesario */
+    box-sizing: border-box; /* Incluye padding en las dimensiones */
+    border-radius: 26px; /* Bordes redondeados, igual que sidebar y topbar */
+    margin-bottom: 6px; /* Separación del borde inferior */
+    margin-left: 3px; /* Separación del borde izquierdo */
+    border: 1px solid rgb(226, 226, 226); /* Borde gris claro */
+} 

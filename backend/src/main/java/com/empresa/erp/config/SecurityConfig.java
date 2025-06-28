@@ -100,7 +100,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2SuccessHandler())
-                .failureUrl("http://localhost:3000/login?error=oauth_failed")
+                .failureUrl("http://localhost:3001/login?error=oauth_failed")
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class);
@@ -118,7 +118,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2SuccessHandler())
-                .failureUrl("http://localhost:3000/login?error=oauth_failed")
+                .failureUrl("http://localhost:3001/login?error=oauth_failed")
             );
         
         return http.build();
@@ -160,10 +160,10 @@ public class SecurityConfig {
                     Map<String, String> tokens = authService.generateTokens(usuario);
                     String jwt = tokens.get("token");
                     String refreshToken = tokens.get("refreshToken");
-                    String redirectUrl = "http://localhost:3000/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
+                    String redirectUrl = "http://localhost:3001/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
                     response.sendRedirect(redirectUrl);
                 } else {
-                    response.sendRedirect("http://localhost:3000/login?error=oauth_failed");
+                    response.sendRedirect("http://localhost:3001/login?error=oauth_failed");
                 }
             }
         };
