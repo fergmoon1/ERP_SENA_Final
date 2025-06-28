@@ -33,7 +33,6 @@ com\empresa\erp\controllers\HomeController.class
 com\empresa\erp\controllers\ReporteController.class
 com\empresa\erp\models\Proveedor.class
 com\empresa\erp\repositories\MovimientoInventarioRepository.class
-com\empresa\erp\controllers\OAuthController.class
 com\empresa\erp\repositories\RefreshTokenRepository.class
 com\empresa\erp\models\DetallePedidoDTO.class
 com\empresa\erp\models\MovimientoInventario$TipoMovimiento.class

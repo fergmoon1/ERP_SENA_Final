@@ -1,5 +1,6 @@
 
-
+Actúa como un desarrollador full stack experto en migración de arquitecturas monolíticas a aplicaciones desacopladas con frontend en React y backend persistente en MySQL. Tengo una aplicación hecha en Spring Framework con base de datos MySQL, 🧩 Objetivo de la migración: Migrar progresivamente la aplicación a una arquitectura frontend-backend desacoplada. El frontend debe construirse en React, y el backend puede mantenerse en Spring Boot o Node.js, pero conectado a la misma base de datos MySQL. 🎯 Lo que necesitas hacer: Analiza la estructura del proyecto Spring (controladores, servicios, modelos, repositorios)
+Diseña un backend RESTful para la entidad Libros, que exponga endpoints . Construye un frontend en React con Formulario para agregar/editar. Eliminación de libros con confirmación. Usa axios o fetch para conectar el frontend al backend. Explica la estructura de carpetas final tanto en el frontend como en el backend. Entrega el paso a paso detallado con comandos, configuración y archivos clave modificados o creados. Respuestas en español. Se usará postman para verificar los endpoints que deberan ser JSON. Se requiere paso a paso con mi verificacion entre cada uno para poder continuar. 
 
 
 

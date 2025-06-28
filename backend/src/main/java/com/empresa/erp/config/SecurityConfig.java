@@ -27,6 +27,11 @@ import com.empresa.erp.services.AuthService;
 import com.empresa.erp.services.UsuarioService;
 import com.empresa.erp.models.Usuario;
 import java.util.Map;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 @EnableMethodSecurity

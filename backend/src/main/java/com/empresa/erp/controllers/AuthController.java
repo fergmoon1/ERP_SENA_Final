@@ -9,6 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -57,5 +63,28 @@ public class AuthController {
         String correo = authentication.getName();
         return usuarioRepository.findByCorreo(correo)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    @PostMapping("/verify-recaptcha")
+    public Map<String, Object> verifyRecaptcha(@RequestBody Map<String, String> body, HttpSession session) {
+        String recaptchaToken = body.get("recaptchaToken");
+        String secret = "6LcMF2MrAAAAAMUMBrE_jrUsG8-_BUTi3CoGwvyd"; // Cambia por tu clave secreta real
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://www.google.com/recaptcha/api/siteverify";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        Map<String, String> params = new HashMap<>();
+        params.put("secret", secret);
+        params.put("response", recaptchaToken);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(url + "?secret=" + secret + "&response=" + recaptchaToken, null, Map.class);
+        Map<String, Object> bodyResp = response.getBody();
+        boolean success = (Boolean) bodyResp.getOrDefault("success", false);
+        if (success) {
+            session.setAttribute("recaptcha_verified", true);
+            return Map.of("success", true);
+        } else {
+            return Map.of("success", false, "error", bodyResp.get("error-codes"));
+        }
     }
 } 

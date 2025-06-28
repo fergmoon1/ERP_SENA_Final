@@ -15,7 +15,6 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.ja
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\HomeController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
-C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\OAuthController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RateLimitService.java

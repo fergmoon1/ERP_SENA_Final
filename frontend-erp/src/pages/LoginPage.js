@@ -39,8 +39,13 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Redirigir directamente al endpoint OAuth2 de Spring Boot
+  const handleGoogleLogin = async () => {
+    if (!recaptchaToken) {
+      setError("Por favor, completa el reCAPTCHA antes de iniciar sesión con Google.");
+      return;
+    }
+    // Redirigir directamente a OAuth2 sin verificar reCAPTCHA en backend
+    // El reCAPTCHA ya está validado en frontend
     window.location.href = "http://localhost:8081/oauth2/authorization/google";
   };
 
@@ -73,7 +78,7 @@ const LoginPage = () => {
           <span style={{color: '#888'}}>o</span>
         </div>
         {/* Botón para iniciar sesión con Google (OAuth2) */}
-        <button type="button" id="googleLogin" className="submit" style={{background: '#4285F4', color: 'white', marginBottom: '8px'}} onClick={handleGoogleLogin}>
+        <button type="button" id="googleLogin" className="submit" style={{background: '#4285F4', color: 'white', marginBottom: '8px'}} onClick={handleGoogleLogin} disabled={!recaptchaToken}>
           <img src="/images/google.png" alt="Google" style={{width: 20, marginRight: 8, verticalAlign: 'middle'}} />
           Iniciar sesión con Google
         </button>
