@@ -15,6 +15,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import com.empresa.erp.services.AuthService;
+import com.empresa.erp.services.UsuarioService;
+import com.empresa.erp.models.Usuario;
+import java.util.Map;
 
 @Configuration
 @EnableMethodSecurity
@@ -25,6 +37,12 @@ public class SecurityConfig {
 
     @Autowired
     private RateLimitFilter rateLimitFilter;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -76,7 +94,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("http://localhost:3000/dashboard", true)
+                .successHandler(oAuth2SuccessHandler())
                 .failureUrl("http://localhost:3000/login?error=oauth_failed")
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -94,7 +112,7 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("http://localhost:3000/dashboard", true)
+                .successHandler(oAuth2SuccessHandler())
                 .failureUrl("http://localhost:3000/login?error=oauth_failed")
             );
         
@@ -112,5 +130,37 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler oAuth2SuccessHandler() {
+        return new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+                    OAuth2User oauth2User = oauthToken.getPrincipal();
+                    String email = oauth2User.getAttribute("email");
+                    String nombre = oauth2User.getAttribute("name");
+                    Usuario usuario = usuarioService.findAll().stream()
+                        .filter(u -> u.getCorreo().equalsIgnoreCase(email))
+                        .findFirst()
+                        .orElseGet(() -> {
+                            Usuario nuevo = new Usuario();
+                            nuevo.setCorreo(email);
+                            nuevo.setNombre(nombre);
+                            nuevo.setRol("USER");
+                            nuevo.setPassword("");
+                            return usuarioService.save(nuevo);
+                        });
+                    Map<String, String> tokens = authService.generateTokens(usuario);
+                    String jwt = tokens.get("token");
+                    String refreshToken = tokens.get("refreshToken");
+                    String redirectUrl = "http://localhost:3000/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
+                    response.sendRedirect(redirectUrl);
+                } else {
+                    response.sendRedirect("http://localhost:3000/login?error=oauth_failed");
+                }
+            }
+        };
     }
 }

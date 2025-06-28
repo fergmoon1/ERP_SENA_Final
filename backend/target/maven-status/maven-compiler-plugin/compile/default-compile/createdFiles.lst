@@ -28,6 +28,7 @@ com\empresa\erp\services\UsuarioService.class
 com\empresa\erp\models\DetallePedido.class
 com\empresa\erp\repositories\DetallePedidoRepository.class
 com\empresa\erp\controllers\TestController.class
+com\empresa\erp\config\SecurityConfig$1.class
 com\empresa\erp\controllers\HomeController.class
 com\empresa\erp\controllers\ReporteController.class
 com\empresa\erp\models\Proveedor.class
