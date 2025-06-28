@@ -11,6 +11,17 @@ function App() {
     return !!token;
   };
 
+  // Ejemplo típico
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const refreshToken = params.get('refreshToken');
+  if (token && refreshToken) {
+    localStorage.setItem('jwt', token);
+    localStorage.setItem('refreshToken', refreshToken);
+    // Limpia la URL
+    window.history.replaceState({}, document.title, '/');
+  }
+
   return (
     <Router>
       <div className="App">

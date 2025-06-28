@@ -30,7 +30,7 @@ const LoginPage = () => {
         password,
         "recaptcha-token": recaptchaToken,
       });
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("jwt", response.data.token);
       window.location.href = "/dashboard";
     } catch (err) {
       setError("Credenciales incorrectas, error de conexión o reCAPTCHA inválido.");
