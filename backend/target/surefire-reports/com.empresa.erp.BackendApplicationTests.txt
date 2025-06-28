@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.empresa.erp.BackendApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 29.76 s -- in com.empresa.erp.BackendApplicationTests

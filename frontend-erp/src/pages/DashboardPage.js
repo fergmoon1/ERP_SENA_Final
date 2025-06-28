@@ -11,19 +11,37 @@ const DashboardPage = () => {
 
   // Capturar tokens de la URL si vienen de OAuth
   useEffect(() => {
+    console.log('DashboardPage - URL actual:', location.search);
     const urlParams = new URLSearchParams(location.search);
     const token = urlParams.get('token');
     const refreshToken = urlParams.get('refreshToken');
 
+    console.log('DashboardPage - Token encontrado:', !!token);
+    console.log('DashboardPage - RefreshToken encontrado:', !!refreshToken);
+
     if (token && refreshToken) {
+      console.log('DashboardPage - Guardando tokens en localStorage');
       // Guardar tokens en localStorage
       localStorage.setItem('jwt', token);
       localStorage.setItem('refreshToken', refreshToken);
       
       // Limpiar la URL
       navigate('/dashboard', { replace: true });
+    } else {
+      console.log('DashboardPage - No se encontraron tokens en la URL');
     }
   }, [location, navigate]);
+
+  // Verificar si el usuario está autenticado
+  useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    console.log('DashboardPage - Token en localStorage:', !!token);
+    
+    if (!token) {
+      console.log('DashboardPage - No hay token, redirigiendo a login');
+      navigate('/login');
+    }
+  }, [navigate]);
 
   // Datos de ejemplo - estos vendrían del backend
   const dashboardData = {

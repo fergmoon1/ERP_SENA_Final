@@ -1,7 +1,73 @@
 
 Actúa como un desarrollador full stack experto en migración de arquitecturas monolíticas a aplicaciones desacopladas con frontend en React y backend persistente en MySQL. Tengo una aplicación hecha en Spring Framework con base de datos MySQL, 🧩 Objetivo de la migración: Migrar progresivamente la aplicación a una arquitectura frontend-backend desacoplada. El frontend debe construirse en React, y el backend puede mantenerse en Spring Boot o Node.js, pero conectado a la misma base de datos MySQL. 🎯 Lo que necesitas hacer: Analiza la estructura del proyecto Spring (controladores, servicios, modelos, repositorios)
 Diseña un backend RESTful para la entidad Libros, que exponga endpoints . Construye un frontend en React con Formulario para agregar/editar. Eliminación de libros con confirmación. Usa axios o fetch para conectar el frontend al backend. Explica la estructura de carpetas final tanto en el frontend como en el backend. Entrega el paso a paso detallado con comandos, configuración y archivos clave modificados o creados. Respuestas en español. Se usará postman para verificar los endpoints que deberan ser JSON. Se requiere paso a paso con mi verificacion entre cada uno para poder continuar. 
+Veo el problema. El backend no puede iniciar porque el puerto 8081 ya está en uso. Necesitamos detener el proceso que está usando ese puerto.
 
+
+/////////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+netstat -ano | findstr :8081
+
+TCP    0.0.0.0:8081           0.0.0.0:0              LISTENING       21252
+  TCP    [::]:8081              [::]:0                 LISTENING       21252
+PS C:\ERP_SENA_Final>
+
+El proceso 21252 está usando el puerto 8081. Vamos a detenerlo:
+
+taskkill /F /PID 21252
+//////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+En Windows, si usas PowerShell y el puerto está ocupado, React no puede forzar el cierre automáticamente.
+Si te vuelve a preguntar, es porque algo sigue usando el puerto. Puedes liberar el puerto así:
+Abre PowerShell como administrador y ejecuta:
+
+     netstat -ano | findstr :3001
+
+Busca el PID (número de proceso) y luego:
+
+     taskkill /F /PID <PID>
+
+(Reemplaza <PID> por el número que te dio el comando anterior).
+
+////////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+2. Script para liberar el puerto 3001 automáticamente (Windows)
+Puedes crear un script llamado, por ejemplo, liberar_puerto_3001.bat en la raíz del proyecto con este contenido:
+
+@echo off
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3001 ^| findstr LISTENING') do (
+    echo Terminando proceso en el puerto 3001 con PID %%a
+    taskkill /F /PID %%a
+)
+
+¿Cómo usarlo?
+Haz doble clic en el archivo antes de iniciar el frontend, o ejecútalo desde la terminal con:
+
+   liberar_puerto_3001.bat
+
+Luego entra a la carpeta frontend-erp y ejecuta
+
+   npm start
+
+3. Recomendaciones adicionales
+Nunca aceptes que React cambie de puerto. Si te pregunta, es porque el 3001 está ocupado. Detén el proceso que lo usa (con el script o manualmente).
+No abras varias instancias del frontend. Solo una debe estar corriendo en el 3001.
+El backend debe redirigir siempre a http://localhost:3001 tras el login OAuth.
+
+4. (Opcional) Automatiza todo con un solo script
+Puedes crear un script .bat que libere el puerto y arranque el frontend automáticamente:
+
+@echo off
+cd /d %~dp0
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3001 ^| findstr LISTENING') do (
+    echo Terminando proceso en el puerto 3001 con PID %%a
+    taskkill /F /PID %%a
+)
+cd frontend-erp
+npm start
+
+Guárdalo como iniciar_frontend.bat y ejecútalo cada vez que quieras arrancar el frontend.
+
+/////////////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
 ERP_SENA_Final/
