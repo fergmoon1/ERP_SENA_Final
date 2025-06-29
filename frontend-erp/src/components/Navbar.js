@@ -44,7 +44,9 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
           <h1>{title}</h1>
           <p>{subtitle}</p>
         </div>
-        
+
+        <div className="spacer"></div>
+
         <div className="perfil">
           <div className="perfil-texto">
             <div className="avatar-circle">
@@ -54,17 +56,18 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
             <span>Administrador</span>
           </div>
         </div>
-        
-        <div className="busqueda">
-          <input type="text" placeholder="Buscar..." />
-          <i className="fa-solid fa-moon"></i>
-          <i className="fa-solid fa-magnifying-glass-plus"></i>
-          <i className="fa-solid fa-magnifying-glass-minus"></i>
-        </div>
-        
-        <div className="hora">
-          <div>{formatTime(currentTime)}</div>
-          <div>{formatDate(currentTime)}</div>
+
+        <div className="navbar-derecha">
+          <div className="busqueda">
+            <input type="text" placeholder="Buscar..." />
+            <i className="fa-solid fa-moon"></i>
+            <i className="fa-solid fa-magnifying-glass-plus"></i>
+            <i className="fa-solid fa-magnifying-glass-minus"></i>
+          </div>
+          <div className="hora">
+            <div className="fecha">{formatDate(currentTime)}</div>
+            <div className="tiempo">{formatTime(currentTime)}</div>
+          </div>
         </div>
       </div>
     </header>

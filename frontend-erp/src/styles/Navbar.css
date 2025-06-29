@@ -17,9 +17,12 @@
 
 /* Contenedor de los elementos de la topbar */
 .topbar-content {
-    display: flex;
+    display: grid;
+    grid-template-columns: 250px 1fr 180px 1.8fr;
     align-items: center;
     width: 100%;
+    gap: 0;
+    /*background-color: aqua;*/
 }
 
 /* Ícono de hamburguesa */
@@ -33,15 +36,24 @@
 .dashboard-texto {
     display: flex;
     flex-direction: column;
-    text-align: left; /* Alinea el texto a la izquierda */
+    text-align: left;
+    min-width: 200px;
+    justify-self: start;
+    grid-column: 1;
+}
+
+.spacer {
+    grid-column: 2;
 }
 
 .perfil {
     display: flex;
-    align-items: center; /* Centrado vertical */
+    align-items: center;
     justify-content: center;
-    flex-grow: 1;
     gap: 10px;
+    justify-self: center;
+    grid-column: 3;
+    margin-left: 0;
 }
 
 .perfil-texto {
@@ -74,12 +86,9 @@
 .busqueda {
     display: flex;
     align-items: center;
-    gap: 8px; /* Espacio entre input e íconos */
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1; /* Asegura que .busqueda no se superponga con .hora */
-    /* left será ajustado por JavaScript */
+    gap: 8px;
+    margin-right: 0;
+    justify-self: flex-start;
 }
 
 .busqueda input {
@@ -108,71 +117,64 @@
     font-size: 15px;
     display: flex;
     flex-direction: column;
-    line-height: 1.8; /* Espacio entre líneas */
-    margin-left: auto; /* Asegura que .hora esté completamente a la derecha */
-    z-index: 2; /* Asegura que .hora esté por encima de .busqueda */
+    line-height: 1.8;
+    min-width: 80px;
+    justify-self: end;
+    margin-left: 32px;
+}
+
+/* Contenedor para barra de búsqueda y hora en la tercera columna */
+.navbar-derecha {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    grid-column: 4;
+    width: 100%;
+    gap: 42px;  /* <-- Este número separa la barra de búsqueda de la hora */
+}
+
+.busqueda-spacer {
+    flex: 1;
 }
 
 /* Responsividad */
-@media (max-width: 768px) {
-    .topbar {
-        height: auto; /* Ajusta la altura */
-        padding: 10px;
-        flex-direction: column;
-        align-items: flex-start; /* Alinea el ícono de hamburguesa a la izquierda */
-    }
-
-    .hamburger {
-        display: block; /* Muestra el ícono de hamburguesa */
-    }
-
+@media (max-width: 1024px) {
     .topbar-content {
-        display: none; /* Oculta el contenido por defecto */
-        flex-direction: column; /* Apila los elementos verticalmente */
-        width: 100%;
-        padding: 10px 0;
+        grid-template-columns: 1fr 120px 1fr;
     }
+    .spacer { display: none; }
+}
 
-    .topbar-content.active {
-        display: flex; /* Muestra el contenido cuando está activo */
+@media (max-width: 768px) {
+    .topbar-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        gap: 10px;
     }
-
     .dashboard-texto {
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: center;
         text-align: center;
-        margin-bottom: 15px;
     }
-
     .perfil {
-        justify-content: center;
-        margin-bottom: 15px;
+        grid-column: 1;
+        grid-row: 2;
+        justify-self: center;
+        margin-left: 0;
     }
-
-    .perfil-texto {
-        text-align: center;
+    .navbar-derecha {
+        grid-column: 1;
+        grid-row: 3;
+        flex-direction: column;
+        gap: 10px;
     }
-
-    .avatar-circle {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 10px;
-    }
-
     .busqueda {
-        position: static; /* Vuelve a la posición estática */
-        transform: none;
-        margin-bottom: 15px;
-        justify-content: center;
-        width: 100%;
-        max-width: 300px;
+        justify-self: center;
     }
-
-    .busqueda input {
-        width: 100%;
-    }
-
     .hora {
+        justify-self: center;
         text-align: center;
         margin-left: 0;
-        margin-bottom: 15px;
     }
 } 
