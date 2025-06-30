@@ -37,6 +37,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.Cookie;
 
 @Configuration
 @EnableMethodSecurity
@@ -102,6 +103,25 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/movimientos-inventario/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/movimientos-inventario/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    // Invalida la sesión
+                    if (request.getSession(false) != null) {
+                        request.getSession(false).invalidate();
+                    }
+                    // Borra la cookie JSESSIONID
+                    jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("JSESSIONID", null);
+                    cookie.setPath("/");
+                    cookie.setHttpOnly(true);
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+
+                    response.setStatus(HttpStatus.OK.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"Logout exitoso\"}");
+                })
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2SuccessHandler())

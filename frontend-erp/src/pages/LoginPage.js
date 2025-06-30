@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
 import "../styles/LoginPage.css";
@@ -11,6 +11,13 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef();
+
+  useEffect(() => {
+    // Limpiar tokens y cerrar sesión backend al cargar la página de login
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("refreshToken");
+    fetch("/logout", { method: "POST", credentials: "include" }).catch(() => {});
+  }, []);
 
   const handleRecaptcha = (token) => {
     setRecaptchaToken(token);

@@ -56,6 +56,12 @@ const DashboardPage = () => {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })
@@ -66,6 +72,12 @@ const DashboardPage = () => {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })
@@ -76,6 +88,12 @@ const DashboardPage = () => {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })
@@ -86,6 +104,12 @@ const DashboardPage = () => {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })
@@ -101,6 +125,12 @@ const DashboardPage = () => {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })

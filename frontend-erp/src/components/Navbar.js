@@ -50,10 +50,15 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('jwt');
     localStorage.removeItem('refreshToken');
-    window.location.href = '/login';
+    try {
+      await fetch('/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      // Ignorar errores de red
+    }
+    window.location.href = '/login?logout=true';
   };
 
   return (
@@ -73,7 +78,7 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
         <div className="perfil">
           <div className="perfil-texto">
             <div className="avatar-circle">
-              <img src="/imagenes/foto01 mujer.png" alt="Usuario" />
+              <img src={process.env.PUBLIC_URL + "/imagenes/foto01 mujer.png"} alt="Usuario" />
             </div>
             <strong>Juana Pérez</strong>
             <span>Administrador</span>
