@@ -196,4 +196,5 @@ SELECT * FROM usuario WHERE correo = 'user@erp.com';
 
 SELECT id, correo, nombre, password, rol FROM usuario;
 
+describe table usuario;
 

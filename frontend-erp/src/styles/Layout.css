@@ -12,6 +12,11 @@ body {
     font-size: 12px; 
 }
 
+body.dark-mode {
+    background-color: #181a1b;
+    color: #e0e0e0;
+}
+
 .container-fluid {
     display: flex;
     height: 100vh;
@@ -22,6 +27,10 @@ body {
 .contenido {
     flex: 1;
     padding: 0; /* Sin padding */
+}
+
+body.dark-mode .contenido {
+    background: #181a1b !important;
 }
 
 .work-area {
@@ -36,4 +45,31 @@ body {
     margin-bottom: 6px; /* Separación del borde inferior */
     margin-left: 3px; /* Separación del borde izquierdo */
     border: 1px solid rgb(226, 226, 226); /* Borde gris claro */
-} 
+}
+
+body.dark-mode .work-area {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333 !important;
+}
+
+body.dark-mode .dashboard-container,
+body.dark-mode .dashboard-content,
+body.dark-mode .table-card,
+body.dark-mode .chart-card,
+body.dark-mode .filter-section {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+    border-color: #333 !important;
+}
+body.dark-mode th {
+    background: #23272b !important;
+    color: #90caf9 !important;
+}
+body.dark-mode td {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .status-badge.yellow { background: #fbc02d !important; color: #23272b !important; }
+body.dark-mode .status-badge.green { background: #43a047 !important; color: #fff !important; }
+body.dark-mode .status-badge.red { background: #e53935 !important; color: #fff !important; } 

@@ -50,7 +50,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 32px; /* Más espacio entre avatar y hora */
     justify-self: center;
     grid-column: 3;
     margin-left: 0;
@@ -130,7 +130,7 @@
     justify-content: flex-end;
     grid-column: 4;
     width: 100%;
-    gap: 42px;  /* <-- Este número separa la barra de búsqueda de la hora */
+    gap: 56px;  /* Más espacio entre barra de búsqueda y logout */
 }
 
 .busqueda-spacer {
@@ -177,4 +177,119 @@
         text-align: center;
         margin-left: 0;
     }
+}
+
+.logout-btn {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background 0.2s;
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.logout-btn:hover {
+    background-color: #115293;
+}
+
+.logout-icon-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.logout-icon {
+    font-size: 22px;
+    color: #1976d2;
+    transition: color 0.2s;
+}
+.logout-icon-menu:hover .logout-icon {
+    color: #115293;
+}
+.logout-menu {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    padding: 8px 16px 8px 16px;
+    min-width: 140px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    animation: fadeIn 0.18s;
+}
+.logout-menu-btn {
+    background: none;
+    border: none;
+    color: #1976d2;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+}
+.logout-menu-btn:hover {
+    color: #115293;
+    text-decoration: underline;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body.dark-mode {
+    background: #181a1b !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .topbar {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .topbar-content {
+    background: none !important;
+}
+body.dark-mode .dashboard-texto h1,
+body.dark-mode .dashboard-texto p {
+    color: #e0e0e0 !important;
+}
+body.dark-mode .perfil-texto strong,
+body.dark-mode .perfil-texto span {
+    color: #e0e0e0 !important;
+}
+body.dark-mode .hora-modern {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333 !important;
+}
+body.dark-mode .fecha-modern {
+    color: #90caf9 !important;
+}
+body.dark-mode .tiempo-modern {
+    color: #fff !important;
+}
+body.dark-mode .busqueda input {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+}
+body.dark-mode .busqueda i {
+    background: #23272b !important;
+    color: #90caf9 !important;
+    border: 1px solid #444 !important;
+}
+body.dark-mode .logout-icon {
+    color: #90caf9 !important;
+}
+body.dark-mode .logout-btn {
+    background: #1976d2 !important;
+    color: #fff !important;
 } 

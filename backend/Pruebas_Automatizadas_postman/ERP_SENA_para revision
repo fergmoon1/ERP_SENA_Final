@@ -1,30 +1,30 @@
 {
-	"id": "8e0b95f4-dab7-40ec-8417-ade59789aeb5",
+	"id": "e7822a17-cc1f-40af-b0af-52baf04bda92",
 	"name": "ERP_SENA_Automatizadas",
-	"timestamp": "2025-06-29T19:16:23.965Z",
+	"timestamp": "2025-06-30T17:11:07.426Z",
 	"collection_id": "45302928-5afaf1be-f654-4ea7-bd09-797ba78ec60b",
 	"folder_id": 0,
 	"environment_id": "45302928-d7335903-0d23-499f-a029-6d5c74cab591",
-	"totalPass": 33,
+	"totalPass": 59,
 	"delay": 0,
 	"persist": true,
 	"status": "finished",
-	"startedAt": "2025-06-29T19:15:45.670Z",
-	"totalFail": 28,
+	"startedAt": "2025-06-30T17:10:51.152Z",
+	"totalFail": 2,
 	"results": [
 		{
 			"id": "3ad0672f-5e9a-40e5-bcc4-0302cab5e928",
 			"name": "Limpiar Tokens",
 			"url": "http://localhost:8081/api/auth/login",
-			"time": 189,
+			"time": 46,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 401,
+				"name": "Unauthorized"
 			},
 			"tests": {},
 			"testPassFailCounts": {},
 			"times": [
-				189
+				46
 			],
 			"allTests": [
 				{}
@@ -33,6 +33,42 @@
 		{
 			"id": "9a417163-61de-4e16-9bb8-1f8fc8571813",
 			"name": "Login ADMIN",
+			"url": "http://localhost:8081/api/auth/login",
+			"time": 2201,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				2201
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "3f242869-012e-44c9-8272-8e85d30560a6",
+			"name": "Login SUPERVISOR",
+			"url": "http://localhost:8081/api/auth/login",
+			"time": 1494,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				1494
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "fcb1ce77-fb4e-4104-9992-a322cd48f81e",
+			"name": "Login USER",
 			"url": "http://localhost:8081/api/auth/login",
 			"time": 1086,
 			"responseCode": {
@@ -49,207 +85,9 @@
 			]
 		},
 		{
-			"id": "3f242869-012e-44c9-8272-8e85d30560a6",
-			"name": "Login SUPERVISOR",
-			"url": "http://localhost:8081/api/auth/login",
-			"time": 1570,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {},
-			"testPassFailCounts": {},
-			"times": [
-				1570
-			],
-			"allTests": [
-				{}
-			]
-		},
-		{
-			"id": "fcb1ce77-fb4e-4104-9992-a322cd48f81e",
-			"name": "Login USER",
-			"url": "http://localhost:8081/api/auth/login",
-			"time": 971,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {},
-			"testPassFailCounts": {},
-			"times": [
-				971
-			],
-			"allTests": [
-				{}
-			]
-		},
-		{
 			"id": "78f98ee9-8820-41b2-9008-d2ad55cf203e",
 			"name": "GET usuarios (solo ADMIN)",
 			"url": "http://localhost:8081/api/usuarios",
-			"time": 144,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				144
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "7bc77ac6-8efb-4a21-800e-fa783f855527",
-			"name": "GET usuarios (SUPERVISOR, debe fallar)",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 194,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				194
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "846f8176-b5a0-434c-9f4c-3d7eb8e1c828",
-			"name": "POST productos (USER, debe fallar)",
-			"url": "http://localhost:8081/api/productos",
-			"time": 247,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				247
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "fb97a85b-5607-4b34-a551-bd812b57c7c8",
-			"name": "GET productos (USER, debe funcionar)",
-			"url": "http://localhost:8081/api/productos",
-			"time": 68,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				68
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "580ffebb-e500-4b17-be42-a63ce1359991",
-			"name": "GET productos (SUPERVISOR, debe funcionar)",
-			"url": "http://localhost:8081/api/productos",
-			"time": 38,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				38
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "b31fcb6f-b17d-44a2-8a37-50f2f369af10",
-			"name": "POST productos (SUPERVISOR, debe fallar)",
-			"url": "http://localhost:8081/api/productos",
-			"time": 280,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				280
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "2650abdc-e487-4e96-bace-1abc29095269",
-			"name": "GET clientes (USER, debe funcionar)",
-			"url": "http://localhost:8081/api/clientes",
 			"time": 41,
 			"responseCode": {
 				"code": 200,
@@ -274,10 +112,64 @@
 			]
 		},
 		{
-			"id": "9425bab9-7735-4f99-9a7d-df68b8c48d14",
-			"name": "[ADMIN] PUT productos",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 214,
+			"id": "7bc77ac6-8efb-4a21-800e-fa783f855527",
+			"name": "GET usuarios (SUPERVISOR, debe fallar)",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 12,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "846f8176-b5a0-434c-9f4c-3d7eb8e1c828",
+			"name": "POST productos (USER, debe fallar)",
+			"url": "http://localhost:8081/api/productos",
+			"time": 15,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "fb97a85b-5607-4b34-a551-bd812b57c7c8",
+			"name": "GET productos (USER, debe funcionar)",
+			"url": "http://localhost:8081/api/productos",
+			"time": 67,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -292,7 +184,7 @@
 				}
 			},
 			"times": [
-				214
+				67
 			],
 			"allTests": [
 				{
@@ -301,333 +193,9 @@
 			]
 		},
 		{
-			"id": "4f9f5195-30ed-49d1-ac33-e3761cdaa3fb",
-			"name": "[SUPERVISOR] PUT productos (debe fallar)",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 217,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				217
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "21b38367-022e-4ead-aead-139e6afc1a83",
-			"name": "[USER] PUT productos (debe fallar)",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 219,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				219
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "b3b846b9-c74f-45fa-a195-29902015a8d8",
-			"name": "[ADMIN] DELETE productos",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 228,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				228
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "e6f2ff83-001f-42e9-a92b-f505368f3598",
-			"name": "[SUPERVISOR] DELETE productos (debe fallar)",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 228,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				228
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "3462651c-a271-461b-8b4c-23ec1e0230e6",
-			"name": "[USER] DELETE productos (debe fallar)",
-			"url": "http://localhost:8081/api/productos/1",
-			"time": 185,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				185
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "55a5d915-82d9-4612-a503-22f71dfc0eac",
-			"name": "[ADMIN] GET usuarios",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 49,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				49
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "544b9450-063f-497d-be76-69c028b6cdbd",
-			"name": "[SUPERVISOR] GET usuarios (debe fallar)",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 190,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				190
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "0c5f1663-34fd-41f3-86c1-c507ab04357f",
-			"name": "[USER] GET usuarios (debe fallar)",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 190,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				190
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "b7cc7db6-fab1-475b-8a40-ef62aefcb297",
-			"name": "[ADMIN] POST usuarios",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 166,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				166
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "1d7a346c-da55-4405-a7f5-1dc2324dd401",
-			"name": "[SUPERVISOR] POST usuarios (debe fallar)",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 188,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				188
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "d6bd7e94-1577-4cee-a748-27eee979c101",
-			"name": "[USER] POST usuarios (debe fallar)",
-			"url": "http://localhost:8081/api/usuarios",
-			"time": 167,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				167
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "4b706a76-68ce-4cbd-a381-f82cec6603af",
-			"name": "[ADMIN] GET clientes",
-			"url": "http://localhost:8081/api/clientes",
-			"time": 33,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				33
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "325c02a6-87cf-4483-86be-cc59a27cc0ee",
-			"name": "[SUPERVISOR] GET clientes",
-			"url": "http://localhost:8081/api/clientes",
+			"id": "580ffebb-e500-4b17-be42-a63ce1359991",
+			"name": "GET productos (SUPERVISOR, debe funcionar)",
+			"url": "http://localhost:8081/api/productos",
 			"time": 30,
 			"responseCode": {
 				"code": 200,
@@ -652,118 +220,37 @@
 			]
 		},
 		{
-			"id": "2b4bd988-89ea-4d63-bc91-470827efdc21",
-			"name": "[USER] GET clientes",
-			"url": "http://localhost:8081/api/clientes",
-			"time": 39,
+			"id": "b31fcb6f-b17d-44a2-8a37-50f2f369af10",
+			"name": "POST productos (SUPERVISOR, debe fallar)",
+			"url": "http://localhost:8081/api/productos",
+			"time": 18,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				39
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "7c492a7f-94fb-4d2e-9e90-6e4512db5282",
-			"name": "[ADMIN] POST clientes",
-			"url": "http://localhost:8081/api/clientes",
-			"time": 95,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				95
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "192fd851-b9af-4b38-9f89-6c390b9a7e7f",
-			"name": "[SUPERVISOR] POST clientes",
-			"url": "http://localhost:8081/api/clientes",
-			"time": 73,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				73
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "7319e5c5-68ad-4efa-8503-d3a145562b70",
-			"name": "[USER] POST clientes (debe fallar)",
-			"url": "http://localhost:8081/api/clientes",
-			"time": 203,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				203
+				18
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "3ffe62ec-1433-44be-89be-e03ce4049655",
-			"name": "[ADMIN] GET pedidos",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 167,
+			"id": "2650abdc-e487-4e96-bace-1abc29095269",
+			"name": "GET clientes (USER, debe funcionar)",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 35,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -778,7 +265,7 @@
 				}
 			},
 			"times": [
-				167
+				35
 			],
 			"allTests": [
 				{
@@ -787,10 +274,10 @@
 			]
 		},
 		{
-			"id": "7a71197b-46cb-402a-8b78-5a5c096a2fa6",
-			"name": "[SUPERVISOR] GET pedidos",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 185,
+			"id": "9425bab9-7735-4f99-9a7d-df68b8c48d14",
+			"name": "[ADMIN] PUT productos",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 141,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -805,7 +292,7 @@
 				}
 			},
 			"times": [
-				185
+				141
 			],
 			"allTests": [
 				{
@@ -814,202 +301,67 @@
 			]
 		},
 		{
-			"id": "65fd913a-797c-47b1-b071-9734ba5d9051",
-			"name": "[USER] GET pedidos",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 256,
+			"id": "4f9f5195-30ed-49d1-ac33-e3761cdaa3fb",
+			"name": "[SUPERVISOR] PUT productos (debe fallar)",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 11,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				256
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "39030cd2-3316-465c-99a3-d5af9175bf46",
-			"name": "[ADMIN] POST pedidos",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 230,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				230
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "e1ed5cd9-bc96-46fb-b67b-627da68b16b8",
-			"name": "[SUPERVISOR] POST pedidos",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 210,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				210
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "55546d7b-68bb-4d02-a941-620f9cbbf182",
-			"name": "[USER] POST pedidos (debe fallar)",
-			"url": "http://localhost:8081/api/pedidos",
-			"time": 212,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				212
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "2a6b9eb3-c4c5-41ab-8e37-568bff52319d",
-			"name": "[ADMIN] GET proveedores",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 212,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
 					"pass": 1,
 					"fail": 0
 				}
 			},
 			"times": [
-				212
+				11
 			],
 			"allTests": [
 				{
-					"Debe responder 200 OK": true
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "ab5a462f-edb9-4bb4-a87c-750a11e1b53a",
-			"name": "[SUPERVISOR] GET proveedores",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 203,
+			"id": "21b38367-022e-4ead-aead-139e6afc1a83",
+			"name": "[USER] PUT productos (debe fallar)",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 11,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 200 OK": true
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 1,
-					"fail": 0
-				}
-			},
-			"times": [
-				203
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": true
-				}
-			]
-		},
-		{
-			"id": "f246155c-f9d7-4e76-ba48-882032754f1b",
-			"name": "[USER] GET proveedores",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 206,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				206
+				11
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "54e1711a-0f56-43f4-9b49-511ecbc2dc1e",
-			"name": "[ADMIN] POST proveedores",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 227,
+			"id": "b3b846b9-c74f-45fa-a195-29902015a8d8",
+			"name": "[ADMIN] DELETE productos",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 288,
 			"responseCode": {
-				"code": 400,
-				"name": "Bad Request"
+				"code": 401,
+				"name": "Unauthorized"
 			},
 			"tests": {
 				"Debe responder 200 OK": false
@@ -1021,7 +373,7 @@
 				}
 			},
 			"times": [
-				227
+				288
 			],
 			"allTests": [
 				{
@@ -1030,64 +382,64 @@
 			]
 		},
 		{
-			"id": "b2f475e9-99b2-4350-a17f-f88db42c4e8c",
-			"name": "[SUPERVISOR] POST proveedores",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 202,
+			"id": "e6f2ff83-001f-42e9-a92b-f505368f3598",
+			"name": "[SUPERVISOR] DELETE productos (debe fallar)",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 11,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				202
+				11
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "bd50845e-7dbc-4b06-88cf-3474d8c5b2ce",
-			"name": "[USER] POST proveedores (debe fallar)",
-			"url": "http://localhost:8081/api/proveedores",
-			"time": 222,
+			"id": "3462651c-a271-461b-8b4c-23ec1e0230e6",
+			"name": "[USER] DELETE productos (debe fallar)",
+			"url": "http://localhost:8081/api/productos/1",
+			"time": 11,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				222
+				11
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "74dab97e-52e3-47f4-9028-7cbf23e7ee66",
-			"name": "[ADMIN] GET reportes/productos-mas-vendidos",
-			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
-			"time": 253,
+			"id": "55a5d915-82d9-4612-a503-22f71dfc0eac",
+			"name": "[ADMIN] GET usuarios",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 25,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1102,7 +454,7 @@
 				}
 			},
 			"times": [
-				253
+				25
 			],
 			"allTests": [
 				{
@@ -1111,64 +463,145 @@
 			]
 		},
 		{
-			"id": "8651a139-17b8-4633-81f1-66d3b3e48bb2",
-			"name": "[SUPERVISOR] GET reportes/productos-mas-vendidos",
-			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
-			"time": 230,
+			"id": "544b9450-063f-497d-be76-69c028b6cdbd",
+			"name": "[SUPERVISOR] GET usuarios (debe fallar)",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 11,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 200 OK": true
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
-				"Debe responder 200 OK": {
+				"Debe responder 403 Forbidden": {
 					"pass": 1,
 					"fail": 0
 				}
 			},
 			"times": [
-				230
+				11
 			],
 			"allTests": [
 				{
-					"Debe responder 200 OK": true
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
 		{
-			"id": "b99e3071-b105-467d-9d83-aee764ea687b",
-			"name": "[USER] GET reportes/productos-mas-vendidos (debe fallar)",
-			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
-			"time": 199,
+			"id": "0c5f1663-34fd-41f3-86c1-c507ab04357f",
+			"name": "[USER] GET usuarios (debe fallar)",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 14,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "b7cc7db6-fab1-475b-8a40-ef62aefcb297",
+			"name": "[ADMIN] POST usuarios",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 19,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Debe responder 200 OK": false
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
 					"pass": 0,
 					"fail": 1
 				}
 			},
 			"times": [
-				199
+				19
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 200 OK": false
 				}
 			]
 		},
 		{
-			"id": "982421b2-2065-41a9-a6bf-74078bef2896",
-			"name": "[ADMIN] GET reportes/stock-bajo",
-			"url": "http://localhost:8081/api/reportes/stock-bajo",
-			"time": 45,
+			"id": "1d7a346c-da55-4405-a7f5-1dc2324dd401",
+			"name": "[SUPERVISOR] POST usuarios (debe fallar)",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 10,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "d6bd7e94-1577-4cee-a748-27eee979c101",
+			"name": "[USER] POST usuarios (debe fallar)",
+			"url": "http://localhost:8081/api/usuarios",
+			"time": 43,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				43
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "4b706a76-68ce-4cbd-a381-f82cec6603af",
+			"name": "[ADMIN] GET clientes",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 27,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1183,7 +616,7 @@
 				}
 			},
 			"times": [
-				45
+				27
 			],
 			"allTests": [
 				{
@@ -1192,9 +625,36 @@
 			]
 		},
 		{
-			"id": "34ca38f9-a1d5-4577-b18e-696f6dbfee9e",
-			"name": "[SUPERVISOR] GET reportes/stock-bajo",
-			"url": "http://localhost:8081/api/reportes/stock-bajo",
+			"id": "325c02a6-87cf-4483-86be-cc59a27cc0ee",
+			"name": "[SUPERVISOR] GET clientes",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 103,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				103
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "2b4bd988-89ea-4d63-bc91-470827efdc21",
+			"name": "[USER] GET clientes",
+			"url": "http://localhost:8081/api/clientes",
 			"time": 31,
 			"responseCode": {
 				"code": 200,
@@ -1219,36 +679,144 @@
 			]
 		},
 		{
-			"id": "25322f03-ec6a-4f35-8d10-8d09ce26abfa",
-			"name": "[USER] GET reportes/stock-bajo (debe fallar)",
-			"url": "http://localhost:8081/api/reportes/stock-bajo",
-			"time": 548,
+			"id": "7c492a7f-94fb-4d2e-9e90-6e4512db5282",
+			"name": "[ADMIN] POST clientes",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 47,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 200 OK": true
 			},
 			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				548
+				47
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 200 OK": true
 				}
 			]
 		},
 		{
-			"id": "7fd194f2-8d43-4dd1-a89f-146cccbfafb8",
-			"name": "[ADMIN] GET movimientos-inventario",
-			"url": "http://localhost:8081/api/movimientos-inventario",
+			"id": "192fd851-b9af-4b38-9f89-6c390b9a7e7f",
+			"name": "[SUPERVISOR] POST clientes",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 31,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				31
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "7319e5c5-68ad-4efa-8503-d3a145562b70",
+			"name": "[USER] POST clientes (debe fallar)",
+			"url": "http://localhost:8081/api/clientes",
+			"time": 12,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "3ffe62ec-1433-44be-89be-e03ce4049655",
+			"name": "[ADMIN] GET pedidos",
+			"url": "http://localhost:8081/api/pedidos",
+			"time": 245,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				245
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "7a71197b-46cb-402a-8b78-5a5c096a2fa6",
+			"name": "[SUPERVISOR] GET pedidos",
+			"url": "http://localhost:8081/api/pedidos",
+			"time": 65,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				65
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "65fd913a-797c-47b1-b071-9734ba5d9051",
+			"name": "[USER] GET pedidos",
+			"url": "http://localhost:8081/api/pedidos",
 			"time": 196,
 			"responseCode": {
 				"code": 200,
@@ -1273,10 +841,10 @@
 			]
 		},
 		{
-			"id": "f2bde1b1-f0d6-4430-af48-34035863655c",
-			"name": "[SUPERVISOR] GET movimientos-inventario",
-			"url": "http://localhost:8081/api/movimientos-inventario",
-			"time": 98,
+			"id": "39030cd2-3316-465c-99a3-d5af9175bf46",
+			"name": "[ADMIN] POST pedidos",
+			"url": "http://localhost:8081/api/pedidos",
+			"time": 1452,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1291,7 +859,439 @@
 				}
 			},
 			"times": [
-				98
+				1452
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "e1ed5cd9-bc96-46fb-b67b-627da68b16b8",
+			"name": "[SUPERVISOR] POST pedidos",
+			"url": "http://localhost:8081/api/pedidos",
+			"time": 161,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				161
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "55546d7b-68bb-4d02-a941-620f9cbbf182",
+			"name": "[USER] POST pedidos (debe fallar)",
+			"url": "http://localhost:8081/api/pedidos",
+			"time": 14,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "2a6b9eb3-c4c5-41ab-8e37-568bff52319d",
+			"name": "[ADMIN] GET proveedores",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 269,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				269
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "ab5a462f-edb9-4bb4-a87c-750a11e1b53a",
+			"name": "[SUPERVISOR] GET proveedores",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 191,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				191
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "f246155c-f9d7-4e76-ba48-882032754f1b",
+			"name": "[USER] GET proveedores",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 16,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "54e1711a-0f56-43f4-9b49-511ecbc2dc1e",
+			"name": "[ADMIN] POST proveedores",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 321,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				321
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "b2f475e9-99b2-4350-a17f-f88db42c4e8c",
+			"name": "[SUPERVISOR] POST proveedores",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 14,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "bd50845e-7dbc-4b06-88cf-3474d8c5b2ce",
+			"name": "[USER] POST proveedores (debe fallar)",
+			"url": "http://localhost:8081/api/proveedores",
+			"time": 12,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "74dab97e-52e3-47f4-9028-7cbf23e7ee66",
+			"name": "[ADMIN] GET reportes/productos-mas-vendidos",
+			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
+			"time": 105,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				105
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "8651a139-17b8-4633-81f1-66d3b3e48bb2",
+			"name": "[SUPERVISOR] GET reportes/productos-mas-vendidos",
+			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
+			"time": 75,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				75
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "b99e3071-b105-467d-9d83-aee764ea687b",
+			"name": "[USER] GET reportes/productos-mas-vendidos (debe fallar)",
+			"url": "http://localhost:8081/api/reportes/productos-mas-vendidos",
+			"time": 18,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "982421b2-2065-41a9-a6bf-74078bef2896",
+			"name": "[ADMIN] GET reportes/stock-bajo",
+			"url": "http://localhost:8081/api/reportes/stock-bajo",
+			"time": 44,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				44
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "34ca38f9-a1d5-4577-b18e-696f6dbfee9e",
+			"name": "[SUPERVISOR] GET reportes/stock-bajo",
+			"url": "http://localhost:8081/api/reportes/stock-bajo",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				32
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "25322f03-ec6a-4f35-8d10-8d09ce26abfa",
+			"name": "[USER] GET reportes/stock-bajo (debe fallar)",
+			"url": "http://localhost:8081/api/reportes/stock-bajo",
+			"time": 10,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "7fd194f2-8d43-4dd1-a89f-146cccbfafb8",
+			"name": "[ADMIN] GET movimientos-inventario",
+			"url": "http://localhost:8081/api/movimientos-inventario",
+			"time": 78,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				78
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "f2bde1b1-f0d6-4430-af48-34035863655c",
+			"name": "[SUPERVISOR] GET movimientos-inventario",
+			"url": "http://localhost:8081/api/movimientos-inventario",
+			"time": 68,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				68
 			],
 			"allTests": [
 				{
@@ -1303,26 +1303,26 @@
 			"id": "fd692183-f2e0-4ffa-a4e3-2adfd3349598",
 			"name": "[USER] GET movimientos-inventario",
 			"url": "http://localhost:8081/api/movimientos-inventario",
-			"time": 184,
+			"time": 15,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				184
+				15
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
@@ -1357,26 +1357,26 @@
 			"id": "da762007-70a1-4377-beb7-731de87c8a22",
 			"name": "[SUPERVISOR] POST movimientos-inventario (salida)",
 			"url": "http://localhost:8081/api/movimientos-inventario",
-			"time": 279,
+			"time": 10,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				279
+				10
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
@@ -1384,26 +1384,26 @@
 			"id": "915530db-297d-4882-bc49-39f15748861c",
 			"name": "[USER] POST movimientos-inventario (debe fallar)",
 			"url": "http://localhost:8081/api/movimientos-inventario",
-			"time": 205,
+			"time": 10,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				205
+				10
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
@@ -1411,7 +1411,7 @@
 			"id": "4f3af9a3-fdc1-4fc5-9ad9-7420b1c386c9",
 			"name": "[ADMIN] GET movimientos-inventario/producto/1",
 			"url": "http://localhost:8081/api/movimientos-inventario/producto/1",
-			"time": 78,
+			"time": 47,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1426,7 +1426,7 @@
 				}
 			},
 			"times": [
-				78
+				47
 			],
 			"allTests": [
 				{
@@ -1438,7 +1438,7 @@
 			"id": "ef8a548e-c71e-4c0a-b36e-78cb26cf2eea",
 			"name": "[SUPERVISOR] GET movimientos-inventario/producto/1",
 			"url": "http://localhost:8081/api/movimientos-inventario/producto/1",
-			"time": 37,
+			"time": 84,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1453,7 +1453,7 @@
 				}
 			},
 			"times": [
-				37
+				84
 			],
 			"allTests": [
 				{
@@ -1465,26 +1465,26 @@
 			"id": "66b6ae31-020c-4bac-a413-c885639d96df",
 			"name": "[USER] GET movimientos-inventario/producto/1",
 			"url": "http://localhost:8081/api/movimientos-inventario/producto/1",
-			"time": 288,
+			"time": 21,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				288
+				21
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
@@ -1492,7 +1492,7 @@
 			"id": "47e3341d-fc3e-48c9-b3f0-ce141fee8666",
 			"name": "[ADMIN] GET compras",
 			"url": "http://localhost:8081/api/compras",
-			"time": 201,
+			"time": 99,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1507,7 +1507,7 @@
 				}
 			},
 			"times": [
-				201
+				99
 			],
 			"allTests": [
 				{
@@ -1519,7 +1519,7 @@
 			"id": "5550e180-b662-444a-9827-217a96acfa61",
 			"name": "[SUPERVISOR] GET compras",
 			"url": "http://localhost:8081/api/compras",
-			"time": 204,
+			"time": 183,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1534,7 +1534,7 @@
 				}
 			},
 			"times": [
-				204
+				183
 			],
 			"allTests": [
 				{
@@ -1546,26 +1546,26 @@
 			"id": "45e20794-1515-4907-962f-645b4ca8dd17",
 			"name": "[USER] GET compras",
 			"url": "http://localhost:8081/api/compras",
-			"time": 215,
+			"time": 20,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				215
+				20
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		},
@@ -1573,88 +1573,7 @@
 			"id": "45d3f137-20f5-43e5-a255-e394d73beca5",
 			"name": "[ADMIN] POST compras",
 			"url": "http://localhost:8081/api/compras",
-			"time": 207,
-			"responseCode": {
-				"code": 400,
-				"name": "Bad Request"
-			},
-			"tests": {
-				"Debe responder 200 OK": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 200 OK": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				207
-			],
-			"allTests": [
-				{
-					"Debe responder 200 OK": false
-				}
-			]
-		},
-		{
-			"id": "629d6750-6c16-4615-99bf-490b7fec6b8d",
-			"name": "[SUPERVISOR] POST compras",
-			"url": "http://localhost:8081/api/compras",
-			"time": 206,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				206
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "576cd636-50b9-4ecb-a5c4-8c66979b4aba",
-			"name": "[USER] POST compras (debe fallar)",
-			"url": "http://localhost:8081/api/compras",
-			"time": 220,
-			"responseCode": {
-				"code": 200,
-				"name": "OK"
-			},
-			"tests": {
-				"Debe responder 403 Forbidden": false
-			},
-			"testPassFailCounts": {
-				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
-				}
-			},
-			"times": [
-				220
-			],
-			"allTests": [
-				{
-					"Debe responder 403 Forbidden": false
-				}
-			]
-		},
-		{
-			"id": "cbad7ed0-7de5-4ca4-b980-6cc8cfb7bbf9",
-			"name": "[ADMIN] GET compras/1",
-			"url": "http://localhost:8081/api/compras/1",
-			"time": 196,
+			"time": 187,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1669,7 +1588,88 @@
 				}
 			},
 			"times": [
-				196
+				187
+			],
+			"allTests": [
+				{
+					"Debe responder 200 OK": true
+				}
+			]
+		},
+		{
+			"id": "629d6750-6c16-4615-99bf-490b7fec6b8d",
+			"name": "[SUPERVISOR] POST compras",
+			"url": "http://localhost:8081/api/compras",
+			"time": 21,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "576cd636-50b9-4ecb-a5c4-8c66979b4aba",
+			"name": "[USER] POST compras (debe fallar)",
+			"url": "http://localhost:8081/api/compras",
+			"time": 17,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Debe responder 403 Forbidden": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 403 Forbidden": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Debe responder 403 Forbidden": true
+				}
+			]
+		},
+		{
+			"id": "cbad7ed0-7de5-4ca4-b980-6cc8cfb7bbf9",
+			"name": "[ADMIN] GET compras/1",
+			"url": "http://localhost:8081/api/compras/1",
+			"time": 69,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Debe responder 200 OK": true
+			},
+			"testPassFailCounts": {
+				"Debe responder 200 OK": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				69
 			],
 			"allTests": [
 				{
@@ -1681,7 +1681,7 @@
 			"id": "34dd0aaa-6cca-464a-8137-50be150eb133",
 			"name": "[SUPERVISOR] GET compras/1",
 			"url": "http://localhost:8081/api/compras/1",
-			"time": 207,
+			"time": 102,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1696,7 +1696,7 @@
 				}
 			},
 			"times": [
-				207
+				102
 			],
 			"allTests": [
 				{
@@ -1708,32 +1708,32 @@
 			"id": "ca1a9a32-aa95-4522-8891-6efb8c63b518",
 			"name": "[USER] GET compras/1",
 			"url": "http://localhost:8081/api/compras/1",
-			"time": 200,
+			"time": 22,
 			"responseCode": {
-				"code": 200,
-				"name": "OK"
+				"code": 403,
+				"name": "Forbidden"
 			},
 			"tests": {
-				"Debe responder 403 Forbidden": false
+				"Debe responder 403 Forbidden": true
 			},
 			"testPassFailCounts": {
 				"Debe responder 403 Forbidden": {
-					"pass": 0,
-					"fail": 1
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				200
+				22
 			],
 			"allTests": [
 				{
-					"Debe responder 403 Forbidden": false
+					"Debe responder 403 Forbidden": true
 				}
 			]
 		}
 	],
 	"count": 1,
-	"totalTime": 14679,
+	"totalTime": 10262,
 	"collection": {
 		"requests": [
 			{

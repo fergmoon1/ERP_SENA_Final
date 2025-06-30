@@ -2,10 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/DashboardPage.css';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 
 const DashboardPage = () => {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [productosMasVendidos, setProductosMasVendidos] = useState([]);
+  const [ingresosPorMes, setIngresosPorMes] = useState([]);
+  const [pedidosPorEstado, setPedidosPorEstado] = useState([]);
+  const [clientesNuevosPorMes, setClientesNuevosPorMes] = useState([]);
+  const [alertasStock, setAlertasStock] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -43,29 +50,71 @@ const DashboardPage = () => {
     }
   }, [navigate]);
 
-  // Datos de ejemplo - estos vendrían del backend
-  const dashboardData = {
-    ventasMes: 0.0,
-    pedidosPendientes: 1,
-    alertasStock: 1,
-    clientesNuevos: 2,
-    productosMasVendidos: [
-      { nombre: 'Producto A', precio: 10.00, cantidad: 1, ingreso: 10.00 }
-    ],
-    pedidosPorEstado: [
-      { estado: 'Pendiente', cantidad: 1, color: 'yellow' },
-      { estado: 'Completado', cantidad: 0, color: 'green' },
-      { estado: 'Cancelado', cantidad: 0, color: 'red' }
-    ],
-    ingresosPorMes: [
-      { mes: 'April 2025', ingreso: 0.00 }
-    ]
-  };
+  useEffect(() => {
+    // Dashboard general
+    fetch('/api/reportes/dashboard', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setDashboardData(data))
+      .catch(err => alert('Error al obtener datos del dashboard: ' + err.message));
+    // Productos más vendidos
+    fetch('/api/reportes/ventas/productos-mas-vendidos', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setProductosMasVendidos(data))
+      .catch(err => alert('Error al obtener productos más vendidos: ' + err.message));
+    // Ingresos por mes
+    fetch('/api/reportes/ventas/resumen?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setIngresosPorMes(data.ingresosPorMes || []))
+      .catch(err => alert('Error al obtener ingresos por mes: ' + err.message));
+    // Pedidos por estado
+    fetch('/api/reportes/dashboard', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setPedidosPorEstado(data.pedidosPorEstado || []))
+      .catch(err => alert('Error al obtener pedidos por estado: ' + err.message));
+    // Clientes nuevos por mes (si existe endpoint, si no, dejar preparado)
+    // fetch('/api/reportes/clientes-nuevos-por-mes', { ... })
+    //   .then(...)
+    //   .then(data => setClientesNuevosPorMes(data))
+    //   .catch(...);
+    // Alertas de stock bajo
+    fetch('/api/reportes/inventario/stock-bajo', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setAlertasStock(data))
+      .catch(err => alert('Error al obtener alertas de stock: ' + err.message));
+  }, []);
 
   const handleFiltrar = () => {
     // Aquí se implementaría la lógica de filtrado
     console.log('Filtrando desde:', fechaInicio, 'hasta:', fechaFin);
   };
+
+  // Colores para PieChart
+  const pieColors = ['#1976d2', '#10b981', '#fbc02d', '#e53935', '#ff9800', '#8e24aa'];
 
   return (
     <Layout>
@@ -105,7 +154,7 @@ const DashboardPage = () => {
               <i className="fas fa-shopping-cart"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData.ventasMes}</p>
+              <p className="stat-number">{dashboardData?.ventasMes}</p>
               <p>Ventas del Mes</p>
             </div>
           </div>
@@ -115,7 +164,7 @@ const DashboardPage = () => {
               <i className="fas fa-chart-line"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData.pedidosPendientes}</p>
+              <p className="stat-number">{dashboardData?.pedidosPendientes}</p>
               <p>Pedidos Pendientes</p>
             </div>
           </div>
@@ -125,7 +174,7 @@ const DashboardPage = () => {
               <i className="fas fa-exclamation-triangle"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData.alertasStock}</p>
+              <p className="stat-number">{dashboardData?.alertasStock}</p>
               <p>Alertas de Stock</p>
             </div>
           </div>
@@ -135,7 +184,7 @@ const DashboardPage = () => {
               <i className="fas fa-user-plus"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData.clientesNuevos}</p>
+              <p className="stat-number">{dashboardData?.clientesNuevos}</p>
               <p>Clientes Nuevos</p>
             </div>
           </div>
@@ -155,11 +204,11 @@ const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {dashboardData.productosMasVendidos.map((producto, index) => (
+                {productosMasVendidos.map((producto, index) => (
                   <tr key={index}>
                     <td>{producto.nombre}</td>
                     <td>${producto.precio.toFixed(2)}</td>
-                    <td>{producto.cantidad}</td>
+                    <td>{producto.cantidadVendida}</td>
                     <td>${producto.ingreso.toFixed(2)}</td>
                   </tr>
                 ))}
@@ -170,7 +219,7 @@ const DashboardPage = () => {
           <div className="table-card">
             <h2>Pedidos por Estado</h2>
             <ul className="status-list">
-              {dashboardData.pedidosPorEstado.map((pedido, index) => (
+              {dashboardData?.pedidosPorEstado.map((pedido, index) => (
                 <li key={index} className="status-item">
                   <span>{pedido.estado}</span>
                   <span className={`status-badge ${pedido.color}`}>
@@ -193,7 +242,7 @@ const DashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {dashboardData.ingresosPorMes.map((ingreso, index) => (
+              {dashboardData?.ingresosPorMes.map((ingreso, index) => (
                 <tr key={index}>
                   <td>{ingreso.mes}</td>
                   <td>${ingreso.ingreso.toFixed(2)}</td>
@@ -207,50 +256,74 @@ const DashboardPage = () => {
         <div className="charts-grid">
           <div className="chart-card">
             <h2>Gráfico de Ingresos por Mes</h2>
-            <img 
-              src="https://storage.googleapis.com/a1aa/image/B5ftJ8BWW2DTq91CbNUBxsLfhMmNtbLf386g2LVRDIw.jpg" 
-              alt="Gráfico de Ingresos por Mes"
-              className="chart-image"
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={ingresosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <XAxis dataKey="mes" stroke="#1976d2"/>
+                <YAxis stroke="#1976d2"/>
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="ingreso" stroke="#1976d2" name="Ingreso Total" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
           
           <div className="chart-card">
             <h2>Gráfico de Pedidos por Estado</h2>
-            <img 
-              src="https://storage.googleapis.com/a1aa/image/SDcnQFYEhXbZc8YZAS0yfXTw16wYEQQPz-IoqH3yjpw.jpg" 
-              alt="Gráfico de Pedidos por Estado"
-              className="chart-image"
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={pedidosPorEstado} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
+                  {pedidosPorEstado.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
+        </div>
+
+        <div className="chart-card">
+          <h2>Gráfico de Productos Más Vendidos</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <XAxis dataKey="nombre" stroke="#1976d2"/>
+              <YAxis stroke="#1976d2"/>
+              <Tooltip />
+              <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="charts-grid">
           <div className="chart-card">
-            <h2>Gráfico de Productos Más Vendidos</h2>
-            <img 
-              src="https://storage.googleapis.com/a1aa/image/M1SAJ3z6g4bOWaYynQvld6D-BYurq1CMj-9kHl-qBok.jpg" 
-              alt="Gráfico de Productos Más Vendidos"
-              className="chart-image"
-            />
-          </div>
-          
-          <div className="chart-card">
             <h2>Gráfico de Clientes Nuevos por Mes</h2>
-            <img 
-              src="https://storage.googleapis.com/a1aa/image/yFNjrcFBfZd7iwiW04fL5w5Zx3wxsiR5WlUTt9nbV9s.jpg" 
-              alt="Gráfico de Clientes Nuevos por Mes"
-              className="chart-image"
-            />
+            {clientesNuevosPorMes.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={clientesNuevosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="mes" stroke="#1976d2"/>
+                  <YAxis stroke="#1976d2"/>
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="cantidad" stroke="#1976d2" name="Clientes Nuevos" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div>No hay datos de clientes nuevos por mes.</div>
+            )}
           </div>
         </div>
 
         <div className="chart-card full-width">
           <h2>Gráfico de Alerta de Stock por Producto</h2>
-          <img 
-            src="https://storage.googleapis.com/a1aa/image/R6p-dHT0sxoyBcjz_MxZFeBlXQXDIvNCUJycTrwJC7k.jpg" 
-            alt="Gráfico de Alerta de Stock por Producto"
-            className="chart-image"
-          />
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={alertasStock} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <XAxis dataKey="nombre" stroke="#e53935"/>
+              <YAxis stroke="#e53935"/>
+              <Tooltip />
+              <Bar dataKey="stock" fill="#e53935" name="Stock Bajo" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </Layout>

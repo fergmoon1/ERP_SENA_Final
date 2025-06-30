@@ -1,0 +1,630 @@
+{
+  "info": {
+    "_postman_id": "erp-sena-collection-full-001",
+    "name": "ERP_SENA_Automatizadas_FULL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"admin@erp.com\",\n  \"password\": \"1234\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "if(json.token){ pm.environment.set(\"jwt_token\", json.token); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios - GET (solo ADMIN)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["api", "usuarios"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios - POST (solo ADMIN)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"nuevo@erp.com\",\n  \"nombre\": \"Nuevo Usuario\",\n  \"password\": \"1234\",\n  \"rol\": \"USER\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["api", "usuarios"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios - PUT (solo ADMIN)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Usuario Actualizado\",\n  \"rol\": \"SUPERVISOR\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/usuarios/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "usuarios", "1"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios - DELETE (solo ADMIN)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/usuarios/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "usuarios", "1"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 or 204\", function () {",
+              "    pm.expect([200,204]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/productos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos - POST (solo ADMIN)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Test\",\n  \"descripcion\": \"Producto de prueba\",\n  \"precio\": 99.99,\n  \"stock\": 10\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/productos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "productos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos - PUT (solo ADMIN)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Producto Actualizado\",\n  \"descripcion\": \"Descripción actualizada\",\n  \"precio\": 120.00,\n  \"stock\": 20\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/productos/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "productos", "1"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos - DELETE (solo ADMIN)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/productos/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "productos", "1"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 or 204\", function () {",
+              "    pm.expect([200,204]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/clientes",
+          "host": ["{{base_url}}"],
+          "path": ["api", "clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"cliente@correo.com\",\n  \"direccion\": \"Calle 123\",\n  \"nombre\": \"Cliente Nuevo\",\n  \"telefono\": \"3000000000\",\n  \"tipo\": \"Persona\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/clientes",
+          "host": ["{{base_url}}"],
+          "path": ["api", "clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Proveedores - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["api", "proveedores"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Proveedores - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Nuevo\",\n  \"correo\": \"proveedor@correo.com\",\n  \"telefono\": \"6012345678\",\n  \"telefono_contacto\": \"3001234567\",\n  \"direccion\": \"Calle 123\",\n  \"tipo\": \"Nacional\",\n  \"nit\": \"123456789-0\",\n  \"nombre_contacto\": \"Contacto Proveedor\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["api", "proveedores"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/pedidos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pedidos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fecha\": \"2024-07-30\",\n  \"total\": 250,\n  \"cliente_id\": 1,\n  \"usuario_id\": 1,\n  \"detalles\": [\n    {\n      \"producto_id\": 1,\n      \"cantidad\": 2\n    },\n    {\n      \"producto_id\": 2,\n      \"cantidad\": 1\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pedidos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pedidos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compras - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/compras",
+          "host": ["{{base_url}}"],
+          "path": ["api", "compras"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compras - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proveedor_id\": 1,\n  \"fecha\": \"2024-07-01\",\n  \"numero_factura\": \"FAC-006-2024\",\n  \"estado\": \"RECIBIDA\",\n  \"subtotal\": 1000,\n  \"descuento_total\": 50,\n  \"iva\": 190,\n  \"total\": 1140,\n  \"observaciones\": \"Compra de teclados\",\n  \"detalles\": [\n    {\n      \"producto_id\": 4,\n      \"cantidad\": 10,\n      \"precio_unitario\": 40,\n      \"descuento\": 0,\n      \"subtotal\": 400\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/compras",
+          "host": ["{{base_url}}"],
+          "path": ["api", "compras"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimientos de Inventario - GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/movimientos-inventario",
+          "host": ["{{base_url}}"],
+          "path": ["api", "movimientos-inventario"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimientos de Inventario - POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"producto_id\": 1,\n  \"tipo\": \"ENTRADA\",\n  \"cantidad\": 10,\n  \"stock_anterior\": 0,\n  \"stock_posterior\": 10,\n  \"fecha\": \"2024-07-01T09:00:00\",\n  \"motivo\": \"Compra inicial\",\n  \"usuario_id\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/movimientos-inventario",
+          "host": ["{{base_url}}"],
+          "path": ["api", "movimientos-inventario"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 or 200\", function () {",
+              "    pm.expect([200,201]).to.include(pm.response.code);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes - Productos más vendidos",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/reportes/productos-mas-vendidos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "reportes", "productos-mas-vendidos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes - Stock bajo",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/reportes/stock-bajo",
+          "host": ["{{base_url}}"],
+          "path": ["api", "reportes", "stock-bajo"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8081" }
+  ]
+} 

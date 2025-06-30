@@ -10,7 +10,9 @@ const Layout = ({ children }) => {
       <main className="contenido">
         <Navbar />
         <section className="work-area">
-          {children}
+          <div className="work-area-zoom">
+            {children}
+          </div>
         </section>
       </main>
     </div>
