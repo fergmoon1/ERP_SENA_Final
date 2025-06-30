@@ -50,6 +50,12 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/login';
+  };
+
   return (
     <header className="topbar">
       <div className="hamburger" onClick={toggleMenu}>
@@ -99,10 +105,7 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
               <div className="logout-menu">
                 <button
                   className="logout-menu-btn"
-                  onClick={() => {
-                    localStorage.clear();
-                    window.location.href = '/login';
-                  }}
+                  onClick={handleLogout}
                 >
                   Cerrar sesión
                 </button>
