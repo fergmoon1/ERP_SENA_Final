@@ -173,4 +173,10 @@ public class ReporteController {
             @RequestParam("hasta") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
         return reporteService.obtenerResumenVentas(desde, hasta);
     }
+
+    // GET - Ingresos por mes
+    @GetMapping("/ingresos-por-mes")
+    public List<Map<String, Object>> getIngresosPorMes() {
+        return reporteService.getIngresosPorMes();
+    }
 } 

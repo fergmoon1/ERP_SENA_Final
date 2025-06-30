@@ -4,11 +4,38 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import './App.css';
 
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
 function App() {
   // Verificar si el usuario está autenticado
   const isAuthenticated = () => {
     const token = localStorage.getItem('jwt');
-    return !!token;
+    if (!token) return false;
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) {
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('refreshToken');
+      return false;
+    }
+    // exp está en segundos desde epoch
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp < now) {
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('refreshToken');
+      return false;
+    }
+    return true;
   };
 
   // Ejemplo típico

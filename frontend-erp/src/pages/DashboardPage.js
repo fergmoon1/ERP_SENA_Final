@@ -249,14 +249,18 @@ const DashboardPage = () => {
           <div className="table-card">
             <h2>Pedidos por Estado</h2>
             <ul className="status-list">
-              {dashboardData?.pedidosPorEstado.map((pedido, index) => (
-                <li key={index} className="status-item">
-                  <span>{pedido.estado}</span>
-                  <span className={`status-badge ${pedido.color}`}>
-                    {pedido.cantidad}
-                  </span>
-                </li>
-              ))}
+              {(dashboardData?.pedidosPorEstado || []).length > 0 ? (
+                dashboardData.pedidosPorEstado.map((pedido, index) => (
+                  <li key={index} className="status-item">
+                    <span>{pedido.estado}</span>
+                    <span className={`status-badge ${pedido.color}`}>
+                      {pedido.cantidad}
+                    </span>
+                  </li>
+                ))
+              ) : (
+                <li>No hay datos de pedidos por estado.</li>
+              )}
             </ul>
           </div>
         </div>
@@ -272,12 +276,16 @@ const DashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {dashboardData?.ingresosPorMes.map((ingreso, index) => (
-                <tr key={index}>
-                  <td>{ingreso.mes}</td>
-                  <td>${ingreso.ingreso.toFixed(2)}</td>
-                </tr>
-              ))}
+              {(dashboardData?.ingresosPorMes || []).length > 0 ? (
+                dashboardData.ingresosPorMes.map((ingreso, index) => (
+                  <tr key={index}>
+                    <td>{ingreso.mes}</td>
+                    <td>${ingreso.ingreso.toFixed(2)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr><td colSpan="2">No hay datos de ingresos por mes.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -301,8 +309,8 @@ const DashboardPage = () => {
             <h2>Gráfico de Pedidos por Estado</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={pedidosPorEstado} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
-                  {pedidosPorEstado.map((entry, index) => (
+                <Pie data={pedidosPorEstado || []} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
+                  {(pedidosPorEstado || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
                   ))}
                 </Pie>

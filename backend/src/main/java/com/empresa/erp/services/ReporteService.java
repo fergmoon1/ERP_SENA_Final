@@ -188,7 +188,11 @@ public class ReporteService {
                         info.put("id", producto.getId());
                         info.put("nombre", producto.getNombre());
                         info.put("cantidadVendida", entry.getValue());
-                        info.put("valorVendido", entry.getValue() * producto.getPrecio());
+                        Double precio = producto.getPrecio() != null ? producto.getPrecio() : 0.0;
+                        info.put("precio", precio);
+                        double ingreso = entry.getValue() * precio;
+                        info.put("valorVendido", ingreso);
+                        info.put("ingreso", ingreso);
                     }
                     return info;
                 })
@@ -385,5 +389,26 @@ public class ReporteService {
         resumen.put("totalVentas", totalVentas);
         resumen.put("promedioPorPedido", promedioPorPedido);
         return resumen;
+    }
+
+    // ===== INGRESOS POR MES =====
+    public List<Map<String, Object>> getIngresosPorMes() {
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        Map<String, Double> ingresosPorMes = new HashMap<>();
+        for (Pedido pedido : pedidos) {
+            if (pedido.getFecha() == null || pedido.getTotal() == null) continue;
+            String mes = pedido.getFecha().getYear() + "-" + String.format("%02d", pedido.getFecha().getMonthValue());
+            ingresosPorMes.put(mes, ingresosPorMes.getOrDefault(mes, 0.0) + pedido.getTotal());
+        }
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        ingresosPorMes.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(entry -> {
+                Map<String, Object> obj = new HashMap<>();
+                obj.put("mes", entry.getKey());
+                obj.put("ingreso", entry.getValue());
+                resultado.add(obj);
+            });
+        return resultado;
     }
 } 
