@@ -149,6 +149,10 @@ const DashboardPage = () => {
       .catch(err => alert('Error al obtener alertas de stock: ' + err.message));
   }, []);
 
+  useEffect(() => {
+    console.log('Estado alertasStock:', alertasStock);
+  }, [alertasStock]);
+
   const handleFiltrar = () => {
     // Aquí se implementaría la lógica de filtrado
     console.log('Filtrando desde:', fechaInicio, 'hasta:', fechaFin);
@@ -370,7 +374,7 @@ const DashboardPage = () => {
               <XAxis dataKey="nombre" stroke="#e53935"/>
               <YAxis stroke="#e53935"/>
               <Tooltip />
-              <Bar dataKey="stock" fill="#e53935" name="Stock Bajo" />
+              <Bar dataKey="stockActual" fill="#e53935" name="Stock Bajo" />
             </BarChart>
           </ResponsiveContainer>
         </div>

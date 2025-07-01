@@ -300,6 +300,55 @@ public class ReporteService {
             cli.put("totalCompras", maxCompras);
             dashboard.put("clienteTop", cli);
         }
+
+        // Agrupar pedidos por estado
+        Map<String, Long> agrupados = pedidos.stream()
+            .filter(p -> p.getEstado() != null)
+            .collect(java.util.stream.Collectors.groupingBy(Pedido::getEstado, java.util.stream.Collectors.counting()));
+        java.util.List<java.util.Map<String, Object>> pedidosPorEstado = new java.util.ArrayList<>();
+        java.util.Map<String, String> colores = java.util.Map.of(
+            "Pendiente", "yellow",
+            "Enviado", "blue",
+            "Entregado", "green",
+            "Cancelado", "red"
+        );
+        for (java.util.Map.Entry<String, Long> entry : agrupados.entrySet()) {
+            java.util.Map<String, Object> obj = new java.util.HashMap<>();
+            obj.put("estado", entry.getKey());
+            obj.put("cantidad", entry.getValue());
+            obj.put("color", colores.getOrDefault(entry.getKey(), "gray"));
+            pedidosPorEstado.add(obj);
+        }
+        dashboard.put("pedidosPorEstado", pedidosPorEstado);
+
+        // === VENTAS DEL MES ===
+        java.time.LocalDate primerDiaMes = java.time.LocalDate.now().withDayOfMonth(1);
+        java.time.LocalDate ultimoDiaMes = java.time.LocalDate.now().withDayOfMonth(java.time.LocalDate.now().lengthOfMonth());
+        double ventasMes = pedidos.stream()
+            .filter(p -> p.getFecha() != null && !p.getFecha().isBefore(primerDiaMes) && !p.getFecha().isAfter(ultimoDiaMes))
+            .mapToDouble(p -> p.getTotal() != null ? p.getTotal() : 0.0)
+            .sum();
+        dashboard.put("ventasMes", ventasMes);
+
+        // === PEDIDOS PENDIENTES ===
+        long pedidosPendientes = pedidos.stream()
+            .filter(p -> "Pendiente".equalsIgnoreCase(p.getEstado()))
+            .count();
+        dashboard.put("pedidosPendientes", pedidosPendientes);
+
+        // === ALERTAS DE STOCK ===
+        long alertasStock = productoRepository.findAll().stream()
+            .filter(p -> p.getStock() != null && p.getStock() <= 5)
+            .count();
+        dashboard.put("alertasStock", alertasStock);
+
+        // === CLIENTES NUEVOS DEL MES ===
+        long clientesNuevos = clienteRepository.findAll().stream()
+            .filter(c -> c.getFechaCreacion() != null &&
+                !c.getFechaCreacion().isBefore(primerDiaMes) && !c.getFechaCreacion().isAfter(ultimoDiaMes))
+            .count();
+        dashboard.put("clientesNuevos", clientesNuevos);
+
         return dashboard;
     }
 
