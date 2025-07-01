@@ -98,32 +98,14 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
             <i className="fa-solid fa-magnifying-glass-plus" onClick={() => setZoom(z => Math.min(z + 0.1, 1.3))} style={{cursor: 'pointer'}}></i>
             <i className="fa-solid fa-magnifying-glass-minus" onClick={() => setZoom(z => Math.max(z - 0.1, 0.8))} style={{cursor: 'pointer'}}></i>
           </div>
-          <div className="logout-visible" style={{display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px'}}>
-            <button
-              className="logout-menu-btn logout-always-visible"
-              onClick={handleLogout}
-              style={{
-                background: 'linear-gradient(90deg, #ef4444 0%, #f59e42 100%)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '20px',
-                padding: '6px 18px',
-                fontWeight: 'bold',
-                fontSize: '1rem',
-                boxShadow: '0 2px 8px rgba(239,68,68,0.15)',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-                letterSpacing: '0.5px',
-              }}
-            >
-              Cerrar sesión
-            </button>
+          <div className="logout-modern" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '18px', gap: '0px'}}>
             <i
               className="fa-solid fa-right-from-bracket logout-icon"
-              style={{fontSize: '1.5rem', color: '#ef4444', cursor: 'pointer'}}
+              style={{fontSize: '1.35rem', color: '#444', cursor: 'pointer', marginBottom: '2px'}}
               onClick={handleLogout}
               title="Cerrar sesión"
             ></i>
+            <span style={{fontSize: '15px', fontFamily: 'inherit', color: '#444', fontWeight: 500, lineHeight: 1.1, marginTop: '0px'}}>Cerrar sesión</span>
           </div>
         </div>
       </div>
