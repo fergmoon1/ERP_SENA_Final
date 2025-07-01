@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/InventarioPage.css';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8081/api';
 
 function InventarioPage() {
   const [productos, setProductos] = useState([]);
@@ -20,6 +20,9 @@ function InventarioPage() {
     fetchMovimientos();
     fetchAlertaStock();
   }, []);
+
+  // Depuración: mostrar movimientos en consola
+  console.log('Movimientos:', movimientos);
 
   const fetchProductos = async () => {
     try {
@@ -110,7 +113,7 @@ function InventarioPage() {
     <div className="inventario-area-container">
       <div className="inventario-header-area">
         <h1 className="inventario-title">Inventario</h1>
-        <span className="inventario-breadcrumb">Home / Inventario</span>
+        {/* <span className="inventario-breadcrumb">Home / Inventario</span> */}
       </div>
 
       <div className="inventario-alert-area">
@@ -180,6 +183,7 @@ function InventarioPage() {
                 <th>ID</th>
                 <th>Producto</th>
                 <th>Cantidad</th>
+                <th>Tipo</th>
                 <th>Fecha de Actualización</th>
                 <th>Acciones</th>
               </tr>
@@ -190,6 +194,7 @@ function InventarioPage() {
                   <td>{mov.id}</td>
                   <td>{mov.producto?.nombre}</td>
                   <td>{mov.cantidad}</td>
+                  <td>{mov.tipo}</td>
                   <td>{mov.fecha?.replace('T', ' ').substring(0, 19)}</td>
                   <td>
                     <button className="btn-editar" onClick={() => handleEdit(mov)}>Editar</button>
