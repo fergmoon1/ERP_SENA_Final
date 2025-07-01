@@ -58,7 +58,7 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
     } catch (e) {
       // Ignorar errores de red
     }
-    window.location.href = '/login?logout=true';
+    window.location.replace('/login?logout=true');
   };
 
   return (
@@ -98,24 +98,32 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
             <i className="fa-solid fa-magnifying-glass-plus" onClick={() => setZoom(z => Math.min(z + 0.1, 1.3))} style={{cursor: 'pointer'}}></i>
             <i className="fa-solid fa-magnifying-glass-minus" onClick={() => setZoom(z => Math.max(z - 0.1, 0.8))} style={{cursor: 'pointer'}}></i>
           </div>
-          <div
-            className="logout-icon-menu"
-            style={{marginRight: '12px'}}
-            onMouseEnter={() => setIsLogoutMenuOpen(true)}
-            onMouseLeave={() => setIsLogoutMenuOpen(false)}
-            tabIndex={0}
-          >
-            <i className="fa-solid fa-right-from-bracket logout-icon"></i>
-            {isLogoutMenuOpen && (
-              <div className="logout-menu">
-                <button
-                  className="logout-menu-btn"
-                  onClick={handleLogout}
-                >
-                  Cerrar sesión
-                </button>
-              </div>
-            )}
+          <div className="logout-visible" style={{display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px'}}>
+            <button
+              className="logout-menu-btn logout-always-visible"
+              onClick={handleLogout}
+              style={{
+                background: 'linear-gradient(90deg, #ef4444 0%, #f59e42 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '6px 18px',
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                boxShadow: '0 2px 8px rgba(239,68,68,0.15)',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Cerrar sesión
+            </button>
+            <i
+              className="fa-solid fa-right-from-bracket logout-icon"
+              style={{fontSize: '1.5rem', color: '#ef4444', cursor: 'pointer'}}
+              onClick={handleLogout}
+              title="Cerrar sesión"
+            ></i>
           </div>
         </div>
       </div>

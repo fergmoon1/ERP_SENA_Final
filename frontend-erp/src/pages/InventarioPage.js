@@ -15,6 +15,9 @@ function InventarioPage() {
   const [historial, setHistorial] = useState([]);
   const [historialProducto, setHistorialProducto] = useState(null);
 
+  const token = localStorage.getItem('jwt');
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
   useEffect(() => {
     fetchProductos();
     fetchMovimientos();
@@ -26,7 +29,7 @@ function InventarioPage() {
 
   const fetchProductos = async () => {
     try {
-      const res = await axios.get(`${API_URL}/productos`);
+      const res = await axios.get(`${API_URL}/productos`, config);
       setProductos(res.data);
     } catch (err) {
       setProductos([]);
@@ -36,7 +39,7 @@ function InventarioPage() {
   const fetchMovimientos = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/movimientos-inventario`);
+      const res = await axios.get(`${API_URL}/movimientos-inventario`, config);
       setMovimientos(res.data);
     } catch (err) {
       setMovimientos([]);
@@ -46,7 +49,7 @@ function InventarioPage() {
 
   const fetchAlertaStock = async () => {
     try {
-      const res = await axios.get(`${API_URL}/reportes/stock-bajo`);
+      const res = await axios.get(`${API_URL}/reportes/stock-bajo`, config);
       setAlertaStock(res.data);
     } catch (err) {
       setAlertaStock([]);
@@ -69,7 +72,7 @@ function InventarioPage() {
           producto: { id: form.productoId },
           cantidad: parseInt(form.cantidad, 10),
           tipo: 'AJUSTE',
-        });
+        }, config);
       }
       setForm({ productoId: '', cantidad: '' });
       setEditId(null);
@@ -89,7 +92,7 @@ function InventarioPage() {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que desea eliminar este movimiento?')) return;
     try {
-      await axios.delete(`${API_URL}/movimientos-inventario/${id}`);
+      await axios.delete(`${API_URL}/movimientos-inventario/${id}`, config);
       fetchMovimientos();
       fetchProductos();
       fetchAlertaStock();
@@ -100,7 +103,7 @@ function InventarioPage() {
 
   const handleShowHistorial = async (producto) => {
     try {
-      const res = await axios.get(`${API_URL}/movimientos-inventario/producto/${producto.id}/historial`);
+      const res = await axios.get(`${API_URL}/movimientos-inventario/producto/${producto.id}/historial`, config);
       setHistorial(res.data);
       setHistorialProducto(producto);
       setShowModal(true);
