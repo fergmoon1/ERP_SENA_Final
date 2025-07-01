@@ -14,6 +14,8 @@ public class Cliente {
     private String direccion;
     private String tipo; // "Individual" o "Empresa"
 
+    private java.time.LocalDate fechaCreacion;
+
     // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,4 +34,7 @@ public class Cliente {
 
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public java.time.LocalDate getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(java.time.LocalDate fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

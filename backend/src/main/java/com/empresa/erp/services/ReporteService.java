@@ -411,4 +411,25 @@ public class ReporteService {
             });
         return resultado;
     }
+
+    // ===== CLIENTES NUEVOS POR MES =====
+    public List<Map<String, Object>> getClientesNuevosPorMes() {
+        List<com.empresa.erp.models.Cliente> clientes = clienteRepository.findAll();
+        Map<String, Long> clientesPorMes = new java.util.HashMap<>();
+        for (com.empresa.erp.models.Cliente cliente : clientes) {
+            if (cliente.getFechaCreacion() == null) continue;
+            String mes = cliente.getFechaCreacion().getYear() + "-" + String.format("%02d", cliente.getFechaCreacion().getMonthValue());
+            clientesPorMes.put(mes, clientesPorMes.getOrDefault(mes, 0L) + 1);
+        }
+        List<Map<String, Object>> resultado = new java.util.ArrayList<>();
+        clientesPorMes.entrySet().stream()
+            .sorted(java.util.Map.Entry.comparingByKey())
+            .forEach(entry -> {
+                Map<String, Object> obj = new java.util.HashMap<>();
+                obj.put("mes", entry.getKey());
+                obj.put("cantidad", entry.getValue());
+                resultado.add(obj);
+            });
+        return resultado;
+    }
 } 

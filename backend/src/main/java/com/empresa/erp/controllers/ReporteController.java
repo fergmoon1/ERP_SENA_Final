@@ -179,4 +179,10 @@ public class ReporteController {
     public List<Map<String, Object>> getIngresosPorMes() {
         return reporteService.getIngresosPorMes();
     }
+
+    // GET - Clientes nuevos por mes
+    @GetMapping("/clientes-nuevos-por-mes")
+    public List<Map<String, Object>> getClientesNuevosPorMes() {
+        return reporteService.getClientesNuevosPorMes();
+    }
 } 

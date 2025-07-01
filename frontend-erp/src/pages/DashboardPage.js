@@ -84,7 +84,7 @@ const DashboardPage = () => {
       .then(data => setProductosMasVendidos(data))
       .catch(err => alert('Error al obtener productos más vendidos: ' + err.message));
     // Ingresos por mes
-    fetch('/api/reportes/ventas/resumen?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59', {
+    fetch('/api/reportes/ingresos-por-mes', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
     })
       .then(async res => {
@@ -97,7 +97,7 @@ const DashboardPage = () => {
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       })
-      .then(data => setIngresosPorMes(data.ingresosPorMes || []))
+      .then(data => setIngresosPorMes(data || []))
       .catch(err => alert('Error al obtener ingresos por mes: ' + err.message));
     // Pedidos por estado
     fetch('/api/reportes/dashboard', {
@@ -115,11 +115,22 @@ const DashboardPage = () => {
       })
       .then(data => setPedidosPorEstado(data.pedidosPorEstado || []))
       .catch(err => alert('Error al obtener pedidos por estado: ' + err.message));
-    // Clientes nuevos por mes (si existe endpoint, si no, dejar preparado)
-    // fetch('/api/reportes/clientes-nuevos-por-mes', { ... })
-    //   .then(...)
-    //   .then(data => setClientesNuevosPorMes(data))
-    //   .catch(...);
+    // Clientes nuevos por mes
+    fetch('/api/reportes/clientes-nuevos-por-mes', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
+    })
+      .then(async res => {
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('jwt');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login?logout=true';
+          return;
+        }
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      })
+      .then(data => setClientesNuevosPorMes(data || []))
+      .catch(err => alert('Error al obtener clientes nuevos por mes: ' + err.message));
     // Alertas de stock bajo
     fetch('/api/reportes/inventario/stock-bajo', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
@@ -249,8 +260,8 @@ const DashboardPage = () => {
           <div className="table-card">
             <h2>Pedidos por Estado</h2>
             <ul className="status-list">
-              {(dashboardData?.pedidosPorEstado || []).length > 0 ? (
-                dashboardData.pedidosPorEstado.map((pedido, index) => (
+              {pedidosPorEstado.length > 0 ? (
+                pedidosPorEstado.map((pedido, index) => (
                   <li key={index} className="status-item">
                     <span>{pedido.estado}</span>
                     <span className={`status-badge ${pedido.color}`}>
@@ -276,8 +287,8 @@ const DashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {(dashboardData?.ingresosPorMes || []).length > 0 ? (
-                dashboardData.ingresosPorMes.map((ingreso, index) => (
+              {(ingresosPorMes.length > 0 ? (
+                ingresosPorMes.map((ingreso, index) => (
                   <tr key={index}>
                     <td>{ingreso.mes}</td>
                     <td>${ingreso.ingreso.toFixed(2)}</td>
@@ -285,7 +296,7 @@ const DashboardPage = () => {
                 ))
               ) : (
                 <tr><td colSpan="2">No hay datos de ingresos por mes.</td></tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>

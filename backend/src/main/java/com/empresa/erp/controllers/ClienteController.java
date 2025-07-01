@@ -4,6 +4,7 @@ import com.empresa.erp.models.Cliente;
 import com.empresa.erp.services.ClienteService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class ClienteController {
 
     @PostMapping
     public Cliente create(@RequestBody Cliente cliente) {
+        cliente.setFechaCreacion(LocalDate.now());
         return clienteService.save(cliente);
     }
 
