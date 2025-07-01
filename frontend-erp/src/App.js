@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import InventarioPage from "./pages/InventarioPage";
+import Layout from "./components/Layout";
 import './App.css';
 
 function parseJwt(token) {
@@ -60,6 +62,10 @@ function App() {
           <Route 
             path="/dashboard" 
             element={isAuthenticated() ? <DashboardPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/inventario"
+            element={isAuthenticated() ? <Layout><InventarioPage /></Layout> : <Navigate to="/login" />}
           />
           <Route 
             path="/" 
