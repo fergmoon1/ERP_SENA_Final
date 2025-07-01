@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP Systems - Dashboard</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="./contenidos/dashboard.css"> <!-- Estilos específicos del área de trabajo -->
+    <link rel="stylesheet" href="imagenes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon"><i class="fa-solid fa-columns"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-star"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-left"></i></span>
+                <span class="logo-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </div>
+            
+            <!-- Nuevo contenedor para los círculos -->
+            <div class="user-circles">
+                <span class="user-circle user-photo"><img src="imagenes/foto01 mujer.png" alt="Usuario"></span>
+                <span class="user-circle"><i class="fa-solid fa-bell"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-star"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <span class="user-circle"><i class="fa-solid fa-sliders"></i></span>
+            </div>
+            <ul class="menu">
+                <li class="activo"><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i><i class="fa-solid fa-chevron-right"></i> Dashboard</a></li>
+                <li><a href="inventario.html"><i class="fa-solid fa-box"></i><i class="fa-solid fa-chevron-right"></i> Inventario</a></li>
+                <li><a href="productos.html"><i class="fa-solid fa-tag"></i><i class="fa-solid fa-chevron-right"></i> Productos</a></li>
+                <li><a href="pedidos.html"><i class="fa-solid fa-truck"></i><i class="fa-solid fa-chevron-right"></i> Pedidos</a></li>
+                <li><a href="clientes.html"><i class="fa-solid fa-user"></i><i class="fa-solid fa-chevron-right"></i> Clientes</a></li>
+                <li><a href="usuarios.html"><i class="fa-solid fa-users"></i><i class="fa-solid fa-chevron-right"></i> Usuarios</a></li>
+                <li><a href="configuracion.html"><i class="fa-solid fa-cogs"></i><i class="fa-solid fa-chevron-right"></i> Configuración</a></li>
+            </ul>
+            <div class="footer-icons">
+                <span class="icon-circle"><i class="fa-solid fa-arrow-left"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-headphones"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-gear"></i></span>
+                <span class="icon-circle"><i class="fa-solid fa-arrow-up"></i></span>
+            </div>
+        </nav>
+        
+        <!-- Contenido Principal -->
+        <main class="contenido">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="topbar-content">
+                    <div class="dashboard-texto">
+                        <h1>Dashboard</h1>
+                        <p>Resumen General</p>
+                    </div>
+                    <div class="perfil">
+                        <div class="perfil-texto">
+                            <div class="avatar-circle"><img src="imagenes/foto01 mujer.png" alt="Usuario"></div>
+                            <strong>Juana Pérez</strong>
+                            <span>Administrador</span>
+                        </div>
+                    </div>
+                    <div class="busqueda">
+                        <input type="text" placeholder="Buscar...">
+                        <i class="fa-solid fa-moon"></i>
+                        <i class="fa-solid fa-magnifying-glass-plus"></i> <!-- Zoom in -->
+                        <i class="fa-solid fa-magnifying-glass-minus"></i> <!-- Zoom out -->
+                    </div>
+                    <div class="hora">
+                        <div>7:01 AM</div>
+                        <div>15/03/2025</div>
+                    </div>
+                </div>
+            </header>
+            <section class="work-area">
+                <div>
+                    <div>
+                        <h1>Dashboard</h1>
+                    </div>
+                    <div>
+                        <h2>Filtrar por Fechas</h2>
+                        <div>
+                            <div>
+                                <label for="fecha-inicio">Fecha Inicio:</label>
+                                <input id="fecha-inicio" type="date"/>
+                            </div>
+                            <div>
+                                <label for="fecha-fin">Fecha Fin:</label>
+                                <input id="fecha-fin" type="date"/>
+                            </div>
+                            <div>
+                                <button>Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <p>0.0</p>
+                                <p>Ventas del Mes</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <p>1</p>
+                                <p>Pedidos Pendientes</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <p>1</p>
+                                <p>Alertas de Stock</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div>
+                                <p>2</p>
+                                <p>Clientes Nuevos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <h2>Productos Más Vendidos</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad Vendida</th>
+                                        <th>Ingreso Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Producto A</td>
+                                        <td>$10.00</td>
+                                        <td>1</td>
+                                        <td>$10.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h2>Pedidos por Estado</h2>
+                            <ul>
+                                <li><span>Pendiente</span><span>1</span></li>
+                                <li><span>Completado</span><span>0</span></li>
+                                <li><span>Cancelado</span><span>0</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Ingresos por Mes</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mes</th>
+                                    <th>Ingreso Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>April 2025</td>
+                                    <td>$0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <div>
+                            <h2>Gráfico de Ingresos por Mes</h2>
+                            <div class="chart chart-bar">
+                                <div class="bar" style="height: 20%; background-color: #17a2b8;">
+                                    <span class="label">April 2025</span>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <span style="background-color: #17a2b8;"></span> Ingresos (USD)
+                            </div>
+                        </div>
+                        <div>
+                            <h2>Gráfico de Pedidos por Estado</h2>
+                            <div class="chart chart-stacked-bar">
+                                <div class="stacked-bar">
+                                    <div class="bar-segment" style="width: 50%; background-color: #ffc107;">Pendiente</div>
+                                    <div class="bar-segment" style="width: 30%; background-color: #28a745;">Completado</div>
+                                    <div class="bar-segment" style="width: 20%; background-color: #dc3545;">Cancelado</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <span style="background-color: #ffc107;"></span> Pendiente
+                                <span style="background-color: #28a745;"></span> Completado
+                                <span style="background-color: #dc3545;"></span> Cancelado
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <h2>Gráfico de Productos Más Vendidos</h2>
+                            <div class="chart chart-horizontal-bar">
+                                <div class="horizontal-bar">
+                                    <span class="label">Producto A</span>
+                                    <div class="bar" style="width: 10%; background-color: #6f42c1;"></div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <span style="background-color: #6f42c1;"></span> Cantidad Vendida
+                            </div>
+                        </div>
+                        <div>
+                            <h2>Gráfico de Clientes Nuevos por Mes</h2>
+                            <div class="chart chart-line">
+                                <div class="line-point" style="left: 0%; top: 80%;"></div>
+                                <div class="line-point" style="left: 100%; top: 20%;"></div>
+                                <div class="line" style="background-color: #17a2b8;"></div>
+                                <span class="label x-label">April 2025</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span style="background-color: #17a2b8;"></span> Clientes Nuevos
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Gráfico de Alertas de Stock por Producto</h2>
+                        <div class="chart chart-horizontal-bar">
+                            <div class="horizontal-bar">
+                                <span class="label">Producto B</span>
+                                <div class="bar" style="width: 50%; background-color: #dc3545;"></div>
+                                <div class="bar threshold" style="width: 80%; background-color: #17a2b8;"></div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <span style="background-color: #dc3545;"></span> Stock Actual
+                            <span style="background-color: #17a2b8;"></span> Umbral de Stock
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    </body>
+</html>
