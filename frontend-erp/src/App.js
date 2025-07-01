@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import InventarioPage from "./pages/InventarioPage";
+import ProductosPage from "./pages/ProductosPage";
 import Layout from "./components/Layout";
 import './App.css';
 
@@ -66,6 +67,10 @@ function App() {
           <Route 
             path="/inventario"
             element={isAuthenticated() ? <Layout><InventarioPage /></Layout> : <Navigate to="/login" />}
+          />
+          <Route 
+            path="/productos"
+            element={isAuthenticated() ? <Layout><ProductosPage /></Layout> : <Navigate to="/login" />}
           />
           <Route 
             path="/" 
