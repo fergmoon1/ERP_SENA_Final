@@ -221,4 +221,49 @@ public class PedidoService {
         // Guardar usando el método existente
         return save(pedido);
     }
+
+    public List<Pedido> findAllWithFilters(String clienteId, String fecha, String estado, int pagina) {
+        List<Pedido> todosLosPedidos = pedidoRepository.findAll();
+        List<Pedido> pedidosFiltrados = new ArrayList<>();
+        
+        for (Pedido pedido : todosLosPedidos) {
+            boolean cumpleFiltros = true;
+            
+            // Filtro por cliente
+            if (clienteId != null && !clienteId.isEmpty()) {
+                if (pedido.getCliente() == null || !pedido.getCliente().getId().toString().equals(clienteId)) {
+                    cumpleFiltros = false;
+                }
+            }
+            
+            // Filtro por fecha
+            if (fecha != null && !fecha.isEmpty()) {
+                if (pedido.getFecha() == null || !pedido.getFecha().toString().equals(fecha)) {
+                    cumpleFiltros = false;
+                }
+            }
+            
+            // Filtro por estado
+            if (estado != null && !estado.isEmpty()) {
+                if (pedido.getEstado() == null || !pedido.getEstado().equalsIgnoreCase(estado)) {
+                    cumpleFiltros = false;
+                }
+            }
+            
+            if (cumpleFiltros) {
+                pedidosFiltrados.add(pedido);
+            }
+        }
+        
+        // Paginación simple (por ahora)
+        int elementosPorPagina = 10;
+        int inicio = (pagina - 1) * elementosPorPagina;
+        int fin = Math.min(inicio + elementosPorPagina, pedidosFiltrados.size());
+        
+        if (inicio >= pedidosFiltrados.size()) {
+            return new ArrayList<>();
+        }
+        
+        return pedidosFiltrados.subList(inicio, fin);
+    }
 }

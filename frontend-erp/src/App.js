@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import InventarioPage from "./pages/InventarioPage";
 import ProductosPage from "./pages/ProductosPage";
+import PedidosPage from "./pages/PedidosPage";
 import Layout from "./components/Layout";
 import './App.css';
 
@@ -71,6 +72,10 @@ function App() {
           <Route 
             path="/productos"
             element={isAuthenticated() ? <Layout><ProductosPage /></Layout> : <Navigate to="/login" />}
+          />
+          <Route 
+            path="/pedidos"
+            element={isAuthenticated() ? <Layout><PedidosPage /></Layout> : <Navigate to="/login" />}
           />
           <Route 
             path="/" 

@@ -27,8 +27,12 @@ public class PedidoController {
     }
 
     @GetMapping
-    public List<Pedido> getAll() {
-        return pedidoService.findAll();
+    public List<Pedido> getAll(
+            @RequestParam(required = false) String clienteId,
+            @RequestParam(required = false) String fecha,
+            @RequestParam(required = false) String estado,
+            @RequestParam(defaultValue = "1") int pagina) {
+        return pedidoService.findAllWithFilters(clienteId, fecha, estado, pagina);
     }
 
     @GetMapping("/{id}")
