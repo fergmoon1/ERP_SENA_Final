@@ -71,9 +71,8 @@ function PedidosPage() {
     try {
       const params = { ...busqueda, pagina };
       const res = await axios.get(`${API_URL}/pedidos`, { ...config, params });
-
-      setPedidos(res.data || []);
-      setTotalPaginas(1);
+      setPedidos(res.data.content || res.data);
+      setTotalPaginas(res.data.totalPages || 1);
     } catch (err) {
       setPedidos([]);
       setTotalPaginas(1);
@@ -90,7 +89,7 @@ function PedidosPage() {
     if (!prod) return;
     setForm({
       ...form,
-      productos: [...form.productos, { productoId: prod.id, nombre: prod.nombre, cantidad: Number(form.cantidad) }],
+      productos: [...form.productos, { productoId: prod.id, nombre: prod.nombre, cantidad: Number(form.cantidad), precioUnitario: prod.precio }],
       productoId: '',
       cantidad: ''
     });
@@ -112,7 +111,7 @@ function PedidosPage() {
           clienteId: form.clienteId,
           fecha: form.fecha,
           estado: form.estado,
-          productos: form.productos
+          detalles: form.productos
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido actualizado!' });
       } else {
@@ -120,7 +119,7 @@ function PedidosPage() {
           clienteId: form.clienteId,
           fecha: form.fecha,
           estado: form.estado,
-          productos: form.productos
+          detalles: form.productos
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido agregado!' });
       }

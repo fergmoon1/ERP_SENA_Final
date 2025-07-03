@@ -5,6 +5,7 @@ import java.util.List;
 public class CrearPedidoDTO {
     private Long clienteId;
     private List<DetallePedidoDTO> detalles;
+    private String fecha;
     
     // Constructor por defecto
     public CrearPedidoDTO() {}
@@ -30,5 +31,13 @@ public class CrearPedidoDTO {
     
     public void setDetalles(List<DetallePedidoDTO> detalles) {
         this.detalles = detalles;
+    }
+    
+    public String getFecha() {
+        return fecha;
+    }
+    
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
     }
 } 

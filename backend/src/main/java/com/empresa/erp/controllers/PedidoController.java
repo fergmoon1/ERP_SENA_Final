@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -27,7 +28,7 @@ public class PedidoController {
     }
 
     @GetMapping
-    public List<Pedido> getAll(
+    public Map<String, Object> getAll(
             @RequestParam(required = false) String clienteId,
             @RequestParam(required = false) String fecha,
             @RequestParam(required = false) String estado,

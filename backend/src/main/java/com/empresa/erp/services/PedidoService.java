@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -192,8 +194,12 @@ public class PedidoService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + dto.getClienteId()));
         pedido.setCliente(cliente);
         
-        // Asignar fecha actual y estado por defecto
-        pedido.setFecha(LocalDate.now());
+        // Asignar la fecha del DTO si viene, si no la actual
+        if (dto.getFecha() != null && !dto.getFecha().isEmpty()) {
+            pedido.setFecha(LocalDate.parse(dto.getFecha()));
+        } else {
+            pedido.setFecha(LocalDate.now());
+        }
         pedido.setEstado("PENDIENTE");
         
         // Crear los detalles del pedido
@@ -222,7 +228,7 @@ public class PedidoService {
         return save(pedido);
     }
 
-    public List<Pedido> findAllWithFilters(String clienteId, String fecha, String estado, int pagina) {
+    public Map<String, Object> findAllWithFilters(String clienteId, String fecha, String estado, int pagina) {
         List<Pedido> todosLosPedidos = pedidoRepository.findAll();
         List<Pedido> pedidosFiltrados = new ArrayList<>();
         
@@ -255,15 +261,17 @@ public class PedidoService {
             }
         }
         
-        // Paginación simple (por ahora)
+        // Paginación
         int elementosPorPagina = 10;
         int inicio = (pagina - 1) * elementosPorPagina;
         int fin = Math.min(inicio + elementosPorPagina, pedidosFiltrados.size());
+        List<Pedido> paginaPedidos = (inicio >= pedidosFiltrados.size()) ? new ArrayList<>() : pedidosFiltrados.subList(inicio, fin);
+        int totalPages = (int) Math.ceil((double) pedidosFiltrados.size() / elementosPorPagina);
         
-        if (inicio >= pedidosFiltrados.size()) {
-            return new ArrayList<>();
-        }
-        
-        return pedidosFiltrados.subList(inicio, fin);
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("content", paginaPedidos);
+        resultado.put("totalPages", totalPages == 0 ? 1 : totalPages);
+        resultado.put("totalElements", pedidosFiltrados.size());
+        return resultado;
     }
 }
