@@ -89,7 +89,7 @@ function PedidosPage() {
     if (!prod) return;
     setForm({
       ...form,
-      productos: [...form.productos, { productoId: prod.id, nombre: prod.nombre, cantidad: Number(form.cantidad), precioUnitario: prod.precio }],
+      productos: [...form.productos, { productoId: prod.id, nombre: prod.nombre, cantidad: Math.max(1, Number(form.cantidad)), precioUnitario: prod.precio }],
       productoId: '',
       cantidad: ''
     });
@@ -230,7 +230,7 @@ function PedidosPage() {
             </div>
             <div style={{flex: 1, minWidth: 100}}>
               <label className="form-label">Cantidad</label>
-              <input className="form-input" name="cantidad" type="number" value={form.cantidad} onChange={handleFormChange} />
+              <input className="form-input" name="cantidad" type="number" min="1" value={form.cantidad} onChange={handleFormChange} />
             </div>
             <div style={{minWidth: 120}}>
               <button type="button" className="btn-guardar" style={{marginTop: 8}} onClick={handleAddProducto}>Agregar Producto</button>
@@ -310,7 +310,22 @@ function PedidosPage() {
                 <td>{pedido.id}</td>
                 <td>{pedido.cliente?.nombre || '-'}</td>
                 <td>{pedido.fecha?.substring(0, 10) || '-'}</td>
-                <td>{pedido.estado === 'pendiente' ? 'Pendiente' : pedido.estado === 'completado' ? 'Completado' : pedido.estado === 'cancelado' ? 'Cancelado' : pedido.estado}</td>
+                <td>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '2px 12px',
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    color: '#fff',
+                    background: pedido.estado === 'pendiente' ? '#facc15' : pedido.estado === 'completado' ? '#22c55e' : pedido.estado === 'cancelado' ? '#ef4444' : '#888',
+                    border: '1px solid',
+                    borderColor: pedido.estado === 'pendiente' ? '#eab308' : pedido.estado === 'completado' ? '#16a34a' : pedido.estado === 'cancelado' ? '#b91c1c' : '#888',
+                    fontSize: '0.98em',
+                    letterSpacing: 1
+                  }}>
+                    {pedido.estado ? pedido.estado.toUpperCase() : ''}
+                  </span>
+                </td>
                 <td>
                   <ul style={{margin: 0, padding: 0, listStyle: 'none'}}>
                     {pedido.detalles?.map((d, idx) => (
