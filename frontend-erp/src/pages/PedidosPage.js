@@ -110,7 +110,7 @@ function PedidosPage() {
         await axios.put(`${API_URL}/pedidos/${editId}`, {
           clienteId: form.clienteId,
           fecha: form.fecha,
-          estado: form.estado,
+          estado: form.estado.toLowerCase(),
           detalles: form.productos
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido actualizado!' });
@@ -118,7 +118,7 @@ function PedidosPage() {
         await axios.post(`${API_URL}/pedidos`, {
           clienteId: form.clienteId,
           fecha: form.fecha,
-          estado: form.estado,
+          estado: form.estado.toLowerCase(),
           detalles: form.productos
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido agregado!' });
@@ -310,7 +310,7 @@ function PedidosPage() {
                 <td>{pedido.id}</td>
                 <td>{pedido.cliente?.nombre || '-'}</td>
                 <td>{pedido.fecha?.substring(0, 10) || '-'}</td>
-                <td>{pedido.estado}</td>
+                <td>{pedido.estado === 'pendiente' ? 'Pendiente' : pedido.estado === 'completado' ? 'Completado' : pedido.estado === 'cancelado' ? 'Cancelado' : pedido.estado}</td>
                 <td>
                   <ul style={{margin: 0, padding: 0, listStyle: 'none'}}>
                     {pedido.detalles?.map((d, idx) => (

@@ -200,7 +200,12 @@ public class PedidoService {
         } else {
             pedido.setFecha(LocalDate.now());
         }
-        pedido.setEstado("PENDIENTE");
+        // Asignar el estado recibido, normalizado, o 'pendiente' si no viene
+        if (dto.getEstado() != null && !dto.getEstado().isEmpty()) {
+            pedido.setEstado(dto.getEstado().toLowerCase());
+        } else {
+            pedido.setEstado("pendiente");
+        }
         
         // Crear los detalles del pedido
         List<DetallePedido> detalles = new ArrayList<>();

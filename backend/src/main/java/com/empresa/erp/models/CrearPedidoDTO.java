@@ -6,6 +6,7 @@ public class CrearPedidoDTO {
     private Long clienteId;
     private List<DetallePedidoDTO> detalles;
     private String fecha;
+    private String estado;
     
     // Constructor por defecto
     public CrearPedidoDTO() {}
@@ -39,5 +40,13 @@ public class CrearPedidoDTO {
     
     public void setFecha(String fecha) {
         this.fecha = fecha;
+    }
+    
+    public String getEstado() {
+        return estado;
+    }
+    
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 } 
