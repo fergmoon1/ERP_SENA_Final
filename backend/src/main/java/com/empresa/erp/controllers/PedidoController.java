@@ -57,22 +57,39 @@ public class PedidoController {
         pedido.setId(id);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String correoUsuario = auth.getName();
+        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
+            .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
         Pedido pedidoOriginal = pedidoService.findById(id)
             .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-        if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
-            throw new AccessDeniedException("No tienes permiso para modificar este pedido");
+        // Permitir a ADMIN o SUPERVISOR modificar cualquier pedido
+        if (!"ADMIN".equalsIgnoreCase(usuario.getRol()) && !"SUPERVISOR".equalsIgnoreCase(usuario.getRol())) {
+            if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
+                throw new AccessDeniedException("No tienes permiso para modificar este pedido");
+            }
         }
-        return pedidoService.save(pedido);
+        if (pedido.getMotivoEstado() != null) {
+            pedidoOriginal.setMotivoEstado(pedido.getMotivoEstado());
+        }
+        pedidoOriginal.setEstado(pedido.getEstado());
+        pedidoOriginal.setFecha(pedido.getFecha());
+        pedidoOriginal.setDetalles(pedido.getDetalles());
+        pedidoOriginal.setTotal(pedido.getTotal());
+        return pedidoService.save(pedidoOriginal);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String correoUsuario = auth.getName();
+        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
+            .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
         Pedido pedidoOriginal = pedidoService.findById(id)
             .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-        if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
-            throw new AccessDeniedException("No tienes permiso para eliminar este pedido");
+        // Permitir a ADMIN o SUPERVISOR eliminar cualquier pedido
+        if (!"ADMIN".equalsIgnoreCase(usuario.getRol()) && !"SUPERVISOR".equalsIgnoreCase(usuario.getRol())) {
+            if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
+                throw new AccessDeniedException("No tienes permiso para eliminar este pedido");
+            }
         }
         pedidoService.deleteById(id);
     }

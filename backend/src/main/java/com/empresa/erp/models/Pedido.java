@@ -27,6 +27,9 @@ public class Pedido {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    @Column(length = 255, nullable = true)
+    private String motivoEstado;
+
     // Getters y Setters
     public Long getId() {
         return id;
@@ -82,5 +85,13 @@ public class Pedido {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public String getMotivoEstado() {
+        return motivoEstado;
+    }
+
+    public void setMotivoEstado(String motivoEstado) {
+        this.motivoEstado = motivoEstado;
     }
 }

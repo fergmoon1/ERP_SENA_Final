@@ -574,4 +574,28 @@ body, html {
     min-width: 600px;
     width: 100%;
   }
-} 
+}
+
+/* Estados de pedido */
+.estado-pendiente, .estado-enviado, .estado-entregado, .estado-completado, .estado-cancelado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 20px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: none;
+  border: none;
+  margin: 0 auto;
+}
+.estado-pendiente { background: #facc15; color: #222; }
+.estado-enviado { background: #3b82f6; color: #fff; }
+.estado-entregado { background: #09ac44; color: #fff; }
+.estado-completado { background: #717272; color: #fff; }
+.estado-cancelado { background: #dc2626; color: #fff; } 

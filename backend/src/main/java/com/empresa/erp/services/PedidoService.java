@@ -206,6 +206,11 @@ public class PedidoService {
             pedido.setEstado("pendiente");
         }
         
+        // Asignar motivoEstado si viene
+        if (dto.getMotivoEstado() != null && !dto.getMotivoEstado().isEmpty()) {
+            pedido.setMotivoEstado(dto.getMotivoEstado());
+        }
+        
         // Crear los detalles del pedido
         List<DetallePedido> detalles = new ArrayList<>();
         for (DetallePedidoDTO detalleDTO : dto.getDetalles()) {

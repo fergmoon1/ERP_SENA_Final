@@ -197,4 +197,19 @@ SELECT * FROM usuario WHERE correo = 'user@erp.com';
 SELECT id, correo, nombre, password, rol FROM usuario;
 
 describe table usuario;
+UPDATE usuario SET rol = 'ADMIN' WHERE correo = 'dim.dei@gmail.com';
 
+ALTER TABLE cliente
+ADD COLUMN fecha_creacion DATE;
+
+UPDATE cliente
+SET fecha_creacion = '2024-06-01'
+WHERE fecha_creacion IS NULL;
+
+INSERT INTO pedido (fecha, total, estado, cliente_id)
+VALUES
+  ('2024-06-01', 10000, 'Pendiente', 1),
+  ('2024-06-02', 15000, 'Enviado', 1),
+  ('2024-06-03', 20000, 'Entregado', 2),
+  ('2024-06-04', 5000, 'Cancelado', 2),
+  ('2024-06-05', 12000, 'Pendiente', 3);

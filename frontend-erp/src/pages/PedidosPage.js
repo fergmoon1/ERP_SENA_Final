@@ -30,11 +30,41 @@ function ModalMensaje({ show, onClose, titulo, mensaje, children }) {
   );
 }
 
+// Componente para mostrar el estado con color e ícono SVG
+function EstadoPedido({ estado, motivo, onClick }) {
+  const estadoKey = estado ? estado.toLowerCase().replace(/\s/g, '') : '';
+  let className = '';
+  switch (estadoKey) {
+    case 'pendiente':
+      className = 'estado-pendiente';
+      break;
+    case 'enviado':
+      className = 'estado-enviado';
+      break;
+    case 'entregado':
+      className = 'estado-entregado';
+      break;
+    case 'completado':
+      className = 'estado-completado';
+      break;
+    case 'cancelado':
+      className = 'estado-cancelado';
+      break;
+    default:
+      className = 'estado-desconocido';
+  }
+  return (
+    <span className={className + ' estado-solo-texto'} style={{cursor: motivo ? 'pointer' : 'default'}} onClick={motivo ? onClick : undefined} title={motivo ? 'Ver motivo' : ''}>
+      {estado ? estado.toUpperCase() : ''}
+    </span>
+  );
+}
+
 function PedidosPage() {
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
-  const [form, setForm] = useState({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '' });
+  const [form, setForm] = useState({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '', motivoEstado: '' });
   const [editId, setEditId] = useState(null);
   const [modal, setModal] = useState({ show: false, titulo: '', mensaje: '', onConfirm: null });
   const [busqueda, setBusqueda] = useState({ clienteId: '', fecha: '', estado: '' });
@@ -42,6 +72,7 @@ function PedidosPage() {
   const [totalPaginas, setTotalPaginas] = useState(1);
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const [modalMotivo, setModalMotivo] = useState({ show: false, motivo: '', estado: '' });
 
   useEffect(() => {
     fetchClientes();
@@ -111,7 +142,8 @@ function PedidosPage() {
           clienteId: form.clienteId,
           fecha: form.fecha,
           estado: form.estado.toLowerCase(),
-          detalles: form.productos
+          detalles: form.productos,
+          motivoEstado: form.motivoEstado
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido actualizado!' });
       } else {
@@ -119,11 +151,12 @@ function PedidosPage() {
           clienteId: form.clienteId,
           fecha: form.fecha,
           estado: form.estado.toLowerCase(),
-          detalles: form.productos
+          detalles: form.productos,
+          motivoEstado: form.motivoEstado
         }, config);
         setModal({ show: true, titulo: 'Éxito', mensaje: '¡Pedido agregado!' });
       }
-      setForm({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '' });
+      setForm({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '', motivoEstado: '' });
       setEditId(null);
       fetchPedidos();
     } catch (err) {
@@ -138,7 +171,8 @@ function PedidosPage() {
       estado: pedido.estado,
       productos: pedido.detalles.map(d => ({ productoId: d.producto.id, nombre: d.producto.nombre, cantidad: d.cantidad })),
       productoId: '',
-      cantidad: ''
+      cantidad: '',
+      motivoEstado: pedido.motivoEstado || ''
     });
     setEditId(pedido.id);
     setModal({ show: false });
@@ -165,7 +199,7 @@ function PedidosPage() {
   };
 
   const handleLimpiar = () => {
-    setForm({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '' });
+    setForm({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '', motivoEstado: '' });
     setEditId(null);
     setModal({ show: false });
   };
@@ -213,9 +247,15 @@ function PedidosPage() {
               <label className="form-label">Estado</label>
               <select className="form-select" name="estado" value={form.estado} onChange={handleFormChange}>
                 <option value="pendiente">Pendiente</option>
+                <option value="enviado">Enviado</option>
+                <option value="entregado">Entregado</option>
                 <option value="completado">Completado</option>
                 <option value="cancelado">Cancelado</option>
               </select>
+            </div>
+            <div style={{flex: 1, minWidth: 180}}>
+              <label className="form-label">Motivo del estado</label>
+              <input className="form-input" name="motivoEstado" value={form.motivoEstado} onChange={handleFormChange} maxLength={255} placeholder="Ej: Pendiente por pago, por envío, etc." />
             </div>
           </div>
           <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end'}}>
@@ -279,6 +319,8 @@ function PedidosPage() {
               <select className="form-select" name="estado" value={busqueda.estado} onChange={handleBusquedaChange}>
                 <option value="">Todos los estados</option>
                 <option value="pendiente">Pendiente</option>
+                <option value="enviado">Enviado</option>
+                <option value="entregado">Entregado</option>
                 <option value="completado">Completado</option>
                 <option value="cancelado">Cancelado</option>
               </select>
@@ -311,20 +353,7 @@ function PedidosPage() {
                 <td>{pedido.cliente?.nombre || '-'}</td>
                 <td>{pedido.fecha?.substring(0, 10) || '-'}</td>
                 <td>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '2px 12px',
-                    borderRadius: 8,
-                    fontWeight: 700,
-                    color: '#fff',
-                    background: pedido.estado === 'pendiente' ? '#facc15' : pedido.estado === 'completado' ? '#22c55e' : pedido.estado === 'cancelado' ? '#ef4444' : '#888',
-                    border: '1px solid',
-                    borderColor: pedido.estado === 'pendiente' ? '#eab308' : pedido.estado === 'completado' ? '#16a34a' : pedido.estado === 'cancelado' ? '#b91c1c' : '#888',
-                    fontSize: '0.98em',
-                    letterSpacing: 1
-                  }}>
-                    {pedido.estado ? pedido.estado.toUpperCase() : ''}
-                  </span>
+                  <EstadoPedido estado={pedido.estado} motivo={pedido.motivoEstado} onClick={pedido.motivoEstado ? () => setModalMotivo({ show: true, motivo: pedido.motivoEstado, estado: pedido.estado }) : undefined} />
                 </td>
                 <td>
                   <ul style={{margin: 0, padding: 0, listStyle: 'none'}}>
@@ -360,6 +389,13 @@ function PedidosPage() {
           </>
         )}
       </ModalMensaje>
+      {/* Modal para mostrar motivo del estado */}
+      <ModalMensaje
+        show={modalMotivo.show}
+        titulo={`Motivo del estado: ${modalMotivo.estado ? modalMotivo.estado.toUpperCase() : ''}`}
+        mensaje={modalMotivo.motivo}
+        onClose={() => setModalMotivo({ show: false, motivo: '', estado: '' })}
+      />
     </div>
   );
 }

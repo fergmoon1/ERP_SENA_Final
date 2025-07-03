@@ -7,6 +7,7 @@ public class CrearPedidoDTO {
     private List<DetallePedidoDTO> detalles;
     private String fecha;
     private String estado;
+    private String motivoEstado;
     
     // Constructor por defecto
     public CrearPedidoDTO() {}
@@ -48,5 +49,13 @@ public class CrearPedidoDTO {
     
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+    
+    public String getMotivoEstado() {
+        return motivoEstado;
+    }
+    
+    public void setMotivoEstado(String motivoEstado) {
+        this.motivoEstado = motivoEstado;
     }
 } 
