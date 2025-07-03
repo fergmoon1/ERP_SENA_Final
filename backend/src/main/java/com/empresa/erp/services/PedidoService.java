@@ -146,7 +146,6 @@ public class PedidoService {
 
         pedidoParaGuardar.setTotal(totalCalculado);
         pedidoParaGuardar.setFecha(LocalDate.now());
-        pedidoParaGuardar.setEstado("PENDIENTE");
 
         Pedido pedidoGuardado = pedidoRepository.save(pedidoParaGuardar);
 
