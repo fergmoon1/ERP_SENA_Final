@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
@@ -18,7 +18,7 @@ const Sidebar = () => {
   const [configLang, setConfigLang] = useState('es');
   const [configTheme, setConfigTheme] = useState('claro');
   const [configNotif, setConfigNotif] = useState(true);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
 
   const menuItems = [
     { path: '/dashboard', icon: 'fa-chart-line', text: 'Dashboard' },
@@ -57,6 +57,21 @@ const Sidebar = () => {
     { id: 3, type: 'Pedido', name: 'Pedido #1234', extra: 'Estado: Pendiente' },
     { id: 4, type: 'Proveedor', name: 'Proveedor XYZ', extra: 'Última compra: 2024-06-01' },
   ];
+
+  // Colapsar automáticamente en pantallas pequeñas
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      } else {
+        setCollapsed(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    // Inicializar estado al montar
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <nav className={`sidebar${collapsed ? ' collapsed' : ''}`}>

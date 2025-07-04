@@ -20,6 +20,7 @@ function ClientesPage() {
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [search, setSearch] = useState({ nombre: '', correo: '' });
+  const [searchActive, setSearchActive] = useState(false);
 
   useEffect(() => {
     fetchClientes();
@@ -27,7 +28,13 @@ function ClientesPage() {
 
   const fetchClientes = async () => {
     try {
-      const res = await fetch(API_URL);
+      const token = localStorage.getItem('jwt');
+      const res = await fetch(API_URL, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      });
       if (!res.ok) {
         setError('Error al obtener los clientes: ' + res.status);
         setClientes([]);
@@ -62,9 +69,13 @@ function ClientesPage() {
     e.preventDefault();
     setError('');
     try {
+      const token = localStorage.getItem('jwt');
       const res = await fetch(editId ? `${API_URL}/${editId}` : API_URL, {
         method: editId ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
         body: JSON.stringify(form)
       });
       if (!res.ok) {
@@ -94,7 +105,13 @@ function ClientesPage() {
 
   const handleDelete = async id => {
     if (!window.confirm('¿Seguro que deseas eliminar este cliente?')) return;
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    const token = localStorage.getItem('jwt');
+    await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
     fetchClientes();
   };
 
@@ -108,10 +125,24 @@ function ClientesPage() {
   const handleSearchChange = e => {
     setSearch({ ...search, [e.target.name]: e.target.value });
   };
-  const filteredClientes = clientes.filter(c =>
-    c.nombre.toLowerCase().includes(search.nombre.toLowerCase()) &&
-    c.correo.toLowerCase().includes(search.correo.toLowerCase())
-  );
+
+  const handleSearch = e => {
+    e.preventDefault();
+    setSearchActive(true);
+  };
+
+  const handleClearSearch = () => {
+    setSearch({ nombre: '', correo: '' });
+    setSearchActive(false);
+  };
+
+  let filteredClientes = clientes;
+  if (searchActive && (search.nombre.trim() !== '' || search.correo.trim() !== '')) {
+    filteredClientes = clientes.filter(c =>
+      c.nombre.toLowerCase().includes(search.nombre.toLowerCase()) &&
+      c.correo.toLowerCase().includes(search.correo.toLowerCase())
+    );
+  }
 
   return (
     <div className="clientes-container">
@@ -161,7 +192,7 @@ function ClientesPage() {
       {/* Sección de búsqueda */}
       <div className="clientes-search-section">
         <h2>Buscar Clientes</h2>
-        <form>
+        <form onSubmit={handleSearch}>
           <div className="search-grid">
             <div className="form-group">
               <label>Nombre</label>
@@ -171,6 +202,10 @@ function ClientesPage() {
               <label>Email</label>
               <input name="correo" value={search.correo} onChange={handleSearchChange} placeholder="Ingrese el email a buscar" />
             </div>
+          </div>
+          <div className="form-buttons" style={{marginTop: '12px'}}>
+            <button type="submit">Buscar</button>
+            <button type="button" style={{background: '#9ca3af', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', fontWeight: 500, cursor: 'pointer'}} onClick={handleClearSearch}>Limpiar filtros</button>
           </div>
         </form>
       </div>
@@ -192,21 +227,31 @@ function ClientesPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredClientes.map(cliente => (
-              <tr key={cliente.id}>
-                <td>{cliente.id}</td>
-                <td>{cliente.nombre}</td>
-                <td>{cliente.correo}</td>
-                <td>{cliente.telefono}</td>
-                <td>{cliente.direccion}</td>
-                <td>{cliente.tipo}</td>
-                <td>{cliente.fechaCreacion}</td>
-                <td>
-                  <button className="edit-btn" onClick={() => handleEdit(cliente)}>Editar</button>
-                  <button className="delete-btn" onClick={() => handleDelete(cliente.id)}>Eliminar</button>
-                </td>
+            {filteredClientes.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{textAlign: 'center', color: '#888'}}>No hay clientes para mostrar.</td>
               </tr>
-            ))}
+            ) : (
+              filteredClientes.map(cliente => (
+                <tr key={cliente.id}>
+                  <td>{cliente.id}</td>
+                  <td>{cliente.nombre}</td>
+                  <td>{cliente.correo}</td>
+                  <td>{cliente.telefono}</td>
+                  <td>{cliente.direccion}</td>
+                  <td>{cliente.tipo}</td>
+                  <td>{cliente.fechaCreacion}</td>
+                  <td className="acciones">
+                    <button className="edit-btn" onClick={() => handleEdit(cliente)}>
+                      <i className="fa fa-edit"></i> Editar
+                    </button>
+                    <button className="delete-btn" onClick={() => handleDelete(cliente.id)}>
+                      <i className="fa fa-trash"></i> Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

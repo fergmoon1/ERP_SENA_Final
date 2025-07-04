@@ -2,7 +2,10 @@
 
 /* Contenedor principal */
 .clientes-container {
-    padding: 16px;
+    width: 100%;
+    max-width: 100vw;
+    padding: 16px 32px;
+    box-sizing: border-box;
 }
 
 /* Encabezado */
@@ -116,6 +119,7 @@
 .clientes-table-section table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 1200px;
 }
 
 .clientes-table-section th,
@@ -154,4 +158,62 @@
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
+}
+
+/* Mejoras responsive para la tabla y botones de acción */
+.clientes-table-section {
+    overflow-x: auto;
+    width: 100%;
+    position: relative;
+}
+
+.clientes-table-section td:last-child {
+    min-width: 200px;
+}
+
+.clientes-table-section .acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+@media (max-width: 700px) {
+    .clientes-table-section table {
+        font-size: 11px;
+        min-width: 900px;
+    }
+    .clientes-table-section td, .clientes-table-section th {
+        padding: 6px 3px;
+    }
+    .clientes-table-section td:last-child {
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 600px) {
+    .clientes-table-section table {
+        font-size: 12px;
+    }
+    .clientes-table-section .acciones {
+        flex-direction: column;
+        gap: 6px;
+        min-width: 100px;
+    }
+    .clientes-table-section td, .clientes-table-section th {
+        padding: 8px 6px;
+    }
+}
+
+@media (max-width: 900px) {
+    .clientes-container {
+        padding: 10px 4px;
+    }
+    .clientes-form-section,
+    .clientes-search-section,
+    .clientes-table-section {
+        padding: 10px 4px;
+        margin-bottom: 14px;
+    }
 }
