@@ -8,8 +8,11 @@ import PedidosPage from "./pages/PedidosPage";
 import ClientesPage from "./pages/ClientesPage";
 import UsuariosPage from "./pages/UsuariosPage";
 import ConfiguracionPage from "./pages/ConfiguracionPage";
+import AuditoriaPage from "./pages/AuditoriaPage";
 import Layout from "./components/Layout";
+import { NotificationProvider } from "./components/NotificationProvider";
 import './App.css';
+import './styles/theme.css';
 
 function parseJwt(token) {
   try {
@@ -57,48 +60,54 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route 
-            path="/login" 
-            element={isAuthenticated() ? <Navigate to="/dashboard" /> : <LoginPage />} 
-          />
-          <Route 
-            path="/dashboard" 
-            element={isAuthenticated() ? <DashboardPage /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/inventario"
-            element={isAuthenticated() ? <Layout><InventarioPage /></Layout> : <Navigate to="/login" />}
-          />
-          <Route 
-            path="/productos"
-            element={isAuthenticated() ? <Layout><ProductosPage /></Layout> : <Navigate to="/login" />}
-          />
-          <Route 
-            path="/pedidos"
-            element={isAuthenticated() ? <Layout><PedidosPage /></Layout> : <Navigate to="/login" />}
-          />
-          <Route 
-            path="/clientes"
-            element={isAuthenticated() ? <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/usuarios"
-            element={isAuthenticated() ? <Layout title="Usuarios" subtitle="Gestión de Usuarios"><UsuariosPage /></Layout> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/configuracion"
-            element={isAuthenticated() ? <Layout title="Configuración" subtitle="Ajustes del Sistema"><ConfiguracionPage /></Layout> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/" 
-            element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} 
-          />
-        </Routes>
-      </div>
-    </Router>
+    <NotificationProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route 
+              path="/login" 
+              element={isAuthenticated() ? <Navigate to="/dashboard" /> : <LoginPage />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={isAuthenticated() ? <DashboardPage /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/inventario"
+              element={isAuthenticated() ? <Layout><InventarioPage /></Layout> : <Navigate to="/login" />}
+            />
+            <Route 
+              path="/productos"
+              element={isAuthenticated() ? <Layout><ProductosPage /></Layout> : <Navigate to="/login" />}
+            />
+            <Route 
+              path="/pedidos"
+              element={isAuthenticated() ? <Layout><PedidosPage /></Layout> : <Navigate to="/login" />}
+            />
+            <Route 
+              path="/clientes"
+              element={isAuthenticated() ? <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/usuarios"
+              element={isAuthenticated() ? <Layout title="Usuarios" subtitle="Gestión de Usuarios"><UsuariosPage /></Layout> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/configuracion"
+              element={isAuthenticated() ? <Layout title="Configuración" subtitle="Ajustes del Sistema"><ConfiguracionPage /></Layout> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/auditoria"
+              element={isAuthenticated() ? <Layout title="Auditoría" subtitle="Logs de Seguridad"><AuditoriaPage /></Layout> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/" 
+              element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} 
+            />
+          </Routes>
+        </div>
+      </Router>
+    </NotificationProvider>
   );
 }
 

@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const recaptchaRef = useRef();
 
   useEffect(() => {
@@ -72,13 +73,39 @@ const LoginPage = () => {
         </label>
         <label>
           <span>Password</span>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ paddingRight: '50px' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                fontSize: '16px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.color = '#2563eb'}
+              onMouseLeave={(e) => e.target.style.color = '#6b7280'}
+              title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+            </button>
+          </div>
         </label>
         <button className="submit" type="submit">Sign In</button>
         <div style={{margin: '16px 0', textAlign: 'center'}}>

@@ -1,3 +1,4 @@
+com\empresa\erp\models\VisualConfig.class
 com\empresa\erp\controllers\AuthController.class
 com\empresa\erp\models\RolPermiso.class
 com\empresa\erp\services\MovimientoInventarioService.class
@@ -10,6 +11,7 @@ com\empresa\erp\services\ProveedorService.class
 com\empresa\erp\controllers\PasswordPolicyController.class
 com\empresa\erp\controllers\PedidoController.class
 com\empresa\erp\models\ReporteVentasPorClienteDTO.class
+com\empresa\erp\repositories\VisualConfigRepository.class
 com\empresa\erp\services\PedidoService.class
 com\empresa\erp\models\ReporteProductosMasVendidosDTO.class
 com\empresa\erp\repositories\ProveedorRepository.class
@@ -30,6 +32,7 @@ com\empresa\erp\config\SecurityConfig.class
 com\empresa\erp\controllers\MovimientoInventarioController.class
 com\empresa\erp\models\CrearPedidoDTO.class
 com\empresa\erp\services\UsuarioService.class
+com\empresa\erp\controllers\VisualConfigController.class
 com\empresa\erp\models\DetallePedido.class
 com\empresa\erp\repositories\DetallePedidoRepository.class
 com\empresa\erp\controllers\TestController.class
@@ -41,6 +44,7 @@ com\empresa\erp\repositories\MovimientoInventarioRepository.class
 com\empresa\erp\services\RolPermisoInitializer.class
 com\empresa\erp\repositories\PasswordPolicyRepository.class
 com\empresa\erp\repositories\RefreshTokenRepository.class
+com\empresa\erp\services\VisualConfigService.class
 com\empresa\erp\models\DetallePedidoDTO.class
 com\empresa\erp\models\PasswordPolicy.class
 com\empresa\erp\models\MovimientoInventario$TipoMovimiento.class

@@ -13,6 +13,8 @@ const DashboardPage = () => {
   const [pedidosPorEstado, setPedidosPorEstado] = useState([]);
   const [clientesNuevosPorMes, setClientesNuevosPorMes] = useState([]);
   const [alertasStock, setAlertasStock] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -50,119 +52,105 @@ const DashboardPage = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    // Dashboard general
-    fetch('/api/reportes/dashboard', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setDashboardData(data))
-      .catch(err => alert('Error al obtener datos del dashboard: ' + err.message));
-    // Productos más vendidos
-    fetch('/api/reportes/ventas/productos-mas-vendidos', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setProductosMasVendidos(data))
-      .catch(err => alert('Error al obtener productos más vendidos: ' + err.message));
-    // Ingresos por mes
-    fetch('/api/reportes/ingresos-por-mes', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setIngresosPorMes(data || []))
-      .catch(err => alert('Error al obtener ingresos por mes: ' + err.message));
-    // Pedidos por estado
-    fetch('/api/reportes/dashboard', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setPedidosPorEstado(data.pedidosPorEstado || []))
-      .catch(err => alert('Error al obtener pedidos por estado: ' + err.message));
-    // Clientes nuevos por mes
-    fetch('/api/reportes/clientes-nuevos-por-mes', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setClientesNuevosPorMes(data || []))
-      .catch(err => alert('Error al obtener clientes nuevos por mes: ' + err.message));
-    // Alertas de stock bajo
-    fetch('/api/reportes/inventario/stock-bajo', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') }
-    })
-      .then(async res => {
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('jwt');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login?logout=true';
-          return;
-        }
-        if (!res.ok) throw new Error(await res.text());
-        return res.json();
-      })
-      .then(data => setAlertasStock(data))
-      .catch(err => alert('Error al obtener alertas de stock: ' + err.message));
-  }, []);
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const token = localStorage.getItem('jwt');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      // Dashboard general
+      const dashboardRes = await fetch('http://localhost:8081/api/reportes/dashboard', { headers });
+      if (dashboardRes.ok) {
+        const data = await dashboardRes.json();
+        setDashboardData(data);
+      }
+
+      // Productos más vendidos
+      const productosRes = await fetch('http://localhost:8081/api/reportes/ventas/productos-mas-vendidos', { headers });
+      if (productosRes.ok) {
+        const data = await productosRes.json();
+        setProductosMasVendidos(data || []);
+      }
+
+      // Ingresos por mes
+      const ingresosRes = await fetch('http://localhost:8081/api/reportes/ingresos-por-mes', { headers });
+      if (ingresosRes.ok) {
+        const data = await ingresosRes.json();
+        setIngresosPorMes(data || []);
+      }
+
+      // Pedidos por estado
+      const pedidosRes = await fetch('http://localhost:8081/api/reportes/pedidos-por-estado', { headers });
+      if (pedidosRes.ok) {
+        const data = await pedidosRes.json();
+        setPedidosPorEstado(data || []);
+      }
+
+      // Clientes nuevos por mes
+      const clientesRes = await fetch('http://localhost:8081/api/reportes/clientes-nuevos-por-mes', { headers });
+      if (clientesRes.ok) {
+        const data = await clientesRes.json();
+        setClientesNuevosPorMes(data || []);
+      }
+
+      // Alertas de stock bajo
+      const stockRes = await fetch('http://localhost:8081/api/reportes/inventario/stock-bajo', { headers });
+      if (stockRes.ok) {
+        const data = await stockRes.json();
+        setAlertasStock(data || []);
+      }
+
+    } catch (err) {
+      setError('Error al cargar los datos del dashboard: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    console.log('Estado alertasStock:', alertasStock);
-  }, [alertasStock]);
+    fetchDashboardData();
+  }, []);
 
   const handleFiltrar = () => {
     // Aquí se implementaría la lógica de filtrado
     console.log('Filtrando desde:', fechaInicio, 'hasta:', fechaFin);
+    fetchDashboardData(); // Recargar datos con filtros
   };
 
   // Colores para PieChart
   const pieColors = ['#1976d2', '#10b981', '#fbc02d', '#e53935', '#ff9800', '#8e24aa'];
 
+  if (loading) {
+    return (
+      <Layout title="Dashboard" subtitle="Cargando datos...">
+        <div className="dashboard-container">
+          <div className="loading-spinner">
+            <i className="fas fa-spinner fa-spin"></i>
+            <p>Cargando dashboard...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Dashboard" subtitle="Error">
+        <div className="dashboard-container">
+          <div className="error-message">
+            <i className="fas fa-exclamation-triangle"></i>
+            <p>{error}</p>
+            <button onClick={fetchDashboardData}>Reintentar</button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
-    <Layout title="Dashboard" subtitle="Actualizaciones y Pagos">
+    <Layout title="Dashboard" subtitle="Métricas y Reportes del Sistema">
       <div className="dashboard-container">
         {/* Filtro de fechas */}
         <div className="filter-section">
@@ -199,7 +187,7 @@ const DashboardPage = () => {
               <i className="fas fa-shopping-cart"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.ventasMes}</p>
+              <p className="stat-number">{dashboardData?.ventasMes || 0}</p>
               <p>Ventas del Mes</p>
             </div>
           </div>
@@ -209,7 +197,7 @@ const DashboardPage = () => {
               <i className="fas fa-chart-line"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.pedidosPendientes}</p>
+              <p className="stat-number">{dashboardData?.pedidosPendientes || 0}</p>
               <p>Pedidos Pendientes</p>
             </div>
           </div>
@@ -219,7 +207,7 @@ const DashboardPage = () => {
               <i className="fas fa-exclamation-triangle"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.alertasStock}</p>
+              <p className="stat-number">{alertasStock.length}</p>
               <p>Alertas de Stock</p>
             </div>
           </div>
@@ -229,11 +217,38 @@ const DashboardPage = () => {
               <i className="fas fa-user-plus"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.clientesNuevos}</p>
+              <p className="stat-number">{dashboardData?.clientesNuevos || 0}</p>
               <p>Clientes Nuevos</p>
             </div>
           </div>
         </div>
+
+        {/* Alertas de Stock Bajo */}
+        {alertasStock.length > 0 && (
+          <div className="alert-section">
+            <h2><i className="fas fa-exclamation-triangle"></i> Alertas de Stock Bajo</h2>
+            <div className="alert-grid">
+              {alertasStock.map((producto, index) => (
+                <div key={index} className="alert-card">
+                  <div className="alert-header">
+                    <h3>{producto.nombre}</h3>
+                    <span className="stock-badge critical">Stock Crítico</span>
+                  </div>
+                  <div className="alert-content">
+                    <p><strong>Stock Actual:</strong> {producto.stockActual} unidades</p>
+                    <p><strong>Stock Mínimo:</strong> {producto.stockMinimo} unidades</p>
+                    <p><strong>Proveedor:</strong> {producto.proveedor || 'No especificado'}</p>
+                  </div>
+                  <div className="alert-actions">
+                    <button className="btn-primary" onClick={() => navigate('/inventario')}>
+                      <i className="fas fa-plus"></i> Reponer Stock
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tablas de información */}
         <div className="tables-grid">
@@ -249,14 +264,18 @@ const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {productosMasVendidos.map((producto, index) => (
-                  <tr key={index}>
-                    <td>{producto.nombre}</td>
-                    <td>${producto.precio.toFixed(2)}</td>
-                    <td>{producto.cantidadVendida}</td>
-                    <td>${producto.ingreso.toFixed(2)}</td>
-                  </tr>
-                ))}
+                {productosMasVendidos.length > 0 ? (
+                  productosMasVendidos.map((producto, index) => (
+                    <tr key={index}>
+                      <td>{producto.nombre}</td>
+                      <td>${producto.precio?.toFixed(2) || '0.00'}</td>
+                      <td>{producto.cantidadVendida}</td>
+                      <td>${producto.ingreso?.toFixed(2) || '0.00'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="4">No hay datos de productos vendidos.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -268,7 +287,7 @@ const DashboardPage = () => {
                 pedidosPorEstado.map((pedido, index) => (
                   <li key={index} className="status-item">
                     <span>{pedido.estado}</span>
-                    <span className={`status-badge ${pedido.color}`}>
+                    <span className={`status-badge ${pedido.color || 'default'}`}>
                       {pedido.cantidad}
                     </span>
                   </li>
@@ -288,19 +307,23 @@ const DashboardPage = () => {
               <tr>
                 <th>Mes</th>
                 <th>Ingreso Total</th>
+                <th>Número de Pedidos</th>
+                <th>Promedio por Pedido</th>
               </tr>
             </thead>
             <tbody>
-              {(ingresosPorMes.length > 0 ? (
+              {ingresosPorMes.length > 0 ? (
                 ingresosPorMes.map((ingreso, index) => (
                   <tr key={index}>
                     <td>{ingreso.mes}</td>
-                    <td>${ingreso.ingreso.toFixed(2)}</td>
+                    <td>${ingreso.ingreso?.toFixed(2) || '0.00'}</td>
+                    <td>{ingreso.numeroPedidos || 0}</td>
+                    <td>${((ingreso.ingreso || 0) / (ingreso.numeroPedidos || 1)).toFixed(2)}</td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="2">No hay datos de ingresos por mes.</td></tr>
-              ))}
+                <tr><td colSpan="4">No hay datos de ingresos por mes.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -309,43 +332,55 @@ const DashboardPage = () => {
         <div className="charts-grid">
           <div className="chart-card">
             <h2>Gráfico de Ingresos por Mes</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={ingresosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <XAxis dataKey="mes" stroke="#1976d2"/>
-                <YAxis stroke="#1976d2"/>
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="ingreso" stroke="#1976d2" name="Ingreso Total" />
-              </LineChart>
-            </ResponsiveContainer>
+            {ingresosPorMes.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={ingresosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="mes" stroke="#1976d2"/>
+                  <YAxis stroke="#1976d2"/>
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="ingreso" stroke="#1976d2" name="Ingreso Total" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="no-data">No hay datos para mostrar</div>
+            )}
           </div>
           
           <div className="chart-card">
             <h2>Gráfico de Pedidos por Estado</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie data={pedidosPorEstado || []} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
-                  {(pedidosPorEstado || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {pedidosPorEstado.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie data={pedidosPorEstado} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
+                    {pedidosPorEstado.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="no-data">No hay datos para mostrar</div>
+            )}
           </div>
         </div>
 
         <div className="chart-card">
           <h2>Gráfico de Productos Más Vendidos</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <XAxis dataKey="nombre" stroke="#1976d2"/>
-              <YAxis stroke="#1976d2"/>
-              <Tooltip />
-              <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
-            </BarChart>
-          </ResponsiveContainer>
+          {productosMasVendidos.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <XAxis dataKey="nombre" stroke="#1976d2"/>
+                <YAxis stroke="#1976d2"/>
+                <Tooltip />
+                <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="no-data">No hay datos para mostrar</div>
+          )}
         </div>
 
         <div className="charts-grid">
@@ -362,21 +397,9 @@ const DashboardPage = () => {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div>No hay datos de clientes nuevos por mes.</div>
+              <div className="no-data">No hay datos para mostrar</div>
             )}
           </div>
-        </div>
-
-        <div className="chart-card full-width">
-          <h2>Gráfico de Alerta de Stock por Producto</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={alertasStock} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <XAxis dataKey="nombre" stroke="#e53935"/>
-              <YAxis stroke="#e53935"/>
-              <Tooltip />
-              <Bar dataKey="stockActual" fill="#e53935" name="Stock Bajo" />
-            </BarChart>
-          </ResponsiveContainer>
         </div>
       </div>
     </Layout>

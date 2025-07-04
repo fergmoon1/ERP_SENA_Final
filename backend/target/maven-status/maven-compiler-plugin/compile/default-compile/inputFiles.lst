@@ -19,6 +19,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\HomeController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PasswordPolicyRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\VisualConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RateLimitService.java
@@ -45,15 +46,18 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProveedorRe
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ClienteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProveedorController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\VisualConfigService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Compra.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\MovimientoInventarioRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\RolPermisoController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\VisualConfigRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuthController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ReporteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PedidoService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\VisualConfigController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\SecurityConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteProductosMasVendidosDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteVentasPorClienteDTO.java

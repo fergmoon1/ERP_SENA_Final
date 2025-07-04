@@ -27,7 +27,8 @@ const Sidebar = () => {
     { path: '/pedidos', icon: 'fa-truck', text: 'Pedidos' },
     { path: '/clientes', icon: 'fa-user', text: 'Clientes' },
     { path: '/usuarios', icon: 'fa-users', text: 'Usuarios' },
-    { path: '/configuracion', icon: 'fa-cogs', text: 'Configuración' }
+    { path: '/configuracion', icon: 'fa-cogs', text: 'Configuración' },
+    { path: '/auditoria', icon: 'fa-shield-alt', text: 'Auditoría' }
   ];
 
   const notifications = [
