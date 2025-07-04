@@ -10,6 +10,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedidoDTO.
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Proveedor.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProductoRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ValidacionService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\RolPermiso.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PedidoRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
@@ -33,6 +34,8 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\AuthService.jav
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ReporteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteStockBajoDTO.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\RolPermisoRepository.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RolPermisoService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProveedorRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ClienteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
@@ -42,6 +45,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\MovimientoI
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\RolPermisoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuthController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ReporteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PedidoService.java

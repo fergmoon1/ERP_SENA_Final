@@ -109,3 +109,7 @@ INSERT INTO pedido (
 );
 
 UPDATE cliente SET tipo = 'Individual' WHERE tipo = 'Persona';
+
+ALTER TABLE usuario ADD COLUMN activo BOOLEAN NOT NULL DEFAULT FALSE;
+
+UPDATE usuario SET activo = FALSE;

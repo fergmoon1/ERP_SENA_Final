@@ -1,7 +1,9 @@
 com\empresa\erp\controllers\AuthController.class
+com\empresa\erp\models\RolPermiso.class
 com\empresa\erp\services\MovimientoInventarioService.class
 com\empresa\erp\repositories\PedidoRepository.class
 com\empresa\erp\models\ReporteStockBajoDTO.class
+com\empresa\erp\controllers\RolPermisoController.class
 com\empresa\erp\controllers\CompraController.class
 com\empresa\erp\services\CompraService.class
 com\empresa\erp\services\ProveedorService.class
@@ -21,6 +23,7 @@ com\empresa\erp\repositories\DetalleCompraRepository.class
 com\empresa\erp\repositories\UsuarioRepository.class
 com\empresa\erp\config\JwtAuthenticationFilter.class
 com\empresa\erp\GenerarHash.class
+com\empresa\erp\services\RolPermisoService.class
 com\empresa\erp\config\SecurityConfig.class
 com\empresa\erp\controllers\MovimientoInventarioController.class
 com\empresa\erp\models\CrearPedidoDTO.class
@@ -48,6 +51,7 @@ com\empresa\erp\BackendApplication.class
 com\empresa\erp\config\RateLimitFilter.class
 com\empresa\erp\controllers\ProveedorController.class
 com\empresa\erp\services\AuthService.class
+com\empresa\erp\repositories\RolPermisoRepository.class
 com\empresa\erp\controllers\ClienteController.class
 com\empresa\erp\models\RefreshToken.class
 com\empresa\erp\models\DetalleCompra.class

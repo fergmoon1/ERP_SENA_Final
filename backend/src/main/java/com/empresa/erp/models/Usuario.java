@@ -12,6 +12,7 @@ public class Usuario {
     private String correo;
     private String rol;
     private String password;
+    private boolean activo = false; // Ahora inactivo por defecto
 
     // Getters y Setters
     public Long getId() { return id; }
@@ -28,4 +29,7 @@ public class Usuario {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }
