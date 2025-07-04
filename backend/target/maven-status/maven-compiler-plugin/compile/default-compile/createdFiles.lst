@@ -7,6 +7,7 @@ com\empresa\erp\controllers\RolPermisoController.class
 com\empresa\erp\controllers\CompraController.class
 com\empresa\erp\services\CompraService.class
 com\empresa\erp\services\ProveedorService.class
+com\empresa\erp\controllers\PasswordPolicyController.class
 com\empresa\erp\controllers\PedidoController.class
 com\empresa\erp\models\ReporteVentasPorClienteDTO.class
 com\empresa\erp\services\PedidoService.class
@@ -14,6 +15,7 @@ com\empresa\erp\models\ReporteProductosMasVendidosDTO.class
 com\empresa\erp\repositories\ProveedorRepository.class
 com\empresa\erp\services\ValidacionService.class
 com\empresa\erp\services\MovimientoInventarioService$1.class
+com\empresa\erp\services\PasswordPolicyService.class
 com\empresa\erp\models\MovimientoInventario.class
 com\empresa\erp\repositories\CompraRepository.class
 com\empresa\erp\models\Cliente.class
@@ -36,8 +38,11 @@ com\empresa\erp\controllers\HomeController.class
 com\empresa\erp\controllers\ReporteController.class
 com\empresa\erp\models\Proveedor.class
 com\empresa\erp\repositories\MovimientoInventarioRepository.class
+com\empresa\erp\services\RolPermisoInitializer.class
+com\empresa\erp\repositories\PasswordPolicyRepository.class
 com\empresa\erp\repositories\RefreshTokenRepository.class
 com\empresa\erp\models\DetallePedidoDTO.class
+com\empresa\erp\models\PasswordPolicy.class
 com\empresa\erp\models\MovimientoInventario$TipoMovimiento.class
 com\empresa\erp\services\ClienteService.class
 com\empresa\erp\services\ProductoService.class

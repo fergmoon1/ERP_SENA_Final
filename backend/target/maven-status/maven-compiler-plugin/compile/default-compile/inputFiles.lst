@@ -1,10 +1,12 @@
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\RateLimitFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetallePedidoRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetalleCompra.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RolPermisoInitializer.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\JwtAuthenticationFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\TestController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProveedorService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\PasswordPolicyController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\BackendApplication.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedidoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Proveedor.java
@@ -15,11 +17,13 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PedidoRepos
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\CrearPedidoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\GenerarHash.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\HomeController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\PasswordPolicyRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\MovimientoInventarioController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetalleCompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventario.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RateLimitService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Usuario.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PasswordPolicyService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\CompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedido.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\RefreshTokenRepository.java
@@ -32,6 +36,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Producto.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\PedidoController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\AuthService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ProductoService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\PasswordPolicy.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ReporteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteStockBajoDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\RolPermisoRepository.java
