@@ -107,3 +107,5 @@ INSERT INTO pedido (
     'PENDIENTE',
     'Pedido de prueba insertado por script SQL'
 );
+
+UPDATE cliente SET tipo = 'Individual' WHERE tipo = 'Persona';

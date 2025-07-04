@@ -2,6 +2,8 @@ package com.empresa.erp.controllers;
 
 import com.empresa.erp.models.Cliente;
 import com.empresa.erp.services.ClienteService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,15 +31,23 @@ public class ClienteController {
     }
 
     @PostMapping
-    public Cliente create(@RequestBody Cliente cliente) {
-        cliente.setFechaCreacion(LocalDate.now());
-        return clienteService.save(cliente);
+    public ResponseEntity<?> create(@RequestBody Cliente cliente) {
+        try {
+            cliente.setFechaCreacion(LocalDate.now());
+            return ResponseEntity.ok(clienteService.save(cliente));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public Cliente update(@PathVariable Long id, @RequestBody Cliente cliente) {
-        cliente.setId(id);
-        return clienteService.save(cliente);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Cliente cliente) {
+        try {
+            cliente.setId(id);
+            return ResponseEntity.ok(clienteService.save(cliente));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

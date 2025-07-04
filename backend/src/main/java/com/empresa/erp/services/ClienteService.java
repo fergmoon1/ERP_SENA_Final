@@ -24,6 +24,10 @@ public class ClienteService {
     }
 
     public Cliente save(Cliente cliente) {
+        if (cliente.getTipo() == null ||
+            !(cliente.getTipo().equalsIgnoreCase("Individual") || cliente.getTipo().equalsIgnoreCase("Empresa"))) {
+            throw new IllegalArgumentException("El tipo de cliente solo puede ser 'Individual' o 'Empresa'.");
+        }
         return clienteRepository.save(cliente);
     }
 
