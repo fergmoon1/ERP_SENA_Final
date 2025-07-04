@@ -3,12 +3,12 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import '../styles/Layout.css';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, title, subtitle }) => {
   return (
     <div className="container-fluid">
       <Sidebar />
       <main className="contenido">
-        <Navbar />
+        <Navbar title={title} subtitle={subtitle} />
         <section className="work-area">
           <div className="work-area-zoom">
             {children}

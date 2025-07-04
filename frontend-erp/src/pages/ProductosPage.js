@@ -128,7 +128,6 @@ function ProductosPage() {
   return (
     <div className="inventario-area-container">
       <div className="inventario-header-area">
-        <h1 className="inventario-title">Productos</h1>
       </div>
       <div className="inventario-form-card">
         <h2 className="inventario-form-title">Agregar/Editar Producto</h2>

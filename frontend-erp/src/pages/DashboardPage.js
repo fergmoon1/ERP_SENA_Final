@@ -162,7 +162,7 @@ const DashboardPage = () => {
   const pieColors = ['#1976d2', '#10b981', '#fbc02d', '#e53935', '#ff9800', '#8e24aa'];
 
   return (
-    <Layout>
+    <Layout title="Dashboard" subtitle="Actualizaciones y Pagos">
       <div className="dashboard-container">
         {/* Filtro de fechas */}
         <div className="filter-section">

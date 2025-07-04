@@ -171,7 +171,7 @@ function InventarioPage() {
   return (
     <div className="inventario-area-container">
       <div className="inventario-header-area">
-        <h1 className="inventario-title">Inventario</h1>
+        {/* <h1 className="inventario-title">Inventario</h1> */}
         {/* <span className="inventario-breadcrumb">Home / Inventario</span> */}
       </div>
 

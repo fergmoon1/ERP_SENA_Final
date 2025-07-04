@@ -221,9 +221,8 @@ function PedidosPage() {
   };
 
   return (
-    <div className="inventario-area-container">
+    <div className="pedidos-area-container">
       <div className="inventario-header-area">
-        <h1 className="inventario-title">Gestión de Pedidos</h1>
       </div>
       {/* Formulario Agregar/Editar Pedido */}
       <div className="inventario-form-card">
