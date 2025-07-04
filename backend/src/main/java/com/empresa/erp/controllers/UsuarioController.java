@@ -5,6 +5,7 @@ import com.empresa.erp.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -41,5 +42,11 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         usuarioService.deleteById(id);
+    }
+
+    @PutMapping("/{id}/password")
+    public void updatePassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String newPassword = body.get("password");
+        usuarioService.updatePassword(id, newPassword);
     }
 }

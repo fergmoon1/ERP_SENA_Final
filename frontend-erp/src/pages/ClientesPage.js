@@ -147,10 +147,7 @@ function ClientesPage() {
   return (
     <div className="clientes-container">
       <div className="clientes-header">
-        <h1>Clientes</h1>
-        <nav>
-          <a href="#">Home</a> / <span>Clientes</span>
-        </nav>
+        {/* <h1>Clientes</h1> */}
       </div>
 
       {/* Formulario Agregar/Editar */}

@@ -6,6 +6,8 @@ import InventarioPage from "./pages/InventarioPage";
 import ProductosPage from "./pages/ProductosPage";
 import PedidosPage from "./pages/PedidosPage";
 import ClientesPage from "./pages/ClientesPage";
+import UsuariosPage from "./pages/UsuariosPage";
+import ConfiguracionPage from "./pages/ConfiguracionPage";
 import Layout from "./components/Layout";
 import './App.css';
 
@@ -80,7 +82,15 @@ function App() {
           />
           <Route 
             path="/clientes"
-            element={isAuthenticated() ? <Layout><ClientesPage /></Layout> : <Navigate to="/login" />} 
+            element={isAuthenticated() ? <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/usuarios"
+            element={isAuthenticated() ? <Layout title="Usuarios" subtitle="Gestión de Usuarios"><UsuariosPage /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/configuracion"
+            element={isAuthenticated() ? <Layout title="Configuración" subtitle="Ajustes del Sistema"><ConfiguracionPage /></Layout> : <Navigate to="/login" />} 
           />
           <Route 
             path="/" 

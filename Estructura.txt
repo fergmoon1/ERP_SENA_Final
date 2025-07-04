@@ -1343,3 +1343,15 @@ frontend-erp/
       ├── App.js
       ├── index.js
       └── ...
+
+****************************************************
+
+Configuración
+------------------
+
+Ahora, al hacer clic en el botón "Forzar contraseña" en la gestión de usuarios dentro de la página de Configuración:
+Se abrirá un prompt donde el administrador puede ingresar la nueva contraseña.
+Al confirmar, la contraseña se envía al backend usando el nuevo endpoint real.
+Si la operación es exitosa, se muestra un mensaje de éxito; si hay error, se muestra el mensaje correspondiente.
+Esto hace que la funcionalidad sea completamente real y segura.
+¿Quieres que el cambio de contraseña se haga con un modal más elegante en vez de un prompt, o necesitas avanzar con otra sección?
