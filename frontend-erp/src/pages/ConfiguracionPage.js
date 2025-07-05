@@ -38,7 +38,48 @@ function ConfiguracionPage() {
     colorSecundario: '#374151',
     tema: 'claro',
     formatoFecha: 'dd/MM/yyyy',
-    formatoHora: '24h'
+    formatoHora: '24h',
+    // Nuevas opciones de personalización
+    fuente: 'Inter',
+    tamanoFuente: '14px',
+    espaciado: 'normal',
+    bordesRedondeados: '8px',
+    sombras: true,
+    animaciones: true,
+    densidad: 'normal', // compact, normal, spacious
+    // Configuración de componentes
+    estiloBotones: 'moderno', // moderno, clasico, minimalista
+    estiloTablas: 'moderno',
+    estiloFormularios: 'moderno',
+    // Configuración de notificaciones visuales
+    notificacionesPosicion: 'top-right',
+    notificacionesDuracion: 5000,
+    notificacionesSonido: true,
+    // Configuración de empresa
+    nombreEmpresa: '',
+    direccionEmpresa: '',
+    telefonoEmpresa: '',
+    emailEmpresa: '',
+    sitioWeb: '',
+    horarioLaboral: '8:00-18:00',
+    zonaHoraria: 'America/Bogota',
+    // Configuración de seguridad
+    tiempoSesion: 30, // minutos
+    maxIntentosLogin: 5,
+    bloqueoTemporal: 15, // minutos
+    requiereCaptcha: true,
+    // Configuración de notificaciones
+    notificacionesEmail: true,
+    notificacionesPush: true,
+    notificacionesSMS: false,
+    // Configuración de reportes
+    formatoReporte: 'PDF',
+    frecuenciaReportes: 'semanal',
+    incluirGraficos: true,
+    // Configuración de backup
+    backupAutomatico: true,
+    frecuenciaBackup: 'diario',
+    retenerBackups: 30 // días
   });
   const [visualMsg, setVisualMsg] = useState('');
   const [visualMsgType, setVisualMsgType] = useState('');
@@ -412,6 +453,93 @@ function ConfiguracionPage() {
     }
   }, [policyMsg]);
 
+  const applyVisualConfig = (config) => {
+    // Aplicar colores principales
+    document.documentElement.style.setProperty('--primary-color', config.colorPrimario);
+    document.documentElement.style.setProperty('--secondary-color', config.colorSecundario);
+    
+    // Aplicar tema
+    if (config.tema === 'oscuro') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    
+    // Aplicar fuente
+    document.documentElement.style.setProperty('--font-family', config.fuente);
+    document.documentElement.style.setProperty('--font-size', config.tamanoFuente);
+    
+    // Aplicar espaciado y densidad
+    document.documentElement.style.setProperty('--spacing', config.espaciado);
+    document.documentElement.style.setProperty('--border-radius', config.bordesRedondeados);
+    
+    // Aplicar sombras y animaciones
+    if (config.sombras) {
+      document.body.classList.add('shadows-enabled');
+    } else {
+      document.body.classList.remove('shadows-enabled');
+    }
+    
+    if (config.animaciones) {
+      document.body.classList.add('animations-enabled');
+    } else {
+      document.body.classList.remove('animations-enabled');
+    }
+  };
+
+  // Temas predefinidos
+  const temasPredefinidos = {
+    claro: {
+      colorPrimario: '#2563eb',
+      colorSecundario: '#374151',
+      tema: 'claro',
+      fuente: 'Inter',
+      sombras: true,
+      animaciones: true
+    },
+    oscuro: {
+      colorPrimario: '#3b82f6',
+      colorSecundario: '#1f2937',
+      tema: 'oscuro',
+      fuente: 'Inter',
+      sombras: true,
+      animaciones: true
+    },
+    azulCorporativo: {
+      colorPrimario: '#1e40af',
+      colorSecundario: '#1e293b',
+      tema: 'claro',
+      fuente: 'Roboto',
+      sombras: true,
+      animaciones: false
+    },
+    verde: {
+      colorPrimario: '#059669',
+      colorSecundario: '#064e3b',
+      tema: 'claro',
+      fuente: 'Inter',
+      sombras: true,
+      animaciones: true
+    },
+    minimalista: {
+      colorPrimario: '#000000',
+      colorSecundario: '#6b7280',
+      tema: 'claro',
+      fuente: 'Inter',
+      sombras: false,
+      animaciones: false,
+      bordesRedondeados: '0px'
+    }
+  };
+
+  const aplicarTemaPredefinido = (nombreTema) => {
+    const tema = temasPredefinidos[nombreTema];
+    if (tema) {
+      setVisualConfig(prev => ({ ...prev, ...tema }));
+      applyVisualConfig({ ...visualConfig, ...tema });
+    }
+  };
+
   const handleVisualChange = e => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
@@ -421,7 +549,13 @@ function ConfiguracionPage() {
       reader.onload = ev => setVisualConfig(prev => ({ ...prev, logoPreview: ev.target.result }));
       reader.readAsDataURL(file);
     } else {
-      setVisualConfig(prev => ({ ...prev, [name]: value }));
+      const newValue = type === 'checkbox' ? e.target.checked : value;
+      setVisualConfig(prev => ({ ...prev, [name]: newValue }));
+      
+      // Aplicar cambios en tiempo real para ciertos campos
+      if (['colorPrimario', 'colorSecundario', 'tema', 'fuente', 'tamanoFuente', 'bordesRedondeados', 'sombras', 'animaciones'].includes(name)) {
+        applyVisualConfig({ ...visualConfig, [name]: newValue });
+      }
     }
   };
 
@@ -499,23 +633,6 @@ function ConfiguracionPage() {
       setVisualMsg('Error de red al guardar la personalización.');
       setVisualMsgType('error');
     }
-  };
-
-  const applyVisualConfig = (config) => {
-    // Aplicar colores al CSS
-    const root = document.documentElement;
-    root.style.setProperty('--primary-color', config.colorPrimario);
-    root.style.setProperty('--secondary-color', config.colorSecundario);
-    
-    // Aplicar tema
-    if (config.tema === 'oscuro') {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
-    
-    // Guardar en localStorage para persistencia
-    localStorage.setItem('visualConfig', JSON.stringify(config));
   };
 
   useEffect(() => {
@@ -780,29 +897,218 @@ function ConfiguracionPage() {
           <i className="fas fa-paint-brush" style={{ marginRight: '10px' }}></i>
           Personalización Visual
         </div>
+        
+        {/* Vista previa en tiempo real */}
+        <div style={{ padding: '20px 24px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <h4 style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '16px', fontWeight: '600' }}>
+            <i className="fas fa-eye" style={{ marginRight: '8px', color: '#2563eb' }}></i>
+            Vista Previa
+          </h4>
+          <div style={{ 
+            padding: '16px', 
+            border: '2px solid #e2e8f0', 
+            borderRadius: '8px', 
+            background: 'white',
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ 
+              padding: '8px 16px', 
+              background: visualConfig.colorPrimario, 
+              color: 'white', 
+              borderRadius: visualConfig.bordesRedondeados,
+              fontSize: visualConfig.tamanoFuente,
+              fontFamily: visualConfig.fuente,
+              boxShadow: visualConfig.sombras ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none'
+            }}>
+              Botón Primario
+            </div>
+            <div style={{ 
+              padding: '8px 16px', 
+              background: visualConfig.colorSecundario, 
+              color: 'white', 
+              borderRadius: visualConfig.bordesRedondeados,
+              fontSize: visualConfig.tamanoFuente,
+              fontFamily: visualConfig.fuente,
+              boxShadow: visualConfig.sombras ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none'
+            }}>
+              Botón Secundario
+            </div>
+            <div style={{ 
+              padding: '8px 16px', 
+              border: `2px solid ${visualConfig.colorPrimario}`, 
+              color: visualConfig.colorPrimario, 
+              borderRadius: visualConfig.bordesRedondeados,
+              fontSize: visualConfig.tamanoFuente,
+              fontFamily: visualConfig.fuente,
+              background: 'transparent'
+            }}>
+              Botón Outline
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleGuardarVisual} style={{ padding: '24px' }}>
+          {/* Temas predefinidos */}
+          <div style={{ marginBottom: '32px' }}>
+            <h4 style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '16px', fontWeight: '600' }}>
+              <i className="fas fa-palette" style={{ marginRight: '8px', color: '#2563eb' }}></i>
+              Temas Predefinidos
+            </h4>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {Object.entries(temasPredefinidos).map(([nombre, tema]) => (
+                <button
+                  key={nombre}
+                  type="button"
+                  onClick={() => aplicarTemaPredefinido(nombre)}
+                  style={{
+                    padding: '12px 16px',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: '8px',
+                    background: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                    minWidth: '120px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.borderColor = tema.colorPrimario;
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.borderColor = '#e2e8f0';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: `linear-gradient(135deg, ${tema.colorPrimario}, ${tema.colorSecundario})`,
+                    border: '2px solid #e2e8f0'
+                  }}></div>
+                  <span style={{ fontSize: '12px', fontWeight: '500', textTransform: 'capitalize' }}>
+                    {nombre.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Logo y colores */}
             <div className="form-group">
               <label>Logo de la empresa</label>
               <input type="file" name="logo" accept="image/*" onChange={handleVisualChange} />
-              {visualConfig.logoPreview && <img src={visualConfig.logoPreview} alt="Logo preview" style={{ maxWidth: '120px', marginTop: '10px', borderRadius: '8px', border: '1px solid #ccc' }} />}
+              {visualConfig.logoPreview && (
+                <div style={{ marginTop: '10px' }}>
+                  <img src={visualConfig.logoPreview} alt="Logo preview" style={{ maxWidth: '120px', borderRadius: '8px', border: '1px solid #ccc' }} />
+                </div>
+              )}
             </div>
+            
             <div className="form-group">
               <label>Color primario</label>
-              <input type="color" name="colorPrimario" value={visualConfig.colorPrimario} onChange={handleVisualChange} style={{ width: '48px', height: '48px', border: 'none', background: 'none' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <input 
+                  type="color" 
+                  name="colorPrimario" 
+                  value={visualConfig.colorPrimario} 
+                  onChange={handleVisualChange} 
+                  style={{ width: '48px', height: '48px', border: 'none', background: 'none', cursor: 'pointer' }} 
+                />
+                <span style={{ fontSize: '14px', color: '#6b7280' }}>{visualConfig.colorPrimario}</span>
+              </div>
             </div>
+            
             <div className="form-group">
               <label>Color secundario</label>
-              <input type="color" name="colorSecundario" value={visualConfig.colorSecundario} onChange={handleVisualChange} style={{ width: '48px', height: '48px', border: 'none', background: 'none' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <input 
+                  type="color" 
+                  name="colorSecundario" 
+                  value={visualConfig.colorSecundario} 
+                  onChange={handleVisualChange} 
+                  style={{ width: '48px', height: '48px', border: 'none', background: 'none', cursor: 'pointer' }} 
+                />
+                <span style={{ fontSize: '14px', color: '#6b7280' }}>{visualConfig.colorSecundario}</span>
+              </div>
             </div>
+
+            {/* Tipografía */}
             <div className="form-group">
-              <label>Tema</label>
-              <select name="tema" value={visualConfig.tema} onChange={handleVisualChange}>
-                <option value="claro">Claro</option>
-                <option value="oscuro">Oscuro</option>
-                <option value="auto">Automático</option>
+              <label>Fuente principal</label>
+              <select name="fuente" value={visualConfig.fuente} onChange={handleVisualChange}>
+                <option value="Inter">Inter (Moderno)</option>
+                <option value="Roboto">Roboto (Clásico)</option>
+                <option value="Open Sans">Open Sans (Legible)</option>
+                <option value="Poppins">Poppins (Elegante)</option>
+                <option value="Montserrat">Montserrat (Profesional)</option>
               </select>
             </div>
+
+            <div className="form-group">
+              <label>Tamaño de fuente base</label>
+              <select name="tamanoFuente" value={visualConfig.tamanoFuente} onChange={handleVisualChange}>
+                <option value="12px">Pequeño (12px)</option>
+                <option value="14px">Normal (14px)</option>
+                <option value="16px">Grande (16px)</option>
+                <option value="18px">Extra grande (18px)</option>
+              </select>
+            </div>
+
+            {/* Efectos visuales */}
+            <div className="form-group">
+              <label>Bordes redondeados</label>
+              <select name="bordesRedondeados" value={visualConfig.bordesRedondeados} onChange={handleVisualChange}>
+                <option value="0px">Sin bordes</option>
+                <option value="4px">Suave (4px)</option>
+                <option value="8px">Normal (8px)</option>
+                <option value="12px">Redondeado (12px)</option>
+                <option value="20px">Muy redondeado (20px)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Densidad de la interfaz</label>
+              <select name="densidad" value={visualConfig.densidad} onChange={handleVisualChange}>
+                <option value="compact">Compacta</option>
+                <option value="normal">Normal</option>
+                <option value="spacious">Espaciosa</option>
+              </select>
+            </div>
+
+            {/* Opciones de efectos */}
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="sombras" 
+                  checked={visualConfig.sombras} 
+                  onChange={handleVisualChange} 
+                />
+                Habilitar sombras
+              </label>
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="animaciones" 
+                  checked={visualConfig.animaciones} 
+                  onChange={handleVisualChange} 
+                />
+                Habilitar animaciones
+              </label>
+            </div>
+
+            {/* Configuración de fecha y hora */}
             <div className="form-group">
               <label>Formato de fecha</label>
               <select name="formatoFecha" value={visualConfig.formatoFecha} onChange={handleVisualChange}>
@@ -811,6 +1117,7 @@ function ConfiguracionPage() {
                 <option value="yyyy-MM-dd">yyyy-MM-dd</option>
               </select>
             </div>
+
             <div className="form-group">
               <label>Formato de hora</label>
               <select name="formatoHora" value={visualConfig.formatoHora} onChange={handleVisualChange}>
@@ -819,11 +1126,31 @@ function ConfiguracionPage() {
               </select>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', gap: '12px' }}>
+            <button 
+              type="button" 
+              onClick={() => aplicarTemaPredefinido('claro')}
+              style={{ 
+                padding: '10px 20px', 
+                border: '1px solid #d1d5db', 
+                borderRadius: '8px', 
+                background: 'white', 
+                color: '#374151', 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <i className="fas fa-undo"></i>
+              Restaurar
+            </button>
             <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
               <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar personalización
             </button>
           </div>
+          
           {visualMsg && (
             <div style={{
               background: visualMsgType === 'success' ? '#e7fbe7' : '#ffeaea',
@@ -832,7 +1159,7 @@ function ConfiguracionPage() {
               borderRadius: '6px',
               padding: '10px 18px',
               marginBottom: '10px',
-              fontWeight: 500,
+              fontWeight: '500',
               fontSize: '15px',
               display: 'inline-block',
               marginLeft: '0px',
@@ -841,6 +1168,346 @@ function ConfiguracionPage() {
               {visualMsg}
             </div>
           )}
+        </form>
+      </div>
+
+      {/* Configuración de Empresa */}
+      <div className="clientes-form-section">
+        <div style={{ background: '#059669', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
+          <i className="fas fa-building" style={{ marginRight: '10px' }}></i>
+          Configuración de Empresa
+        </div>
+        <form style={{ padding: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-group">
+              <label>Nombre de la empresa</label>
+              <input 
+                type="text" 
+                name="nombreEmpresa" 
+                value={visualConfig.nombreEmpresa} 
+                onChange={handleVisualChange} 
+                placeholder="Ingrese el nombre de la empresa"
+              />
+            </div>
+            <div className="form-group">
+              <label>Dirección</label>
+              <input 
+                type="text" 
+                name="direccionEmpresa" 
+                value={visualConfig.direccionEmpresa} 
+                onChange={handleVisualChange} 
+                placeholder="Ingrese la dirección"
+              />
+            </div>
+            <div className="form-group">
+              <label>Teléfono</label>
+              <input 
+                type="tel" 
+                name="telefonoEmpresa" 
+                value={visualConfig.telefonoEmpresa} 
+                onChange={handleVisualChange} 
+                placeholder="Ingrese el teléfono"
+              />
+            </div>
+            <div className="form-group">
+              <label>Email corporativo</label>
+              <input 
+                type="email" 
+                name="emailEmpresa" 
+                value={visualConfig.emailEmpresa} 
+                onChange={handleVisualChange} 
+                placeholder="Ingrese el email corporativo"
+              />
+            </div>
+            <div className="form-group">
+              <label>Sitio web</label>
+              <input 
+                type="url" 
+                name="sitioWeb" 
+                value={visualConfig.sitioWeb} 
+                onChange={handleVisualChange} 
+                placeholder="https://www.empresa.com"
+              />
+            </div>
+            <div className="form-group">
+              <label>Horario laboral</label>
+              <input 
+                type="text" 
+                name="horarioLaboral" 
+                value={visualConfig.horarioLaboral} 
+                onChange={handleVisualChange} 
+                placeholder="8:00-18:00"
+              />
+            </div>
+            <div className="form-group">
+              <label>Zona horaria</label>
+              <select name="zonaHoraria" value={visualConfig.zonaHoraria} onChange={handleVisualChange}>
+                <option value="America/Bogota">Colombia (Bogotá)</option>
+                <option value="America/Mexico_City">México (Ciudad de México)</option>
+                <option value="America/New_York">Estados Unidos (Nueva York)</option>
+                <option value="America/Lima">Perú (Lima)</option>
+                <option value="America/Santiago">Chile (Santiago)</option>
+                <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button type="button" className="bg-green-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Configuración de Seguridad */}
+      <div className="clientes-form-section">
+        <div style={{ background: '#dc2626', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
+          <i className="fas fa-shield-alt" style={{ marginRight: '10px' }}></i>
+          Configuración de Seguridad
+        </div>
+        <form style={{ padding: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-group">
+              <label>Tiempo de sesión (minutos)</label>
+              <input 
+                type="number" 
+                name="tiempoSesion" 
+                value={visualConfig.tiempoSesion} 
+                onChange={handleVisualChange} 
+                min="5" 
+                max="480"
+                placeholder="30"
+              />
+              <p className="text-gray-500 text-sm mt-1">Tiempo antes de que expire la sesión por inactividad</p>
+            </div>
+            <div className="form-group">
+              <label>Máximo intentos de login</label>
+              <input 
+                type="number" 
+                name="maxIntentosLogin" 
+                value={visualConfig.maxIntentosLogin} 
+                onChange={handleVisualChange} 
+                min="3" 
+                max="10"
+                placeholder="5"
+              />
+              <p className="text-gray-500 text-sm mt-1">Número de intentos antes del bloqueo temporal</p>
+            </div>
+            <div className="form-group">
+              <label>Tiempo de bloqueo (minutos)</label>
+              <input 
+                type="number" 
+                name="bloqueoTemporal" 
+                value={visualConfig.bloqueoTemporal} 
+                onChange={handleVisualChange} 
+                min="5" 
+                max="60"
+                placeholder="15"
+              />
+              <p className="text-gray-500 text-sm mt-1">Tiempo de bloqueo después de exceder intentos</p>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="requiereCaptcha" 
+                  checked={visualConfig.requiereCaptcha} 
+                  onChange={handleVisualChange} 
+                />
+                Requerir reCAPTCHA en login
+              </label>
+              <p className="text-gray-500 text-sm mt-1">Activar verificación reCAPTCHA para mayor seguridad</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button type="button" className="bg-red-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Configuración de Notificaciones */}
+      <div className="clientes-form-section">
+        <div style={{ background: '#7c3aed', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
+          <i className="fas fa-bell" style={{ marginRight: '10px' }}></i>
+          Configuración de Notificaciones
+        </div>
+        <form style={{ padding: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-group">
+              <label>Posición de notificaciones</label>
+              <select name="notificacionesPosicion" value={visualConfig.notificacionesPosicion} onChange={handleVisualChange}>
+                <option value="top-right">Superior derecha</option>
+                <option value="top-left">Superior izquierda</option>
+                <option value="bottom-right">Inferior derecha</option>
+                <option value="bottom-left">Inferior izquierda</option>
+                <option value="top-center">Superior centro</option>
+                <option value="bottom-center">Inferior centro</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Duración de notificaciones (ms)</label>
+              <input 
+                type="number" 
+                name="notificacionesDuracion" 
+                value={visualConfig.notificacionesDuracion} 
+                onChange={handleVisualChange} 
+                min="2000" 
+                max="10000"
+                step="500"
+                placeholder="5000"
+              />
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="notificacionesSonido" 
+                  checked={visualConfig.notificacionesSonido} 
+                  onChange={handleVisualChange} 
+                />
+                Activar sonido en notificaciones
+              </label>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="notificacionesEmail" 
+                  checked={visualConfig.notificacionesEmail} 
+                  onChange={handleVisualChange} 
+                />
+                Notificaciones por email
+              </label>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="notificacionesPush" 
+                  checked={visualConfig.notificacionesPush} 
+                  onChange={handleVisualChange} 
+                />
+                Notificaciones push
+              </label>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="notificacionesSMS" 
+                  checked={visualConfig.notificacionesSMS} 
+                  onChange={handleVisualChange} 
+                />
+                Notificaciones por SMS
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button type="button" className="bg-purple-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Configuración de Reportes */}
+      <div className="clientes-form-section">
+        <div style={{ background: '#ea580c', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
+          <i className="fas fa-chart-bar" style={{ marginRight: '10px' }}></i>
+          Configuración de Reportes
+        </div>
+        <form style={{ padding: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-group">
+              <label>Formato de reporte predeterminado</label>
+              <select name="formatoReporte" value={visualConfig.formatoReporte} onChange={handleVisualChange}>
+                <option value="PDF">PDF</option>
+                <option value="Excel">Excel (XLSX)</option>
+                <option value="CSV">CSV</option>
+                <option value="HTML">HTML</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Frecuencia de reportes automáticos</label>
+              <select name="frecuenciaReportes" value={visualConfig.frecuenciaReportes} onChange={handleVisualChange}>
+                <option value="diario">Diario</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensual">Mensual</option>
+                <option value="trimestral">Trimestral</option>
+                <option value="anual">Anual</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="incluirGraficos" 
+                  checked={visualConfig.incluirGraficos} 
+                  onChange={handleVisualChange} 
+                />
+                Incluir gráficos en reportes
+              </label>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button type="button" className="bg-orange-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Configuración de Backup */}
+      <div className="clientes-form-section">
+        <div style={{ background: '#0891b2', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
+          <i className="fas fa-database" style={{ marginRight: '10px' }}></i>
+          Configuración de Backup
+        </div>
+        <form style={{ padding: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="checkbox" 
+                  name="backupAutomatico" 
+                  checked={visualConfig.backupAutomatico} 
+                  onChange={handleVisualChange} 
+                />
+                Habilitar backup automático
+              </label>
+            </div>
+            <div className="form-group">
+              <label>Frecuencia de backup</label>
+              <select name="frecuenciaBackup" value={visualConfig.frecuenciaBackup} onChange={handleVisualChange}>
+                <option value="diario">Diario</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensual">Mensual</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Retener backups por (días)</label>
+              <input 
+                type="number" 
+                name="retenerBackups" 
+                value={visualConfig.retenerBackups} 
+                onChange={handleVisualChange} 
+                min="7" 
+                max="365"
+                placeholder="30"
+              />
+              <p className="text-gray-500 text-sm mt-1">Número de días antes de eliminar backups antiguos</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', gap: '12px' }}>
+            <button type="button" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-download" style={{ marginRight: '8px' }}></i>Crear backup manual
+            </button>
+            <button type="button" className="bg-cyan-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
+              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </button>
+          </div>
         </form>
       </div>
 

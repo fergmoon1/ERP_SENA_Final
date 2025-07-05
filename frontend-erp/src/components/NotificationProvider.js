@@ -14,13 +14,97 @@ export const useNotifications = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [stockAlerts, setStockAlerts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  // Función para obtener notificaciones del backend
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('jwt');
+      if (!token) return;
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user.id) return;
+
+      setLoading(true);
+      const response = await fetch(`http://localhost:8081/api/notificaciones/usuario/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Notificaciones recibidas del backend:', data);
+        setNotifications(data);
+      } else {
+        console.error('Error fetching notifications:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para marcar notificación como leída en el backend
+  const markAsRead = async (id) => {
+    try {
+      const token = localStorage.getItem('jwt');
+      if (!token) return;
+
+      const response = await fetch(`http://localhost:8081/api/notificaciones/${id}/marcar-leida`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Actualizar estado local
+        setNotifications(prev => 
+          prev.map(n => n.id === id ? { ...n, leida: true } : n)
+        );
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  // Función para marcar todas como leídas en el backend
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('jwt');
+      if (!token) return;
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user.id) return;
+
+      const response = await fetch(`http://localhost:8081/api/notificaciones/usuario/${user.id}/marcar-todas-leidas`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Actualizar estado local
+        setNotifications(prev => prev.map(n => ({ ...n, leida: true })));
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
+  // Función para agregar notificación local (para feedback inmediato)
   const addNotification = (notification) => {
     const newNotification = {
       ...notification,
       id: Date.now() + Math.random(),
       timestamp: new Date(),
-      read: false
+      leida: false
     };
     
     setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // Mantener solo las últimas 10
@@ -35,16 +119,6 @@ export const NotificationProvider = ({ children }) => {
 
   const removeNotification = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
   const addStockAlert = (product) => {
@@ -75,6 +149,11 @@ export const NotificationProvider = ({ children }) => {
   const clearStockAlerts = () => {
     setStockAlerts([]);
   };
+
+  // Cargar notificaciones al montar el componente
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   // Check for stock alerts periodically
   useEffect(() => {
@@ -114,13 +193,15 @@ export const NotificationProvider = ({ children }) => {
   const value = {
     notifications,
     stockAlerts,
+    loading,
     addNotification,
     removeNotification,
     markAsRead,
     markAllAsRead,
     addStockAlert,
     removeStockAlert,
-    clearStockAlerts
+    clearStockAlerts,
+    fetchNotifications
   };
 
   return (
@@ -132,11 +213,11 @@ export const NotificationProvider = ({ children }) => {
 };
 
 const NotificationContainer = () => {
-  const { notifications, stockAlerts, removeNotification, markAsRead, markAllAsRead, clearStockAlerts } = useNotifications();
+  const { notifications, stockAlerts, loading, removeNotification, markAsRead, markAllAsRead, clearStockAlerts } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showStockAlerts, setShowStockAlerts] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.leida).length;
   const stockAlertCount = stockAlerts.filter(a => !a.read).length;
 
   return (
@@ -181,7 +262,12 @@ const NotificationContainer = () => {
           </div>
           
           <div className="notification-list">
-            {notifications.length === 0 ? (
+            {loading ? (
+              <div className="loading-notifications">
+                <i className="fas fa-spinner fa-spin"></i>
+                <p>Cargando notificaciones...</p>
+              </div>
+            ) : notifications.length === 0 ? (
               <div className="no-notifications">
                 <i className="fas fa-bell-slash"></i>
                 <p>No hay notificaciones</p>
@@ -190,24 +276,22 @@ const NotificationContainer = () => {
               notifications.map(notification => (
                 <div 
                   key={notification.id} 
-                  className={`notification-item ${notification.type} ${!notification.read ? 'unread' : ''}`}
+                  className={`notification-item ${notification.tipo || notification.type} ${!notification.leida ? 'unread' : ''}`}
                   onClick={() => markAsRead(notification.id)}
                 >
                   <div className="notification-icon">
-                    {notification.type === 'success' && <i className="fas fa-check-circle"></i>}
-                    {notification.type === 'error' && <i className="fas fa-exclamation-circle"></i>}
-                    {notification.type === 'warning' && <i className="fas fa-exclamation-triangle"></i>}
-                    {notification.type === 'info' && <i className="fas fa-info-circle"></i>}
+                    {(notification.tipo === 'success' || notification.type === 'success') && <i className="fas fa-check-circle"></i>}
+                    {(notification.tipo === 'error' || notification.type === 'error') && <i className="fas fa-exclamation-circle"></i>}
+                    {(notification.tipo === 'warning' || notification.type === 'warning') && <i className="fas fa-exclamation-triangle"></i>}
+                    {(notification.tipo === 'info' || notification.type === 'info') && <i className="fas fa-info-circle"></i>}
                   </div>
                   <div className="notification-content">
-                    <div className="notification-title">{notification.title}</div>
-                    <div className="notification-message">{notification.message}</div>
-                    <div className="notification-time">
-                      {new Date(notification.timestamp).toLocaleTimeString()}
-                    </div>
+                    <h4>{notification.titulo || notification.title}</h4>
+                    <p>{notification.mensaje || notification.message}</p>
+                    <small>{new Date(notification.timestamp || notification.createdAt).toLocaleString()}</small>
                   </div>
                   <button 
-                    className="notification-remove"
+                    className="notification-close"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeNotification(notification.id);
@@ -225,11 +309,11 @@ const NotificationContainer = () => {
       {/* Stock Alerts Dropdown */}
       {showStockAlerts && (
         <div className="stock-alert-dropdown">
-          <div className="stock-alert-header">
+          <div className="notification-header">
             <h3>Alertas de Stock</h3>
-            <div className="stock-alert-actions">
-              <button onClick={clearStockAlerts} className="btn-clear-all">
-                Limpiar todas
+            <div className="notification-actions">
+              <button onClick={clearStockAlerts} className="btn-mark-all">
+                Limpiar alertas
               </button>
               <button onClick={() => setShowStockAlerts(false)} className="btn-close">
                 ×
@@ -237,43 +321,37 @@ const NotificationContainer = () => {
             </div>
           </div>
           
-          <div className="stock-alert-list">
+          <div className="notification-list">
             {stockAlerts.length === 0 ? (
-              <div className="no-alerts">
+              <div className="no-notifications">
                 <i className="fas fa-check-circle"></i>
                 <p>No hay alertas de stock</p>
               </div>
             ) : (
               stockAlerts.map(alert => (
-                <div key={alert.id} className="stock-alert-item">
-                  <div className="stock-alert-icon">
+                <div 
+                  key={alert.id} 
+                  className={`notification-item warning ${!alert.read ? 'unread' : ''}`}
+                >
+                  <div className="notification-icon">
                     <i className="fas fa-exclamation-triangle"></i>
                   </div>
-                  <div className="stock-alert-content">
-                    <div className="stock-alert-title">{alert.product.nombre}</div>
-                    <div className="stock-alert-message">
-                      Stock crítico: {alert.product.stockActual} unidades
-                    </div>
-                    <div className="stock-alert-time">
-                      {new Date(alert.timestamp).toLocaleTimeString()}
-                    </div>
+                  <div className="notification-content">
+                    <h4>Stock Bajo</h4>
+                    <p>{alert.product.nombre} tiene stock bajo ({alert.product.stockActual} unidades)</p>
+                    <small>{new Date(alert.timestamp).toLocaleString()}</small>
                   </div>
+                  <button 
+                    className="notification-close"
+                    onClick={() => removeStockAlert(alert.productId)}
+                  >
+                    ×
+                  </button>
                 </div>
               ))
             )}
           </div>
         </div>
-      )}
-
-      {/* Click outside to close */}
-      {(showNotifications || showStockAlerts) && (
-        <div 
-          className="notification-overlay"
-          onClick={() => {
-            setShowNotifications(false);
-            setShowStockAlerts(false);
-          }}
-        />
       )}
     </>
   );

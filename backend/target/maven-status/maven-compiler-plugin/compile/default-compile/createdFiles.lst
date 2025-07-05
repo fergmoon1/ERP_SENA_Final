@@ -1,8 +1,10 @@
 com\empresa\erp\models\VisualConfig.class
+com\empresa\erp\repositories\NotificacionRepository.class
 com\empresa\erp\controllers\AuthController.class
 com\empresa\erp\models\RolPermiso.class
 com\empresa\erp\services\MovimientoInventarioService.class
 com\empresa\erp\repositories\PedidoRepository.class
+com\empresa\erp\models\Notificacion.class
 com\empresa\erp\models\ReporteStockBajoDTO.class
 com\empresa\erp\controllers\RolPermisoController.class
 com\empresa\erp\controllers\CompraController.class
@@ -37,6 +39,7 @@ com\empresa\erp\models\DetallePedido.class
 com\empresa\erp\repositories\DetallePedidoRepository.class
 com\empresa\erp\controllers\TestController.class
 com\empresa\erp\config\SecurityConfig$1.class
+com\empresa\erp\services\NotificacionService.class
 com\empresa\erp\controllers\HomeController.class
 com\empresa\erp\controllers\ReporteController.class
 com\empresa\erp\models\Proveedor.class
@@ -58,6 +61,7 @@ com\empresa\erp\services\RateLimitService.class
 com\empresa\erp\models\Producto.class
 com\empresa\erp\BackendApplication.class
 com\empresa\erp\config\RateLimitFilter.class
+com\empresa\erp\controllers\NotificacionController.class
 com\empresa\erp\controllers\ProveedorController.class
 com\empresa\erp\services\AuthService.class
 com\empresa\erp\repositories\RolPermisoRepository.class

@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
+// Configuración de la API
+const API_BASE_URL = 'http://localhost:8081/api';
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('jwt');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': token ? `Bearer ${token}` : ''
+  };
+};
+
 const Sidebar = () => {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -20,6 +30,72 @@ const Sidebar = () => {
   const [configNotif, setConfigNotif] = useState(true);
   const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
 
+  // Notificaciones reales del backend
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const unreadCount = notifications.filter(n => !n.leida).length;
+
+  // Función para cargar notificaciones del backend
+  const loadNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await fetch(`${API_BASE_URL}/notificaciones`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+      } else {
+        console.error('Error al cargar notificaciones:', response.status);
+        // Fallback a notificaciones simuladas si hay error
+        setNotifications([
+          { id: 1, titulo: 'Stock bajo', mensaje: 'El producto A está por agotarse.', leida: false },
+          { id: 2, titulo: 'Nuevo pedido', mensaje: 'Se ha registrado un nuevo pedido.', leida: false },
+          { id: 3, titulo: 'Pago recibido', mensaje: 'El cliente Juan Pérez ha realizado un pago.', leida: true },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error al cargar notificaciones:', error);
+      // Fallback a notificaciones simuladas
+      setNotifications([
+        { id: 1, titulo: 'Stock bajo', mensaje: 'El producto A está por agotarse.', leida: false },
+        { id: 2, titulo: 'Nuevo pedido', mensaje: 'Se ha registrado un nuevo pedido.', leida: false },
+        { id: 3, titulo: 'Pago recibido', mensaje: 'El cliente Juan Pérez ha realizado un pago.', leida: true },
+      ]);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  // Función para marcar todas como leídas
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/notificaciones/marcar-leidas`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        // Actualizar estado local
+        setNotifications(notifications.map(n => ({ ...n, leida: true })));
+      } else {
+        console.error('Error al marcar notificaciones como leídas:', response.status);
+        // Fallback: actualizar solo el estado local
+        setNotifications(notifications.map(n => ({ ...n, leida: true })));
+      }
+    } catch (error) {
+      console.error('Error al marcar notificaciones como leídas:', error);
+      // Fallback: actualizar solo el estado local
+      setNotifications(notifications.map(n => ({ ...n, leida: true })));
+    }
+  };
+
+  // Cargar notificaciones al montar el componente
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
   const menuItems = [
     { path: '/dashboard', icon: 'fa-chart-line', text: 'Dashboard' },
     { path: '/inventario', icon: 'fa-box', text: 'Inventario' },
@@ -29,12 +105,6 @@ const Sidebar = () => {
     { path: '/usuarios', icon: 'fa-users', text: 'Usuarios' },
     { path: '/configuracion', icon: 'fa-cogs', text: 'Configuración' },
     { path: '/auditoria', icon: 'fa-shield-alt', text: 'Auditoría' }
-  ];
-
-  const notifications = [
-    { id: 1, title: 'Stock bajo', message: 'El producto A está por agotarse.' },
-    { id: 2, title: 'Nuevo pedido', message: 'Se ha registrado un nuevo pedido.' },
-    { id: 3, title: 'Pago recibido', message: 'El cliente Juan Pérez ha realizado un pago.' },
   ];
 
   const favorites = [
@@ -87,8 +157,11 @@ const Sidebar = () => {
         <span className="user-circle user-photo" onClick={() => setShowProfile(true)} style={{cursor: 'pointer'}}>
           <img src="/imagenes/foto01 mujer.png" alt="Usuario" />
         </span>
-        <span className="user-circle" onClick={() => setShowNotifications(true)} style={{cursor: 'pointer'}}>
+        <span className="user-circle" onClick={() => setShowNotifications(true)} style={{cursor: 'pointer', position: 'relative'}}>
           <i className="fa-solid fa-bell"></i>
+          {unreadCount > 0 && (
+            <span className="notif-badge">{unreadCount}</span>
+          )}
         </span>
         <span className="user-circle" onClick={() => setShowFavorites(true)} style={{cursor: 'pointer'}}>
           <i className="fa-solid fa-star"></i>
@@ -126,20 +199,52 @@ const Sidebar = () => {
           <div className="notifications-panel" onClick={e => e.stopPropagation()}>
             <div className="notifications-header">
               <span>Notificaciones</span>
-              <button className="close-btn" onClick={() => setShowNotifications(false)}>&times;</button>
+              <div className="notifications-actions">
+                <button 
+                  className="refresh-btn" 
+                  onClick={loadNotifications}
+                  disabled={loadingNotifications}
+                  title="Recargar notificaciones"
+                >
+                  <i className={`fa-solid fa-sync-alt ${loadingNotifications ? 'fa-spin' : ''}`}></i>
+                </button>
+                <button className="close-btn" onClick={() => setShowNotifications(false)}>&times;</button>
+              </div>
             </div>
             <div className="notifications-list">
-              {notifications.length === 0 ? (
-                <div className="notification-empty">No hay notificaciones.</div>
+              {loadingNotifications ? (
+                <div className="notification-loading">
+                  <i className="fa-solid fa-spinner fa-spin"></i>
+                  <span>Cargando notificaciones...</span>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="notification-empty">
+                  <i className="fa-solid fa-bell-slash"></i>
+                  <span>No hay notificaciones.</span>
+                </div>
               ) : (
                 notifications.map(n => (
-                  <div key={n.id} className="notification-item">
-                    <strong>{n.title}</strong>
-                    <div>{n.message}</div>
+                  <div key={n.id} className={`notification-item ${n.leida ? 'read' : 'unread'}`}>
+                    <div className="notification-content">
+                      <strong>{n.titulo}</strong>
+                      <div className="notification-message">{n.mensaje}</div>
+                      <div className="notification-time">
+                        {n.fechaCreacion ? new Date(n.fechaCreacion).toLocaleString('es-ES') : ''}
+                      </div>
+                    </div>
+                    {!n.leida && (
+                      <div className="notification-unread-indicator"></div>
+                    )}
                   </div>
                 ))
               )}
             </div>
+            {notifications.length > 0 && unreadCount > 0 && (
+              <button className="mark-all-btn" onClick={markAllAsRead}>
+                <i className="fa-solid fa-check-double"></i>
+                Marcar todas como leídas ({unreadCount})
+              </button>
+            )}
           </div>
         </div>
       )}

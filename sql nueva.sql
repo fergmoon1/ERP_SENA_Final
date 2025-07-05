@@ -113,3 +113,9 @@ UPDATE cliente SET tipo = 'Individual' WHERE tipo = 'Persona';
 ALTER TABLE usuario ADD COLUMN activo BOOLEAN NOT NULL DEFAULT FALSE;
 
 UPDATE usuario SET activo = FALSE;
+
+DELETE t1 FROM rol_permiso t1
+INNER JOIN rol_permiso t2 
+WHERE 
+  t1.id > t2.id AND 
+  t1.rol = t2.rol;

@@ -38,7 +38,22 @@ const LoginPage = () => {
         password,
         "recaptcha-token": recaptchaToken,
       });
+      
       localStorage.setItem("jwt", response.data.token);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      
+      // Obtener información del usuario
+      try {
+        const userResponse = await axios.get("http://localhost:8081/api/auth/me", {
+          headers: {
+            'Authorization': `Bearer ${response.data.token}`
+          }
+        });
+        localStorage.setItem("user", JSON.stringify(userResponse.data));
+      } catch (userError) {
+        console.error("Error obteniendo información del usuario:", userError);
+      }
+      
       window.location.href = "/dashboard";
     } catch (err) {
       setError("Credenciales incorrectas, error de conexión o reCAPTCHA inválido.");
