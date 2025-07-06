@@ -7,9 +7,11 @@ import com.empresa.erp.models.Pedido;
 import com.empresa.erp.models.Producto;
 import com.empresa.erp.models.CrearPedidoDTO;
 import com.empresa.erp.models.DetallePedidoDTO;
+import com.empresa.erp.models.Usuario;
 import com.empresa.erp.repositories.ClienteRepository;
 import com.empresa.erp.repositories.PedidoRepository;
 import com.empresa.erp.repositories.ProductoRepository;
+import com.empresa.erp.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -27,17 +29,23 @@ public class PedidoService {
     private final ProductoRepository productoRepository;
     private final MovimientoInventarioService movimientoInventarioService;
     private final ValidacionService validacionService;
+    private final NotificacionService notificacionService;
+    private final UsuarioRepository usuarioRepository;
 
     public PedidoService(PedidoRepository pedidoRepository, 
                         ClienteRepository clienteRepository, 
                         ProductoRepository productoRepository,
                         MovimientoInventarioService movimientoInventarioService,
-                        ValidacionService validacionService) {
+                        ValidacionService validacionService,
+                        NotificacionService notificacionService,
+                        UsuarioRepository usuarioRepository) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.productoRepository = productoRepository;
         this.movimientoInventarioService = movimientoInventarioService;
         this.validacionService = validacionService;
+        this.notificacionService = notificacionService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public List<Pedido> findAll() {
@@ -149,6 +157,11 @@ public class PedidoService {
 
         Pedido pedidoGuardado = pedidoRepository.save(pedidoParaGuardar);
 
+        // Crear notificación automática solo si es un pedido nuevo (no una actualización)
+        if (!esActualizacion) {
+            crearNotificacionNuevoPedido(pedidoGuardado);
+        }
+
         // Se busca de nuevo para devolver el objeto completamente poblado por JPA
         return pedidoRepository.findById(pedidoGuardado.getId())
                .orElseThrow(() -> new RuntimeException("Error al recuperar el pedido recién guardado"));
@@ -184,9 +197,12 @@ public class PedidoService {
     }
 
     @Transactional
-    public Pedido saveFromDTO(CrearPedidoDTO dto) {
+    public Pedido saveFromDTO(CrearPedidoDTO dto, Usuario usuario) {
         // Crear el pedido desde el DTO
         Pedido pedido = new Pedido();
+        
+        // Asignar el usuario que crea el pedido
+        pedido.setUsuario(usuario);
         
         // Buscar y asignar el cliente
         Cliente cliente = clienteRepository.findById(dto.getClienteId())
@@ -282,5 +298,35 @@ public class PedidoService {
         resultado.put("totalPages", totalPages == 0 ? 1 : totalPages);
         resultado.put("totalElements", pedidosFiltrados.size());
         return resultado;
+    }
+
+    /**
+     * Crea una notificación automática cuando se crea un nuevo pedido
+     */
+    private void crearNotificacionNuevoPedido(Pedido pedido) {
+        try {
+            // Buscar todos los usuarios administradores para notificarles
+            List<com.empresa.erp.models.Usuario> administradores = usuarioRepository.findByRol("ROLE_ADMIN");
+            
+            String titulo = "Nuevo Pedido Creado";
+            String mensaje = String.format("Se ha creado un nuevo pedido #%d para el cliente %s por un total de $%.2f", 
+                pedido.getId(), 
+                pedido.getCliente().getNombre(), 
+                pedido.getTotal());
+            
+            // Crear notificación para cada administrador
+            for (com.empresa.erp.models.Usuario admin : administradores) {
+                notificacionService.crearNotificacion(admin.getId(), titulo, mensaje);
+            }
+            
+            // También notificar al usuario que creó el pedido si está disponible
+            if (pedido.getUsuario() != null) {
+                notificacionService.crearNotificacion(pedido.getUsuario().getId(), titulo, mensaje);
+            }
+            
+        } catch (Exception e) {
+            // Log del error pero no fallar el proceso de creación del pedido
+            System.err.println("Error al crear notificación de nuevo pedido: " + e.getMessage());
+        }
     }
 }

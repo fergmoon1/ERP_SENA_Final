@@ -29,8 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // Saltarse el procesamiento JWT para endpoints de autenticación y OAuth2
-        if (request.getRequestURI().startsWith("/api/auth/") || 
+        
+        // Saltarse el procesamiento JWT solo para endpoints de login y OAuth2
+        if (request.getRequestURI().equals("/api/auth/login") || 
+            request.getRequestURI().equals("/api/auth/refresh") ||
             request.getRequestURI().startsWith("/oauth2/") ||
             request.getRequestURI().startsWith("/login/oauth2/") ||
             request.getRequestURI().startsWith("/oauth/")) {
@@ -39,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         String authHeader = request.getHeader("Authorization");
+        
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
@@ -50,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = claimsJws.getBody();
                 String username = claims.getSubject();
                 String rol = claims.get("rol", String.class);
+                
                 if (username != null && rol != null) {
                     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + rol);
                     UsernamePasswordAuthenticationToken auth =

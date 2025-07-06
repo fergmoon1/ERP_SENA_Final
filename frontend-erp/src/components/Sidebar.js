@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 import '../styles/Sidebar.css';
 
 // Configuración de la API
 const API_BASE_URL = 'http://localhost:8081/api';
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('jwt');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : ''
-  };
-};
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -39,30 +34,45 @@ const Sidebar = () => {
   const loadNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await fetch(`${API_BASE_URL}/notificaciones`, {
-        headers: getAuthHeaders()
-      });
+      
+      // Verificar si hay token JWT
+      if (!authService.isAuthenticated()) {
+        setNotifications([]);
+        return;
+      }
+      
+      // Obtener el usuario del localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      if (!user || !user.id) {
+        try {
+          const userData = await authService.getCurrentUser();
+          
+          if (!userData.id) {
+            setNotifications([]);
+            return;
+          }
+        } catch (userError) {
+          setNotifications([]);
+          return;
+        }
+      }
+      
+      // Obtener el usuario actualizado
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      
+      const response = await authService.authenticatedRequest(
+        `${API_BASE_URL}/notificaciones/usuario/${currentUser.id}`
+      );
       
       if (response.ok) {
         const data = await response.json();
         setNotifications(data);
       } else {
-        console.error('Error al cargar notificaciones:', response.status);
-        // Fallback a notificaciones simuladas si hay error
-        setNotifications([
-          { id: 1, titulo: 'Stock bajo', mensaje: 'El producto A está por agotarse.', leida: false },
-          { id: 2, titulo: 'Nuevo pedido', mensaje: 'Se ha registrado un nuevo pedido.', leida: false },
-          { id: 3, titulo: 'Pago recibido', mensaje: 'El cliente Juan Pérez ha realizado un pago.', leida: true },
-        ]);
+        setNotifications([]);
       }
     } catch (error) {
-      console.error('Error al cargar notificaciones:', error);
-      // Fallback a notificaciones simuladas
-      setNotifications([
-        { id: 1, titulo: 'Stock bajo', mensaje: 'El producto A está por agotarse.', leida: false },
-        { id: 2, titulo: 'Nuevo pedido', mensaje: 'Se ha registrado un nuevo pedido.', leida: false },
-        { id: 3, titulo: 'Pago recibido', mensaje: 'El cliente Juan Pérez ha realizado un pago.', leida: true },
-      ]);
+      setNotifications([]);
     } finally {
       setLoadingNotifications(false);
     }
@@ -71,10 +81,10 @@ const Sidebar = () => {
   // Función para marcar todas como leídas
   const markAllAsRead = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/notificaciones/marcar-leidas`, {
-        method: 'PUT',
-        headers: getAuthHeaders()
-      });
+      const response = await authService.authenticatedRequest(
+        `${API_BASE_URL}/notificaciones/marcar-leidas`,
+        { method: 'PUT' }
+      );
       
       if (response.ok) {
         // Actualizar estado local
@@ -91,9 +101,29 @@ const Sidebar = () => {
     }
   };
 
+  // Función para cerrar sesión
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Forzar logout local
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
   // Cargar notificaciones al montar el componente
   useEffect(() => {
-    loadNotifications();
+    // Pequeño delay para asegurar que la autenticación esté completa
+    const timer = setTimeout(() => {
+      loadNotifications();
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const menuItems = [
@@ -192,6 +222,7 @@ const Sidebar = () => {
             workArea.scrollTo({top: 0, behavior: 'smooth'});
           }
         }} style={{cursor: 'pointer'}}><i className="fa-solid fa-arrow-up"></i></span>
+        <span className="icon-circle" onClick={handleLogout} style={{cursor: 'pointer'}} title="Cerrar sesión"><i className="fa-solid fa-sign-out-alt"></i></span>
       </div>
 
       {showNotifications && (

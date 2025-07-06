@@ -10,6 +10,7 @@ import UsuariosPage from "./pages/UsuariosPage";
 import ConfiguracionPage from "./pages/ConfiguracionPage";
 import AuditoriaPage from "./pages/AuditoriaPage";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { NotificationProvider } from "./components/NotificationProvider";
 import './App.css';
 import './styles/theme.css';
@@ -70,35 +71,67 @@ function App() {
             />
             <Route 
               path="/dashboard" 
-              element={isAuthenticated() ? <DashboardPage /> : <Navigate to="/login" />} 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/inventario"
-              element={isAuthenticated() ? <Layout><InventarioPage /></Layout> : <Navigate to="/login" />}
+              element={
+                <ProtectedRoute>
+                  <Layout><InventarioPage /></Layout>
+                </ProtectedRoute>
+              }
             />
             <Route 
               path="/productos"
-              element={isAuthenticated() ? <Layout><ProductosPage /></Layout> : <Navigate to="/login" />}
+              element={
+                <ProtectedRoute>
+                  <Layout><ProductosPage /></Layout>
+                </ProtectedRoute>
+              }
             />
             <Route 
               path="/pedidos"
-              element={isAuthenticated() ? <Layout><PedidosPage /></Layout> : <Navigate to="/login" />}
+              element={
+                <ProtectedRoute>
+                  <Layout><PedidosPage /></Layout>
+                </ProtectedRoute>
+              }
             />
             <Route 
               path="/clientes"
-              element={isAuthenticated() ? <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout> : <Navigate to="/login" />} 
+              element={
+                <ProtectedRoute>
+                  <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout>
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/usuarios"
-              element={isAuthenticated() ? <Layout title="Usuarios" subtitle="Gestión de Usuarios"><UsuariosPage /></Layout> : <Navigate to="/login" />} 
+              element={
+                <ProtectedRoute>
+                  <Layout title="Usuarios" subtitle="Gestión de Usuarios"><UsuariosPage /></Layout>
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/configuracion"
-              element={isAuthenticated() ? <Layout title="Configuración" subtitle="Ajustes del Sistema"><ConfiguracionPage /></Layout> : <Navigate to="/login" />} 
+              element={
+                <ProtectedRoute>
+                  <Layout title="Configuración" subtitle="Ajustes del Sistema"><ConfiguracionPage /></Layout>
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/auditoria"
-              element={isAuthenticated() ? <Layout title="Auditoría" subtitle="Logs de Seguridad"><AuditoriaPage /></Layout> : <Navigate to="/login" />} 
+              element={
+                <ProtectedRoute>
+                  <Layout title="Auditoría" subtitle="Logs de Seguridad"><AuditoriaPage /></Layout>
+                </ProtectedRoute>
+              } 
             />
             <Route 
               path="/" 

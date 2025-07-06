@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
+import authService from "../services/authService";
 import "../styles/LoginPage.css";
 
 const RECAPTCHA_SITE_KEY = "6LcMF2MrAAAAAMUMBrE_jrUsG8-_BUTi3CoGwvyd";
 
 const LoginPage = () => {
+  const location = useLocation();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,10 +17,13 @@ const LoginPage = () => {
 
   useEffect(() => {
     // Limpiar tokens y cerrar sesión backend al cargar la página de login
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("refreshToken");
-    fetch("/logout", { method: "POST", credentials: "include" }).catch(() => {});
-  }, []);
+    authService.logout();
+    
+    // Mostrar mensaje de sesión expirada si viene de otra página
+    if (location.state?.message) {
+      setError(location.state.message);
+    }
+  }, [location.state]);
 
   const handleRecaptcha = (token) => {
     setRecaptchaToken(token);
@@ -33,27 +38,7 @@ const LoginPage = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8081/api/auth/login", {
-        correo,
-        password,
-        "recaptcha-token": recaptchaToken,
-      });
-      
-      localStorage.setItem("jwt", response.data.token);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-      
-      // Obtener información del usuario
-      try {
-        const userResponse = await axios.get("http://localhost:8081/api/auth/me", {
-          headers: {
-            'Authorization': `Bearer ${response.data.token}`
-          }
-        });
-        localStorage.setItem("user", JSON.stringify(userResponse.data));
-      } catch (userError) {
-        console.error("Error obteniendo información del usuario:", userError);
-      }
-      
+      await authService.login(correo, password, recaptchaToken);
       window.location.href = "/dashboard";
     } catch (err) {
       setError("Credenciales incorrectas, error de conexión o reCAPTCHA inválido.");

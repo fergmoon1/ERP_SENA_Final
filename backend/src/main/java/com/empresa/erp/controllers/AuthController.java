@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.util.HashMap;
 
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
@@ -25,6 +26,8 @@ public class AuthController {
     private RefreshTokenRepository refreshTokenRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -60,10 +63,17 @@ public class AuthController {
 
     @GetMapping("/me")
     public com.empresa.erp.models.Usuario getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            throw new RuntimeException("No hay autenticación disponible");
+        }
+        
         String correo = authentication.getName();
+        
         return usuarioRepository.findByCorreo(correo)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
+
+
 
     @PostMapping("/verify-recaptcha")
     public Map<String, Object> verifyRecaptcha(@RequestBody Map<String, String> body, HttpSession session) {

@@ -47,9 +47,8 @@ public class PedidoController {
         String correoUsuario = auth.getName();
         Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
             .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
-        Pedido pedido = pedidoService.saveFromDTO(crearPedidoDTO);
-        pedido.setUsuario(usuario);
-        return pedidoService.save(pedido);
+        
+        return pedidoService.saveFromDTO(crearPedidoDTO, usuario);
     }
 
     @PutMapping("/{id}")
