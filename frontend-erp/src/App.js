@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { NotificationProvider } from "./components/NotificationProvider";
 import './App.css';
 import './styles/theme.css';
+import authService from "./services/authService";
 
 function App() {
   // Manejar tokens de OAuth2 si vienen en la URL
@@ -24,6 +25,8 @@ function App() {
   if (token && refreshToken) {
     localStorage.setItem('jwt', token);
     localStorage.setItem('refreshToken', refreshToken);
+    // Obtener el usuario actual y guardarlo en localStorage
+    authService.getCurrentUser().catch(() => {});
     // Limpia la URL
     window.history.replaceState({}, document.title, '/');
   }

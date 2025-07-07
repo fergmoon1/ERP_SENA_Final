@@ -157,21 +157,16 @@ class AuthService {
   // Verificar si está autenticado
   isAuthenticated() {
     const token = localStorage.getItem('jwt');
-    const user = localStorage.getItem('user');
-    
-    if (!token || !user) {
+    if (!token) {
       return false;
     }
-
     try {
       const tokenData = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
-      
       if (tokenData.exp < currentTime) {
         this.logout();
         return false;
       }
-      
       return true;
     } catch (error) {
       this.logout();
