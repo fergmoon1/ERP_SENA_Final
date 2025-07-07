@@ -14,7 +14,9 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const recaptchaRef = useRef();
+  const passwordRef = useRef(null);
 
   useEffect(() => {
     // Limpiar tokens y cerrar sesión backend al cargar la página de login
@@ -34,17 +36,18 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!recaptchaToken) {
-      setError("Por favor, completa el reCAPTCHA antes de iniciar sesión.");
-      return;
-    }
+    setLoading(true);
     try {
       await authService.login(correo, password, recaptchaToken);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError("Credenciales incorrectas, error de conexión o reCAPTCHA inválido.");
+      setError("Correo o contraseña incorrectos. Intenta de nuevo.");
+      setPassword("");
+      if (passwordRef.current) passwordRef.current.focus();
       if (recaptchaRef.current) recaptchaRef.current.reset();
       setRecaptchaToken(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,6 +78,7 @@ const LoginPage = () => {
           <span>Password</span>
           <div style={{ position: 'relative' }}>
             <input
+              ref={passwordRef}
               type={showPassword ? "text" : "password"}
               name="password"
               value={password}
@@ -107,7 +111,9 @@ const LoginPage = () => {
             </button>
           </div>
         </label>
-        <button className="submit" type="submit">Sign In</button>
+        <button className="submit" type="submit" disabled={loading}>
+          {loading ? "Ingresando..." : "Sign In"}
+        </button>
         <div style={{margin: '16px 0', textAlign: 'center'}}>
           <span style={{color: '#888'}}>o</span>
         </div>
@@ -130,7 +136,7 @@ const LoginPage = () => {
             onChange={handleRecaptcha}
             className="g-recaptcha"
           />
-          {error && <div className="recaptcha-warning" style={{ display: "block" }}>{error}</div>}
+          {error && <div className="recaptcha-warning" style={{ display: "block", color: "#b91c1c", fontWeight: "bold", marginTop: 8 }}>{error}</div>}
         </div>
       </form>
     </div>

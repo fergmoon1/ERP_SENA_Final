@@ -38,7 +38,38 @@ public class AuthController {
     public Map<String, String> login(@RequestBody Map<String, String> body) {
         String correo = body.get("correo");
         String password = body.get("password");
-        return authService.loginWithRefresh(correo, password);
+        String recaptchaToken = body.get("recaptcha-token");
+        if (recaptchaToken == null) {
+            recaptchaToken = body.get("recaptchaToken");
+        }
+        System.out.println("Intento de login: correo=" + correo + ", password=" + password);
+        // Validar reCAPTCHA
+        String secret = "6LcMF2MrAAAAANJwLf60xyubdGr0FVLzNqZabyAL";
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://www.google.com/recaptcha/api/siteverify";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        Map<String, String> params = new HashMap<>();
+        params.put("secret", secret);
+        params.put("response", recaptchaToken);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(url + "?secret=" + secret + "&response=" + recaptchaToken, null, Map.class);
+        Map<String, Object> bodyResp = response.getBody();
+        boolean success = (Boolean) bodyResp.getOrDefault("success", false);
+        System.out.println("Resultado reCAPTCHA: " + success);
+        if (!success) {
+            System.out.println("reCAPTCHA inválido o no verificado");
+            throw new RuntimeException("reCAPTCHA inválido o no verificado");
+        }
+        // Si el reCAPTCHA es válido, proceder con el login
+        try {
+            Map<String, String> result = authService.loginWithRefresh(correo, password);
+            System.out.println("Login exitoso para: " + correo);
+            return result;
+        } catch (Exception e) {
+            System.out.println("Error en login: " + e.getMessage());
+            throw e;
+        }
     }
 
     @PostMapping("/refresh")
@@ -79,7 +110,7 @@ public class AuthController {
     @PostMapping("/verify-recaptcha")
     public Map<String, Object> verifyRecaptcha(@RequestBody Map<String, String> body, HttpSession session) {
         String recaptchaToken = body.get("recaptchaToken");
-        String secret = "6LcMF2MrAAAAAMUMBrE_jrUsG8-_BUTi3CoGwvyd"; // Cambia por tu clave secreta real
+        String secret = "6LcMF2MrAAAAANJwLf60xyubdGr0FVLzNqZabyAL"; // Clave secreta correcta del panel de Google
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://www.google.com/recaptcha/api/siteverify";
         HttpHeaders headers = new HttpHeaders();
