@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login ERP</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Test Login ERP SENA</h1>
+    
+    <div>
+        <h2>Login ADMIN</h2>
+        <button onclick="testLogin('admin@erp.com', 'admin1234')">Login ADMIN</button>
+    </div>
+    
+    <div>
+        <h2>Login SUPERVISOR</h2>
+        <button onclick="testLogin('supervisor@erp.com', 'supervisor123')">Login SUPERVISOR</button>
+    </div>
+    
+    <div>
+        <h2>Login USER</h2>
+        <button onclick="testLogin('user@erp.com', 'user123')">Login USER</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testLogin(email, password) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Probando login...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8081/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        correo: email,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3>✅ Login Exitoso</h3>
+                        <p><strong>Usuario:</strong> ${email}</p>
+                        <p><strong>Token:</strong> ${data.token ? data.token.substring(0, 50) + '...' : 'No disponible'}</p>
+                        <p><strong>Refresh Token:</strong> ${data.refreshToken ? data.refreshToken.substring(0, 50) + '...' : 'No disponible'}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error en Login</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Error:</strong> ${data.message || data.error || 'Error desconocido'}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>❌ Error de Conexión</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Asegúrate de que el backend esté ejecutándose en http://localhost:8081</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

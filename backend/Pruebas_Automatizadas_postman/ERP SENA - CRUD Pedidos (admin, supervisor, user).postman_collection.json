@@ -1,0 +1,361 @@
+{
+	"info": {
+		"_postman_id": "66d3aad5-af6e-4b2d-bc01-29e3d6a17e8e",
+		"name": "ERP SENA - CRUD Pedidos (admin, supervisor, user)",
+		"description": "Colección CRUD de pedidos para los usuarios admin, supervisor y user.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45302928",
+		"_collection_link": "https://gold-star-1657876.postman.co/workspace/Luis-G%C3%B3mez's-Workspace~d9dfb521-1e1a-442e-8445-e2105b02ffa0/collection/45302928-66d3aad5-af6e-4b2d-bc01-29e3d6a17e8e?action=share&source=collection_link&creator=45302928"
+	},
+	"item": [
+		{
+			"name": "Login ADMIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var json = pm.response.json();",
+							"pm.environment.set(\"token_admin\", json.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"correo\": \"admin@erp.com\",\n  \"password\": \"admin1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login SUPERVISOR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var json = pm.response.json();",
+							"pm.environment.set(\"token_supervisor\", json.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"correo\": \"supervisor@erp.com\",\n  \"password\": \"supervisor123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login USER",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var json = pm.response.json();",
+							"pm.environment.set(\"token_user\", json.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"correo\": \"user@erp.com\",\n  \"password\": \"user123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADMIN - Crear Pedido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 o 201\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201]);",
+							"});",
+							"pm.test(\"El pedido tiene ID\", function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.id).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_admin}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pedidos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADMIN - Consultar todos los pedidos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"La respuesta contiene pedidos\", function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.content).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/pedidos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pedidos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADMIN - Consultar pedido por ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"El pedido tiene ID\", function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.id).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pedidos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADMIN - Actualizar pedido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"El pedido tiene ID\", function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.id).to.exist;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlcnAuY29tIiwicm9sIjoiQURNSU4iLCJpYXQiOjE3NTE1ODM0MjMsImV4cCI6MTc1MTY2OTgyM30.y-PHwBRNzVdktQ04jaMeRXgfQbPBwL7GdhkJyCvow7A",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 12,\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-06-01\",\n  \"estado\": \"Entregado\",\n  \"motivoEstado\": \"Entregado al cliente final\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 1, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 2, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos/12",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pedidos",
+						"12"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADMIN - Eliminar pedido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 o 204\", function () {",
+							"    pm.expect([200,204]).to.include(pm.response.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"pedidos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8081/api"
+		}
+	]
+}
