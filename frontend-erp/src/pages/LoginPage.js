@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import authService from "../services/authService";
 import "../styles/LoginPage.css";
+import { FaExclamationTriangle } from "react-icons/fa";
+import CustomModal from "../components/CustomModal";
 
 const RECAPTCHA_SITE_KEY = "6LcMF2MrAAAAAMUMBrE_jrUsG8-_BUTi3CoGwvyd";
 
@@ -41,7 +43,7 @@ const LoginPage = () => {
       await authService.login(correo, password, recaptchaToken);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError("Correo o contraseña incorrectos. Intenta de nuevo.");
+      setError("Correo o contraseña incorrectos. Por favor, verifica tus datos e inténtalo de nuevo.");
       setPassword("");
       if (passwordRef.current) passwordRef.current.focus();
       if (recaptchaRef.current) recaptchaRef.current.reset();
@@ -136,9 +138,21 @@ const LoginPage = () => {
             onChange={handleRecaptcha}
             className="g-recaptcha"
           />
-          {error && <div className="recaptcha-warning" style={{ display: "block", color: "#b91c1c", fontWeight: "bold", marginTop: 8 }}>{error}</div>}
         </div>
       </form>
+      <CustomModal
+        show={!!error}
+        onClose={() => setError("")}
+        title="Error de autenticación"
+        actions={[
+          <button key="cerrar" className="button" onClick={() => setError("")}>Cerrar</button>
+        ]}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <FaExclamationTriangle style={{ fontSize: '1.5em', color: '#f44336' }} />
+          {error}
+        </div>
+      </CustomModal>
     </div>
   );
 };

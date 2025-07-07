@@ -213,7 +213,7 @@ export const NotificationProvider = ({ children }) => {
 };
 
 const NotificationContainer = () => {
-  const { notifications, stockAlerts, loading, removeNotification, markAsRead, markAllAsRead, clearStockAlerts } = useNotifications();
+  const { notifications, stockAlerts, loading, removeNotification, markAsRead, markAllAsRead, clearStockAlerts, removeStockAlert } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showStockAlerts, setShowStockAlerts] = useState(false);
 
