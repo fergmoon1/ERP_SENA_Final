@@ -28,6 +28,15 @@ const LoginPage = () => {
     if (location.state?.message) {
       setError(location.state.message);
     }
+    // Detectar error de OAuth en la URL
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get('oauthError');
+    if (oauthError) {
+      setError("No se pudo autenticar con Google. Por favor, intenta de nuevo o usa el acceso tradicional.");
+      // Limpiar el parámetro de la URL para evitar loops
+      params.delete('oauthError');
+      window.history.replaceState({}, document.title, window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+    }
   }, []); // Solo ejecutar una vez al montar el componente
 
   const handleRecaptcha = (token) => {
