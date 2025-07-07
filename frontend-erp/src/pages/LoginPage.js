@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import authService from "../services/authService";
 import "../styles/LoginPage.css";
@@ -8,6 +8,7 @@ const RECAPTCHA_SITE_KEY = "6LcMF2MrAAAAAMUMBrE_jrUsG8-_BUTi3CoGwvyd";
 
 const LoginPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +24,7 @@ const LoginPage = () => {
     if (location.state?.message) {
       setError(location.state.message);
     }
-  }, [location.state]);
+  }, []); // Solo ejecutar una vez al montar el componente
 
   const handleRecaptcha = (token) => {
     setRecaptchaToken(token);
@@ -39,7 +40,7 @@ const LoginPage = () => {
     }
     try {
       await authService.login(correo, password, recaptchaToken);
-      window.location.href = "/dashboard";
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError("Credenciales incorrectas, error de conexión o reCAPTCHA inválido.");
       if (recaptchaRef.current) recaptchaRef.current.reset();
@@ -52,8 +53,7 @@ const LoginPage = () => {
       setError("Por favor, completa el reCAPTCHA antes de iniciar sesión con Google.");
       return;
     }
-    // Redirigir directamente a OAuth2 sin verificar reCAPTCHA en backend
-    // El reCAPTCHA ya está validado en frontend
+    // Redirigir directamente al backend para OAuth2
     window.location.href = "http://localhost:8081/oauth2/authorization/google";
   };
 
@@ -113,16 +113,16 @@ const LoginPage = () => {
         </div>
         {/* Botón para iniciar sesión con Google (OAuth2) */}
         <button type="button" id="googleLogin" className="submit" style={{background: '#4285F4', color: 'white', marginBottom: '8px'}} onClick={handleGoogleLogin} disabled={!recaptchaToken}>
-          <img src="/images/google.png" alt="Google" style={{width: 20, marginRight: 8, verticalAlign: 'middle'}} />
+          <i className="fab fa-google" style={{marginRight: 8, fontSize: '18px'}}></i>
           Iniciar sesión con Google
         </button>
         <p className="forgot-pass">Forgot password?</p>
         <div className="social-media">
           <ul>
-            <li><img src="/images/facebook.png" alt="facebook" /></li>
-            <li><img src="/images/twitter.png" alt="twitter" /></li>
-            <li><img src="/images/linkedin.png" alt="linkedin" /></li>
-            <li><img src="/images/instagram.png" alt="instagram" /></li>
+            <li><i className="fab fa-facebook" style={{fontSize: '24px', color: '#1877f2'}}></i></li>
+            <li><i className="fab fa-twitter" style={{fontSize: '24px', color: '#1da1f2'}}></i></li>
+            <li><i className="fab fa-linkedin" style={{fontSize: '24px', color: '#0077b5'}}></i></li>
+            <li><i className="fab fa-instagram" style={{fontSize: '24px', color: '#e4405f'}}></i></li>
           </ul>
           <ReCAPTCHA
             ref={recaptchaRef}

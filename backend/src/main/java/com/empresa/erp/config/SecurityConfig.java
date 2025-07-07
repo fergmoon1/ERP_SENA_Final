@@ -102,6 +102,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/movimientos-inventario/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/movimientos-inventario/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/movimientos-inventario/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/verify-recaptcha").permitAll()
+                .requestMatchers("/api/auth/me").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
@@ -175,14 +177,22 @@ public class SecurityConfig {
         return new AuthenticationSuccessHandler() {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                System.out.println("=== OAuth2 Success Handler Called ===");
+                System.out.println("Authentication type: " + authentication.getClass().getSimpleName());
+                
                 if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
                     OAuth2User oauth2User = oauthToken.getPrincipal();
                     String email = oauth2User.getAttribute("email");
                     String nombre = oauth2User.getAttribute("name");
+                    
+                    System.out.println("OAuth2 User Email: " + email);
+                    System.out.println("OAuth2 User Name: " + nombre);
+                    
                     Usuario usuario = usuarioService.findAll().stream()
                         .filter(u -> u.getCorreo().equalsIgnoreCase(email))
                         .findFirst()
                         .orElseGet(() -> {
+                            System.out.println("Creating new user for email: " + email);
                             Usuario nuevo = new Usuario();
                             nuevo.setCorreo(email);
                             nuevo.setNombre(nombre);
@@ -190,12 +200,22 @@ public class SecurityConfig {
                             nuevo.setPassword("");
                             return usuarioService.save(nuevo);
                         });
+                    
+                    System.out.println("User found/created: " + usuario.getCorreo() + " with role: " + usuario.getRol());
+                    
                     Map<String, String> tokens = authService.generateTokens(usuario);
                     String jwt = tokens.get("token");
                     String refreshToken = tokens.get("refreshToken");
+                    
+                    System.out.println("JWT generated: " + (jwt != null ? "YES" : "NO"));
+                    System.out.println("RefreshToken generated: " + (refreshToken != null ? "YES" : "NO"));
+                    
                     String redirectUrl = "http://localhost:3001/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
+                    System.out.println("Redirecting to: " + redirectUrl);
+                    
                     response.sendRedirect(redirectUrl);
                 } else {
+                    System.out.println("Authentication is not OAuth2AuthenticationToken: " + authentication.getClass().getName());
                     response.sendRedirect("http://localhost:3001/login?error=oauth_failed");
                 }
             }

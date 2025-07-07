@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.util.HashMap;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 @RestController
@@ -96,5 +97,19 @@ public class AuthController {
         } else {
             return Map.of("success", false, "error", bodyResp.get("error-codes"));
         }
+    }
+
+    // Endpoint temporal para generar hashes BCrypt
+    @PostMapping("/generate-hash")
+    public Map<String, String> generateHash(@RequestBody Map<String, String> body) {
+        String password = body.get("password");
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hash = encoder.encode(password);
+        
+        return Map.of(
+            "password", password,
+            "hash", hash,
+            "message", "Hash BCrypt generado correctamente"
+        );
     }
 } 

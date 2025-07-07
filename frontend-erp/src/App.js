@@ -15,44 +15,12 @@ import { NotificationProvider } from "./components/NotificationProvider";
 import './App.css';
 import './styles/theme.css';
 
-function parseJwt(token) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-}
-
 function App() {
-  // Verificar si el usuario está autenticado
-  const isAuthenticated = () => {
-    const token = localStorage.getItem('jwt');
-    if (!token) return false;
-    const payload = parseJwt(token);
-    if (!payload || !payload.exp) {
-      localStorage.removeItem('jwt');
-      localStorage.removeItem('refreshToken');
-      return false;
-    }
-    // exp está en segundos desde epoch
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
-      localStorage.removeItem('jwt');
-      localStorage.removeItem('refreshToken');
-      return false;
-    }
-    return true;
-  };
-
-  // Ejemplo típico
+  // Manejar tokens de OAuth2 si vienen en la URL
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   const refreshToken = params.get('refreshToken');
+  
   if (token && refreshToken) {
     localStorage.setItem('jwt', token);
     localStorage.setItem('refreshToken', refreshToken);
@@ -65,10 +33,7 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            <Route 
-              path="/login" 
-              element={isAuthenticated() ? <Navigate to="/dashboard" /> : <LoginPage />} 
-            />
+            <Route path="/login" element={<LoginPage />} />
             <Route 
               path="/dashboard" 
               element={
@@ -135,7 +100,7 @@ function App() {
             />
             <Route 
               path="/" 
-              element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} 
+              element={<Navigate to="/dashboard" replace />} 
             />
           </Routes>
         </div>

@@ -3,7 +3,8 @@ package com.empresa.erp.models;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
+@
+        Entity
 public class Notificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

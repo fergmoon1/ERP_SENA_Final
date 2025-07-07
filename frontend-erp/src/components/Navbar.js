@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
 const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) => {
@@ -7,6 +8,7 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
   const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -58,7 +60,7 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
     } catch (e) {
       // Ignorar errores de red
     }
-    window.location.replace('/login?logout=true');
+    navigate('/login?logout=true', { replace: true });
   };
 
   return (

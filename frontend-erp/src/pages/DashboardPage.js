@@ -44,13 +44,11 @@ const DashboardPage = () => {
   // Verificar si el usuario está autenticado
   useEffect(() => {
     const token = localStorage.getItem('jwt');
-    console.log('DashboardPage - Token en localStorage:', !!token);
-    
-    if (!token) {
-      console.log('DashboardPage - No hay token, redirigiendo a login');
-      navigate('/login');
+    // Solo redirigir si no hay token y no estamos ya en /login
+    if (!token && location.pathname !== '/login') {
+      navigate('/login', { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
