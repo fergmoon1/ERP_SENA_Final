@@ -29,6 +29,10 @@ public class UsuarioService {
     }
 
     public Usuario save(Usuario usuario) {
+        // Si es un usuario nuevo, ponerlo activo por defecto
+        if (usuario.getId() == null) {
+            usuario.setActivo(true);
+        }
         // Validar política de contraseña si es nuevo o si cambia la contraseña
         if (usuario.getPassword() != null) {
             PasswordPolicy policy = passwordPolicyService.getPolicy();

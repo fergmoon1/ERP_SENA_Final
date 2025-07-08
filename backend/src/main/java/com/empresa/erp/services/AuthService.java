@@ -41,6 +41,9 @@ public class AuthService {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
         Usuario usuario = usuarioOpt.get();
+        if (!usuario.isActivo()) {
+            throw new RuntimeException("Usuario inactivo. Contacte al administrador.");
+        }
         if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
@@ -61,6 +64,9 @@ public class AuthService {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
         Usuario usuario = usuarioOpt.get();
+        if (!usuario.isActivo()) {
+            throw new RuntimeException("Usuario inactivo. Contacte al administrador.");
+        }
         if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Usuario o contraseña incorrectos");
         }
