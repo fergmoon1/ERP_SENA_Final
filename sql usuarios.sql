@@ -257,3 +257,47 @@ USE erp_sena;
 UPDATE usuario SET password = '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' WHERE correo = 'admin@erp.com';
 UPDATE usuario SET password = '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' WHERE correo = 'supervisor@erp.com';
 UPDATE usuario SET password = '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' WHERE correo = 'user@erp.com';
+
+-- Script SQL para actualizar contraseñas con hashes BCrypt correctos
+USE erp_sena;
+
+-- Verificar usuarios antes de actualizar
+SELECT '=== USUARIOS ANTES DE ACTUALIZAR ===' as info;
+SELECT correo, nombre, rol, 
+       CASE 
+           WHEN password LIKE '$2a$%' THEN 'HASHEADO'
+           ELSE 'NO HASHEADO'
+       END as estado_password
+FROM usuario 
+WHERE correo IN ('admin@erp.com', 'supervisor@erp.com', 'user@erp.com')
+ORDER BY correo;
+
+-- Actualizar contraseñas con hashes BCrypt correctos
+-- admin@erp.com / admin1234
+UPDATE usuario SET password = '$2a$10$zCMVAVR9P1nEL6QAYETqPeLuYXrsy5ZL41yjMzh/j7gjUiDm4GeZm' WHERE correo = 'admin@erp.com';
+
+-- supervisor@erp.com / supervisor123
+UPDATE usuario SET password = '$2a$10$E7Yj289aWqATe47wFGXbkeHscpLuc7N3Hgnf9h0qLeMx.nadLrPzm' WHERE correo = 'supervisor@erp.com';
+
+-- user@erp.com / user123
+UPDATE usuario SET password = '$2a$10$V3q8vomY6GsSKeAji4p72Ot3A8eDSf4tlV8awTeNrWtW7hTge.41q' WHERE correo = 'user@erp.com';
+
+-- Verificar usuarios después de actualizar
+SELECT '=== USUARIOS DESPUÉS DE ACTUALIZAR ===' as info;
+SELECT correo, nombre, rol, 
+       CASE 
+           WHEN password LIKE '$2a$%' THEN 'HASHEADO'
+           ELSE 'NO HASHEADO'
+       END as estado_password,
+       LENGTH(password) as longitud_hash
+FROM usuario 
+WHERE correo IN ('admin@erp.com', 'supervisor@erp.com', 'user@erp.com')
+ORDER BY correo;
+
+-- Contar total de usuarios
+SELECT '=== TOTAL DE USUARIOS ===' as info;
+SELECT COUNT(*) as total_usuarios FROM usuario;
+
+USE erp_sena;
+
+DELETE FROM usuario WHERE id IN (20, 21, 22);

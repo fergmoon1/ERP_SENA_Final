@@ -3,6 +3,7 @@ package com.empresa.erp.models;
 import jakarta.persistence.*;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "proveedor")
@@ -43,8 +44,8 @@ public class Proveedor {
     private Boolean activo = true;
     
     // Relación con compras (opcional, para consultas)
+    @JsonIgnore
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private List<Compra> compras;
     
     // Constructor por defecto
