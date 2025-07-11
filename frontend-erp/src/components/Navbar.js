@@ -10,6 +10,18 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
   const [zoom, setZoom] = useState(1);
   const navigate = useNavigate();
 
+  // Obtener usuario autenticado de localStorage
+  const user = JSON.parse(localStorage.getItem('user')) || {};
+
+  // Avatar por defecto
+  const avatarPorDefecto = process.env.PUBLIC_URL + "/imagenes/foto01 mujer.png";
+  // Usar avatar personalizado si existe
+  const avatar = user.avatar ? 
+    (user.avatar.startsWith('http') ? user.avatar : 
+     user.avatar.startsWith('/api/files/') ? `http://localhost:8081${user.avatar}` : 
+     process.env.PUBLIC_URL + '/imagenes/' + user.avatar) : 
+    avatarPorDefecto;
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -80,10 +92,10 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
         <div className="perfil">
           <div className="perfil-texto">
             <div className="avatar-circle">
-              <img src={process.env.PUBLIC_URL + "/imagenes/foto01 mujer.png"} alt="Usuario" />
+              <img src={avatar} alt="Usuario" />
             </div>
-            <strong>Juana Pérez</strong>
-            <span>Administrador</span>
+            <strong>{user.nombre || "Usuario"}</strong>
+            <span>{user.rol || "Rol"}</span>
           </div>
           <div className="hora-modern">
             <div className="fecha-modern">

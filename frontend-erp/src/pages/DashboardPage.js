@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/DashboardPage.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import IndicadoresWidget from '../components/IndicadoresWidget';
 
 const DashboardPage = () => {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -217,6 +218,7 @@ const DashboardPage = () => {
   return (
     <Layout title="Dashboard" subtitle="Métricas y Reportes del Sistema">
       <div className="dashboard-container">
+        <IndicadoresWidget />
         {/* Filtro de fechas */}
         <div className="filter-section">
           <h2>Filtrar por Fechas</h2>

@@ -1,4 +1,5 @@
 com\empresa\erp\models\VisualConfig.class
+com\empresa\erp\controllers\IndicadoresController.class
 com\empresa\erp\repositories\NotificacionRepository.class
 com\empresa\erp\controllers\AuthController.class
 com\empresa\erp\models\RolPermiso.class
@@ -48,6 +49,7 @@ com\empresa\erp\services\RolPermisoInitializer.class
 com\empresa\erp\repositories\PasswordPolicyRepository.class
 com\empresa\erp\repositories\RefreshTokenRepository.class
 com\empresa\erp\services\VisualConfigService.class
+com\empresa\erp\controllers\FileUploadController.class
 com\empresa\erp\models\DetallePedidoDTO.class
 com\empresa\erp\models\PasswordPolicy.class
 com\empresa\erp\models\MovimientoInventario$TipoMovimiento.class

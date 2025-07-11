@@ -58,6 +58,11 @@ public class PedidoService {
 
     @Transactional
     public Pedido save(Pedido pedido) {
+        // Normalizar el estado antes de guardar
+        if (pedido.getEstado() != null && !pedido.getEstado().isEmpty()) {
+            String estado = pedido.getEstado().trim();
+            pedido.setEstado(estado.substring(0, 1).toUpperCase() + estado.substring(1).toLowerCase());
+        }
         // Validaciones previas al procesamiento
         validacionService.validarPedido(pedido);
         validacionService.validarPedidoNoVacio(pedido);
@@ -215,11 +220,12 @@ public class PedidoService {
         } else {
             pedido.setFecha(LocalDate.now());
         }
-        // Asignar el estado recibido, normalizado, o 'pendiente' si no viene
+        // Asignar el estado recibido, normalizado, o 'Pendiente' si no viene
         if (dto.getEstado() != null && !dto.getEstado().isEmpty()) {
-            pedido.setEstado(dto.getEstado().toLowerCase());
+            String estado = dto.getEstado().trim();
+            pedido.setEstado(estado.substring(0, 1).toUpperCase() + estado.substring(1).toLowerCase());
         } else {
-            pedido.setEstado("pendiente");
+            pedido.setEstado("Pendiente");
         }
         
         // Asignar motivoEstado si viene
