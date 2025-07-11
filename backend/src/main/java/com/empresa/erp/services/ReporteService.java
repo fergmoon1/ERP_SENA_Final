@@ -481,4 +481,30 @@ public class ReporteService {
             });
         return resultado;
     }
+
+    // ===== PEDIDOS POR ESTADO =====
+    public List<Map<String, Object>> getPedidosPorEstado() {
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        Map<String, Long> agrupados = pedidos.stream()
+            .filter(p -> p.getEstado() != null)
+            .collect(java.util.stream.Collectors.groupingBy(Pedido::getEstado, java.util.stream.Collectors.counting()));
+        
+        List<Map<String, Object>> pedidosPorEstado = new java.util.ArrayList<>();
+        java.util.Map<String, String> colores = java.util.Map.of(
+            "Pendiente", "yellow",
+            "Enviado", "blue",
+            "Entregado", "green",
+            "Cancelado", "red"
+        );
+        
+        for (java.util.Map.Entry<String, Long> entry : agrupados.entrySet()) {
+            Map<String, Object> obj = new java.util.HashMap<>();
+            obj.put("estado", entry.getKey());
+            obj.put("cantidad", entry.getValue());
+            obj.put("color", colores.getOrDefault(entry.getKey(), "gray"));
+            pedidosPorEstado.add(obj);
+        }
+        
+        return pedidosPorEstado;
+    }
 } 

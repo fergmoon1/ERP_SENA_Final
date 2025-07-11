@@ -350,6 +350,188 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "SUPERVISOR - Crear Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('SUPERVISOR no puede crear pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos"]
+				}
+			}
+		},
+		{
+			"name": "SUPERVISOR - Actualizar Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('SUPERVISOR no puede actualizar pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 1,\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos", "1"]
+				}
+			}
+		},
+		{
+			"name": "SUPERVISOR - Eliminar Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('SUPERVISOR no puede eliminar pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+				],
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos", "1"]
+				}
+			}
+		},
+		{
+			"name": "USER - Crear Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('USER no puede crear pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_user}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos"]
+				}
+			}
+		},
+		{
+			"name": "USER - Actualizar Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('USER no puede actualizar pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_user}}" },
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 1,\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos", "1"]
+				}
+			}
+		},
+		{
+			"name": "USER - Eliminar Pedido (No Permitido)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('USER no puede eliminar pedido', function() {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Authorization", "value": "Bearer {{token_user}}" }
+				],
+				"url": {
+					"raw": "{{base_url}}/pedidos/1",
+					"host": ["{{base_url}}"],
+					"path": ["pedidos", "1"]
+				}
+			}
 		}
 	],
 	"variable": [

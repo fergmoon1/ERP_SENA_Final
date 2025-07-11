@@ -63,6 +63,9 @@ const DashboardPage = () => {
       if (dashboardRes.ok) {
         const data = await dashboardRes.json();
         setDashboardData(data);
+        console.log('Dashboard data:', data);
+      } else {
+        console.error('Error fetching dashboard:', dashboardRes.status);
       }
 
       // Productos más vendidos
@@ -70,6 +73,9 @@ const DashboardPage = () => {
       if (productosRes.ok) {
         const data = await productosRes.json();
         setProductosMasVendidos(data || []);
+        console.log('Productos más vendidos:', data);
+      } else {
+        console.error('Error fetching productos:', productosRes.status);
       }
 
       // Ingresos por mes
@@ -77,6 +83,9 @@ const DashboardPage = () => {
       if (ingresosRes.ok) {
         const data = await ingresosRes.json();
         setIngresosPorMes(data || []);
+        console.log('Ingresos por mes:', data);
+      } else {
+        console.error('Error fetching ingresos:', ingresosRes.status);
       }
 
       // Pedidos por estado
@@ -84,6 +93,9 @@ const DashboardPage = () => {
       if (pedidosRes.ok) {
         const data = await pedidosRes.json();
         setPedidosPorEstado(data || []);
+        console.log('Pedidos por estado:', data);
+      } else {
+        console.error('Error fetching pedidos por estado:', pedidosRes.status);
       }
 
       // Clientes nuevos por mes
@@ -91,6 +103,9 @@ const DashboardPage = () => {
       if (clientesRes.ok) {
         const data = await clientesRes.json();
         setClientesNuevosPorMes(data || []);
+        console.log('Clientes nuevos por mes:', data);
+      } else {
+        console.error('Error fetching clientes:', clientesRes.status);
       }
 
       // Alertas de stock bajo
@@ -98,9 +113,13 @@ const DashboardPage = () => {
       if (stockRes.ok) {
         const data = await stockRes.json();
         setAlertasStock(data || []);
+        console.log('Alertas de stock:', data);
+      } else {
+        console.error('Error fetching stock bajo:', stockRes.status);
       }
 
     } catch (err) {
+      console.error('Error en fetchDashboardData:', err);
       setError('Error al cargar los datos del dashboard: ' + err.message);
     } finally {
       setLoading(false);
@@ -330,72 +349,80 @@ const DashboardPage = () => {
         <div className="charts-grid">
           <div className="chart-card">
             <h2>Gráfico de Ingresos por Mes</h2>
-            {ingresosPorMes.length > 0 ? (
+            {ingresosPorMes && ingresosPorMes.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={ingresosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                   <XAxis dataKey="mes" stroke="#1976d2"/>
                   <YAxis stroke="#1976d2"/>
-                  <Tooltip />
+                  <Tooltip formatter={(value) => [`$${value?.toFixed(2) || '0.00'}`, 'Ingreso']} />
                   <Legend />
-                  <Line type="monotone" dataKey="ingreso" stroke="#1976d2" name="Ingreso Total" />
+                  <Line type="monotone" dataKey="ingreso" stroke="#1976d2" name="Ingreso Total" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="no-data">No hay datos para mostrar</div>
+              <div className="no-data">No hay datos de ingresos para mostrar</div>
             )}
           </div>
           
           <div className="chart-card">
             <h2>Gráfico de Pedidos por Estado</h2>
-            {pedidosPorEstado.length > 0 ? (
+            {pedidosPorEstado && pedidosPorEstado.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={pedidosPorEstado} dataKey="cantidad" nameKey="estado" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie 
+                    data={pedidosPorEstado} 
+                    dataKey="cantidad" 
+                    nameKey="estado" 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={100} 
+                    label={({estado, cantidad}) => `${estado}: ${cantidad}`}
+                  >
                     {pedidosPorEstado.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value, name) => [value, name]} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="no-data">No hay datos para mostrar</div>
+              <div className="no-data">No hay datos de pedidos por estado para mostrar</div>
             )}
           </div>
         </div>
 
-        <div className="chart-card">
+        <div className="chart-card full-width">
           <h2>Gráfico de Productos Más Vendidos</h2>
-          {productosMasVendidos.length > 0 ? (
+          {productosMasVendidos && productosMasVendidos.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <XAxis dataKey="nombre" stroke="#1976d2"/>
+                <XAxis dataKey="nombre" stroke="#1976d2" angle={-45} textAnchor="end" height={80}/>
                 <YAxis stroke="#1976d2"/>
-                <Tooltip />
+                <Tooltip formatter={(value, name) => [value, 'Cantidad Vendida']} />
                 <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="no-data">No hay datos para mostrar</div>
+            <div className="no-data">No hay datos de productos vendidos para mostrar</div>
           )}
         </div>
 
         <div className="charts-grid">
           <div className="chart-card">
             <h2>Gráfico de Clientes Nuevos por Mes</h2>
-            {clientesNuevosPorMes.length > 0 ? (
+            {clientesNuevosPorMes && clientesNuevosPorMes.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={clientesNuevosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                   <XAxis dataKey="mes" stroke="#1976d2"/>
                   <YAxis stroke="#1976d2"/>
-                  <Tooltip />
+                  <Tooltip formatter={(value, name) => [value, 'Clientes Nuevos']} />
                   <Legend />
-                  <Line type="monotone" dataKey="cantidad" stroke="#1976d2" name="Clientes Nuevos" />
+                  <Line type="monotone" dataKey="cantidad" stroke="#10b981" name="Clientes Nuevos" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="no-data">No hay datos para mostrar</div>
+              <div className="no-data">No hay datos de clientes nuevos para mostrar</div>
             )}
           </div>
         </div>
