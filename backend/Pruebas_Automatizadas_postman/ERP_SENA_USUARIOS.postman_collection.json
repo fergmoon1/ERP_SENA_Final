@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "erp-sena-usuarios-collection",
+    "name": "ERP SENA - Usuarios (Automatizada)",
+    "description": "Colección de endpoints de gestión de usuarios para ERP SENA: listar, crear, actualizar, eliminar y cambiar contraseña. Incluye tests y variables para pruebas encadenadas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "ADMIN - Obtener Todos los Usuarios",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuarios obtenidos exitosamente', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Crear Usuario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuario creado exitosamente', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json.correo).to.eql('nuevo@empresa.com');",
+              "    if (json.id) { pm.environment.set('usuario_id', json.id); }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Usuario Nuevo\",\n  \"correo\": \"nuevo@empresa.com\",\n  \"password\": \"Nuevo123!@#\",\n  \"rol\": \"USER\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Obtener Usuario por ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuario obtenido por ID', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.be.an('object');",
+              "    pm.expect(json.id).to.eql(pm.environment.get('usuario_id'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/usuarios/{{usuario_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios", "{{usuario_id}}"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Actualizar Usuario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuario actualizado exitosamente', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json.nombre).to.eql('Usuario Actualizado');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Usuario Actualizado\",\n  \"correo\": \"nuevo@empresa.com\",\n  \"password\": \"Nuevo123!@#\",\n  \"rol\": \"USER\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios/{{usuario_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios", "{{usuario_id}}"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Cambiar Contraseña de Usuario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Contraseña actualizada exitosamente', function() {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"password\": \"nuevaContraseña123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/usuarios/{{usuario_id}}/password",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios", "{{usuario_id}}", "password"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Eliminar Usuario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Usuario eliminado exitosamente', function() {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/usuarios/{{usuario_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["usuarios", "{{usuario_id}}"]
+        }
+      }
+    }
+  ]
+} 

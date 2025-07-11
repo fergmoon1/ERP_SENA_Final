@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/DashboardPage.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
+import ReactTooltip from 'react-tooltip';
 
 const DashboardPage = () => {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -139,6 +140,53 @@ const DashboardPage = () => {
   // Colores para PieChart
   const pieColors = ['#1976d2', '#10b981', '#fbc02d', '#e53935', '#ff9800', '#8e24aa'];
 
+  // Utilidad para iconos y colores por estado
+  const estadoConfig = {
+    'Pendiente': { icon: '🕒', color: '#fbc02d' },
+    'PENDIENTE': { icon: '🕒', color: '#fbc02d' },
+    'Enviado': { icon: '🚚', color: '#1976d2' },
+    'ENVIADO': { icon: '🚚', color: '#1976d2' },
+    'Entregado': { icon: '✅', color: '#10b981' },
+    'ENTREGADO': { icon: '✅', color: '#10b981' },
+    'Cancelado': { icon: '❌', color: '#e53935' },
+    'CANCELADO': { icon: '❌', color: '#e53935' },
+    'Completado': { icon: '✔️', color: '#43a047' },
+    'completado': { icon: '✔️', color: '#43a047' },
+    'pendiente': { icon: '🕒', color: '#fbc02d' },
+    // Otros estados...
+  };
+
+  // Calcular total de pedidos
+  const totalPedidos = pedidosPorEstado.reduce((acc, p) => acc + (p.cantidad || 0), 0);
+
+  // Agrupar estados ignorando mayúsculas/minúsculas
+  const groupedEstados = pedidosPorEstado.reduce((acc, curr) => {
+    const key = curr.estado.trim().toLowerCase();
+    if (!acc[key]) {
+      acc[key] = { ...curr, estado: curr.estado.charAt(0).toUpperCase() + curr.estado.slice(1).toLowerCase(), cantidad: 0 };
+    }
+    acc[key].cantidad += curr.cantidad;
+    return acc;
+  }, {});
+  const estadosUnicos = Object.values(groupedEstados);
+
+  // Simulación de últimos pedidos por estado (en producción, consumir endpoint real)
+  const ultimosPedidosPorEstado = {
+    pendiente: [
+      { numero: 'PED-001', cliente: 'Juan Pérez', fecha: '2024-06-01' },
+      { numero: 'PED-002', cliente: 'Ana Gómez', fecha: '2024-06-02' },
+      { numero: 'PED-003', cliente: 'Carlos Ruiz', fecha: '2024-06-03' },
+    ],
+    enviado: [
+      { numero: 'PED-004', cliente: 'Luis Torres', fecha: '2024-06-01' },
+      { numero: 'PED-005', cliente: 'Marta Díaz', fecha: '2024-06-02' },
+    ],
+    entregado: [
+      { numero: 'PED-006', cliente: 'Pedro López', fecha: '2024-06-01' },
+    ],
+    // ...otros estados
+  };
+
   if (loading) {
     return (
       <Layout title="Dashboard" subtitle="Cargando datos...">
@@ -197,48 +245,47 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Tarjetas de estadísticas */}
-        <div className="stats-grid">
-          <div className="stat-card blue">
-            <div className="stat-icon">
+        {/* Tarjetas de estadísticas mejoradas */}
+        <div className="stats-grid enhanced">
+          <div className="stat-card blue kpi-card">
+            <div className="stat-icon kpi-icon">
+              <i className="fas fa-dollar-sign"></i>
+            </div>
+            <div className="stat-content">
+              <p className="stat-number kpi-number">{dashboardData?.ventasMes || 0}</p>
+              <p className="kpi-label">Ventas del Mes</p>
+            </div>
+          </div>
+          <div className="stat-card green kpi-card">
+            <div className="stat-icon kpi-icon">
               <i className="fas fa-shopping-cart"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.ventasMes || 0}</p>
-              <p>Ventas del Mes</p>
+              <p className="stat-number kpi-number">{dashboardData?.pedidosPendientes || 0}</p>
+              <p className="kpi-label">Pedidos Pendientes</p>
             </div>
           </div>
-          
-          <div className="stat-card green">
-            <div className="stat-icon">
-              <i className="fas fa-chart-line"></i>
-            </div>
-            <div className="stat-content">
-              <p className="stat-number">{dashboardData?.pedidosPendientes || 0}</p>
-              <p>Pedidos Pendientes</p>
-            </div>
-          </div>
-          
-          <div className="stat-card yellow">
-            <div className="stat-icon">
+          <div className="stat-card yellow kpi-card">
+            <div className="stat-icon kpi-icon">
               <i className="fas fa-exclamation-triangle"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{alertasStock.length}</p>
-              <p>Alertas de Stock</p>
+              <p className="stat-number kpi-number">{alertasStock.length}</p>
+              <p className="kpi-label">Alertas de Stock</p>
             </div>
           </div>
-          
-          <div className="stat-card red">
-            <div className="stat-icon">
+          <div className="stat-card red kpi-card">
+            <div className="stat-icon kpi-icon">
               <i className="fas fa-user-plus"></i>
             </div>
             <div className="stat-content">
-              <p className="stat-number">{dashboardData?.clientesNuevos || 0}</p>
-              <p>Clientes Nuevos</p>
+              <p className="stat-number kpi-number">{dashboardData?.clientesNuevos || 0}</p>
+              <p className="kpi-label">Clientes Nuevos</p>
             </div>
           </div>
         </div>
+        {/* Separador visual */}
+        <hr className="dashboard-separator" />
 
         {/* Alertas de Stock Bajo */}
         {alertasStock.length > 0 && (
@@ -267,8 +314,8 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Tablas de información */}
-        <div className="tables-grid">
+        {/* Tablas de información mejoradas */}
+        <div className="tables-grid enhanced">
           <div className="table-card">
             <h2>Productos Más Vendidos</h2>
             <table>
@@ -297,22 +344,66 @@ const DashboardPage = () => {
             </table>
           </div>
           
-          <div className="table-card">
+          <div className="table-card enhanced">
             <h2>Pedidos por Estado</h2>
-            <ul className="status-list">
-              {pedidosPorEstado.length > 0 ? (
-                pedidosPorEstado.map((pedido, index) => (
-                  <li key={index} className="status-item">
-                    <span>{pedido.estado}</span>
-                    <span className={`status-badge ${pedido.color || 'default'}`}>
-                      {pedido.cantidad}
-                    </span>
-                  </li>
-                ))
-              ) : (
-                <li>No hay datos de pedidos por estado.</li>
-              )}
-            </ul>
+            <table className="pedidos-estado-table">
+              <thead>
+                <tr>
+                  <th>Estado</th>
+                  <th>Cantidad</th>
+                  <th>% del total</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {estadosUnicos.length > 0 ? (
+                  estadosUnicos.map((pedido, index) => {
+                    const config = estadoConfig[pedido.estado] || { icon: '📦', color: '#bdbdbd' };
+                    const porcentaje = totalPedidos > 0 ? ((pedido.cantidad / totalPedidos) * 100).toFixed(1) : 0;
+                    const key = pedido.estado.trim().toLowerCase();
+                    const ultimos = ultimosPedidosPorEstado[key] || [];
+                    return (
+                      <tr key={index} data-tip data-for={`tooltip-${key}`} style={{ cursor: ultimos.length ? 'pointer' : 'default' }}>
+                        <td style={{ color: config.color, fontWeight: 600 }}>
+                          <span style={{ fontSize: '1.3rem', marginRight: 8 }}>{config.icon}</span>
+                          {pedido.estado}
+                        </td>
+                        <td style={{ fontWeight: 600 }}>{pedido.cantidad}</td>
+                        <td>
+                          <div className="progress-bar-bg">
+                            <div className="progress-bar-fill" style={{ width: `${porcentaje}%`, background: config.color }}></div>
+                          </div>
+                          <span style={{ fontSize: '0.95rem', color: '#555' }}>{porcentaje}%</span>
+                        </td>
+                        <td>
+                          <button className="btn-filter" onClick={() => navigate(`/pedidos?estado=${encodeURIComponent(pedido.estado)}`)}>
+                            Ver pedidos
+                          </button>
+                        </td>
+                        <td></td>
+                        {ultimos.length > 0 && (
+                          <ReactTooltip id={`tooltip-${key}`} effect="solid" place="top">
+                            <div style={{ minWidth: 180 }}>
+                              <strong>Últimos pedidos:</strong>
+                              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                                {ultimos.slice(0, 3).map((p, i) => (
+                                  <li key={i} style={{ fontSize: '0.97rem', margin: '0.2rem 0' }}>
+                                    <span style={{ fontWeight: 600 }}>{p.numero}</span> - {p.cliente} <br /> <span style={{ color: '#888' }}>{p.fecha}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </ReactTooltip>
+                        )}
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr><td colSpan="5">No hay datos de pedidos por estado.</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -345,10 +436,10 @@ const DashboardPage = () => {
           </table>
         </div>
 
-        {/* Gráficos */}
-        <div className="charts-grid">
+        {/* Gráficos mejorados y organizados */}
+        <div className="charts-grid enhanced">
           <div className="chart-card">
-            <h2>Gráfico de Ingresos por Mes</h2>
+            <h2>Ingresos por Mes</h2>
             {ingresosPorMes && ingresosPorMes.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={ingresosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -363,9 +454,8 @@ const DashboardPage = () => {
               <div className="no-data">No hay datos de ingresos para mostrar</div>
             )}
           </div>
-          
           <div className="chart-card">
-            <h2>Gráfico de Pedidos por Estado</h2>
+            <h2>Pedidos por Estado</h2>
             {pedidosPorEstado && pedidosPorEstado.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -390,27 +480,23 @@ const DashboardPage = () => {
               <div className="no-data">No hay datos de pedidos por estado para mostrar</div>
             )}
           </div>
-        </div>
-
-        <div className="chart-card full-width">
-          <h2>Gráfico de Productos Más Vendidos</h2>
-          {productosMasVendidos && productosMasVendidos.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <XAxis dataKey="nombre" stroke="#1976d2" angle={-45} textAnchor="end" height={80}/>
-                <YAxis stroke="#1976d2"/>
-                <Tooltip formatter={(value, name) => [value, 'Cantidad Vendida']} />
-                <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="no-data">No hay datos de productos vendidos para mostrar</div>
-          )}
-        </div>
-
-        <div className="charts-grid">
           <div className="chart-card">
-            <h2>Gráfico de Clientes Nuevos por Mes</h2>
+            <h2>Productos Más Vendidos</h2>
+            {productosMasVendidos && productosMasVendidos.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={productosMasVendidos} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="nombre" stroke="#1976d2" angle={-45} textAnchor="end" height={80}/>
+                  <YAxis stroke="#1976d2"/>
+                  <Tooltip formatter={(value, name) => [value, 'Cantidad Vendida']} />
+                  <Bar dataKey="cantidadVendida" fill="#1976d2" name="Cantidad Vendida" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="no-data">No hay datos de productos vendidos para mostrar</div>
+            )}
+          </div>
+          <div className="chart-card">
+            <h2>Clientes Nuevos por Mes</h2>
             {clientesNuevosPorMes && clientesNuevosPorMes.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={clientesNuevosPorMes} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -426,6 +512,8 @@ const DashboardPage = () => {
             )}
           </div>
         </div>
+        {/* Separador visual */}
+        <hr className="dashboard-separator" />
       </div>
     </Layout>
   );

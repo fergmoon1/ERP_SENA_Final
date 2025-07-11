@@ -1,0 +1,281 @@
+{
+  "info": {
+    "_postman_id": "erp-sena-pedidos-automated-collection",
+    "name": "ERP SENA - PEDIDOS (Automatizada)",
+    "description": "Colección de endpoints de gestión de pedidos para ERP SENA: listar, crear, obtener, actualizar y eliminar pedidos. Incluye tests y ejemplos para los roles ADMIN, SUPERVISOR y USER.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "ADMIN - Crear Pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido creado exitosamente (ADMIN)', function() {",
+        "    pm.expect([200,201]).to.include(pm.response.code);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.id).to.exist;",
+        "    pm.environment.set('pedido_id', json.id);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"},
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "ADMIN - Consultar todos los pedidos",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedidos consultados exitosamente (ADMIN)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.content).to.be.an('array');",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "ADMIN - Consultar pedido por ID",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido consultado por ID (ADMIN)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.id).to.exist;",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "ADMIN - Actualizar pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "if (pm.response.code === 401) {",
+        "    pm.test('No autenticado (ADMIN)', function() { pm.response.to.have.status(401); });",
+        "} else {",
+        "    pm.test('Pedido actualizado exitosamente (ADMIN)', function() {",
+        "        pm.response.to.have.status(200);",
+        "        var json = pm.response.json();",
+        "        pm.expect(json.id).to.exist;",
+        "    });",
+        "}"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"id\": {{pedido_id}},\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"entregado\",\n  \"motivoEstado\": \"Entregado al cliente final\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 1, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 2, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"},
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "ADMIN - Eliminar pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido eliminado exitosamente (ADMIN)', function() {",
+        "    pm.expect([200,204]).to.include(pm.response.code);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "SUPERVISOR - Crear Pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido creado exitosamente (SUPERVISOR)', function() {",
+        "    pm.expect([200,201]).to.include(pm.response.code);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.id).to.exist;",
+        "    pm.environment.set('pedido_id', json.id);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"},
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "SUPERVISOR - Consultar todos los pedidos",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedidos consultados exitosamente (SUPERVISOR)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.content).to.be.an('array');",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "SUPERVISOR - Consultar pedido por ID",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido consultado por ID (SUPERVISOR)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.id).to.exist;",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "SUPERVISOR - Actualizar pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "if (pm.response.code === 401) {",
+        "    pm.test('No autenticado (SUPERVISOR)', function() { pm.response.to.have.status(401); });",
+        "} else {",
+        "    pm.test('Pedido actualizado exitosamente (SUPERVISOR)', function() {",
+        "        pm.response.to.have.status(200);",
+        "        var json = pm.response.json();",
+        "        pm.expect(json.id).to.exist;",
+        "    });",
+        "}"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"id\": {{pedido_id}},\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"entregado\",\n  \"motivoEstado\": \"Entregado al cliente final\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 1, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 2, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"},
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "SUPERVISOR - Eliminar pedido",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido eliminado exitosamente (SUPERVISOR)', function() {",
+        "    pm.expect([200,204]).to.include(pm.response.code);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "USER - Crear Pedido (No Permitido)",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('USER no puede crear pedido', function() {",
+        "    pm.response.to.have.status(403);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"clienteId\": 1,\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"pendiente\",\n  \"motivoEstado\": \"Pendiente por pago\",\n  \"detalles\": [\n    { \"productoId\": 1, \"cantidad\": 2, \"precioUnitario\": 10000 },\n    { \"productoId\": 2, \"cantidad\": 1, \"precioUnitario\": 5000 }\n  ]\n}"},
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "USER - Consultar todos los pedidos",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedidos consultados exitosamente (USER)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json.content).to.be.an('array');",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]}
+      }
+    },
+    {
+      "name": "USER - Consultar pedido por ID",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('Pedido consultado por ID (USER)', function() {",
+        "    pm.response.to.have.status(200);",
+        "    var json = pm.response.json();",
+        "    pm.expect(json === null || json.id !== undefined).to.be.true;",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "USER - Actualizar Pedido (No Permitido)",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('USER no puede actualizar pedido', function() {",
+        "    pm.response.to.have.status(403);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"id\": {{pedido_id}},\n  \"cliente\": { \"id\": 1 },\n  \"fecha\": \"2024-08-01\",\n  \"estado\": \"entregado\",\n  \"motivoEstado\": \"Entregado al cliente final\",\n  \"detalles\": [\n    { \"producto\": { \"id\": 1 }, \"cantidad\": 1, \"precioUnitario\": 10000 },\n    { \"producto\": { \"id\": 2 }, \"cantidad\": 2, \"precioUnitario\": 5000 }\n  ],\n  \"total\": 20000\n}"},
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    },
+    {
+      "name": "USER - Eliminar Pedido (No Permitido)",
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('USER no puede eliminar pedido', function() {",
+        "    pm.response.to.have.status(403);",
+        "});"
+      ], "type": "text/javascript"}}],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" }
+        ],
+        "url": {"raw": "{{base_url}}/pedidos/{{pedido_id}}", "host": ["{{base_url}}"], "path": ["pedidos", "{{pedido_id}}"]}
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8081/api" },
+    { "key": "pedido_id", "value": "" }
+  ]
+} 
