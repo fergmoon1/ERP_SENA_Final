@@ -1,3 +1,4 @@
+
 @echo off
 echo ========================================
 echo EJECUTANDO DATOS DE EJEMPLO PARA GRAFICOS

@@ -25,6 +25,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\MovimientoInventa
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RateLimitService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Usuario.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PasswordPolicyService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\WebConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\CompraRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\FileUploadController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetallePedido.java

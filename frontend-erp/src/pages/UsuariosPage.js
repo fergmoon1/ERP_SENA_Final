@@ -211,7 +211,6 @@ function UsuariosPage() {
         <table>
           <thead>
             <tr>
-              <th>Avatar</th>
               <th>ID</th>
               <th>Nombre</th>
               <th>Email</th>
@@ -222,31 +221,11 @@ function UsuariosPage() {
           <tbody>
             {usuarios.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{textAlign: 'center', color: '#888'}}>No hay usuarios para mostrar.</td>
+                <td colSpan="5" style={{textAlign: 'center', color: '#888'}}>No hay usuarios para mostrar.</td>
               </tr>
             ) : (
               usuarios.map(usuario => (
                 <tr key={usuario.id}>
-                  <td>
-                    <img
-                      src={usuario.avatar ? 
-                        (usuario.avatar.startsWith('http') ? usuario.avatar : `http://localhost:8081${usuario.avatar}`) : 
-                        '/imagenes/foto01 mujer.png'
-                      }
-                      alt={`Avatar de ${usuario.nombre}`}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '1px solid #e5e7eb'
-                      }}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/imagenes/foto01 mujer.png';
-                      }}
-                    />
-                  </td>
                   <td>{usuario.id}</td>
                   <td>{usuario.nombre}</td>
                   <td>{usuario.correo}</td>

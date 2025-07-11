@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import '../styles/FileUpload.css';
+import Avatar from './Avatar';
 
 const FileUpload = ({ onFileUpload, currentAvatar, disabled = false }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -85,20 +86,10 @@ const FileUpload = ({ onFileUpload, currentAvatar, disabled = false }) => {
     <div className="file-upload-container">
       {currentAvatar ? (
         <div className="avatar-preview">
-          <img 
-            src={currentAvatar.startsWith('http') ? currentAvatar : `http://localhost:8081${currentAvatar}`}
+          <Avatar 
+            src={currentAvatar}
             alt="Avatar actual"
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '2px solid #e5e7eb'
-            }}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/imagenes/foto01 mujer.png';
-            }}
+            size={80}
           />
           <div className="avatar-actions">
             <button 

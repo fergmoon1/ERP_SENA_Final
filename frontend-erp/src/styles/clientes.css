@@ -120,6 +120,7 @@
     width: 100%;
     border-collapse: collapse;
     min-width: 1200px;
+    table-layout: fixed;
 }
 
 .clientes-table-section th,
@@ -128,6 +129,18 @@
     border-bottom: 1px solid #e5e7eb; /* Borde gris claro */
     text-align: left;
     font-size: 14px;
+    vertical-align: middle;
+}
+
+/* Columnas específicas para estabilidad */
+.clientes-table-section th:first-child,
+.clientes-table-section td:first-child {
+    width: 60px;
+}
+
+.clientes-table-section th:last-child,
+.clientes-table-section td:last-child {
+    width: 180px;
 }
 
 .clientes-table-section th {
@@ -145,9 +158,16 @@
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
-    margin-right: 8px;
+    margin-right: 6px;
     cursor: pointer;
     font-weight: 500;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background: #d97706;
+    transform: translateY(-1px);
 }
 
 .delete-btn {
@@ -158,6 +178,13 @@
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
 }
 
 /* Mejoras responsive para la tabla y botones de acción */
@@ -173,10 +200,10 @@
 
 .clientes-table-section .acciones {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
     justify-content: flex-start;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 @media (max-width: 700px) {

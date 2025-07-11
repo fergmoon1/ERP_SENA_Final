@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
+import Avatar from './Avatar';
 
 const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -12,15 +13,6 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
 
   // Obtener usuario autenticado de localStorage
   const user = JSON.parse(localStorage.getItem('user')) || {};
-
-  // Avatar por defecto
-  const avatarPorDefecto = process.env.PUBLIC_URL + "/imagenes/foto01 mujer.png";
-  // Usar avatar personalizado si existe
-  const avatar = user.avatar ? 
-    (user.avatar.startsWith('http') ? user.avatar : 
-     user.avatar.startsWith('/api/files/') ? `http://localhost:8081${user.avatar}` : 
-     process.env.PUBLIC_URL + '/imagenes/' + user.avatar) : 
-    avatarPorDefecto;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -92,7 +84,11 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
         <div className="perfil">
           <div className="perfil-texto">
             <div className="avatar-circle">
-              <img src={avatar} alt="Usuario" />
+              <Avatar 
+                src={user.avatar}
+                alt="Usuario"
+                size={40}
+              />
             </div>
             <strong>{user.nombre || "Usuario"}</strong>
             <span>{user.rol || "Rol"}</span>
