@@ -27,6 +27,7 @@ com\empresa\erp\models\Cliente.class
 com\empresa\erp\controllers\ProductoController.class
 com\empresa\erp\repositories\ClienteRepository.class
 com\empresa\erp\repositories\DetalleCompraRepository.class
+com\empresa\erp\config\WebConfig.class
 com\empresa\erp\repositories\UsuarioRepository.class
 com\empresa\erp\config\JwtAuthenticationFilter.class
 com\empresa\erp\GenerarHash.class
