@@ -88,6 +88,14 @@ function UsuariosPage() {
         setError(msg);
         return;
       }
+      const updatedUser = await res.json();
+      // Si el usuario editado es el logueado, actualiza localStorage
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      if (currentUser && ((editId && currentUser.id === editId) || (!editId && currentUser.correo === form.correo))) {
+        localStorage.setItem('user', JSON.stringify({ ...currentUser, ...updatedUser }));
+        // Forzar recarga del navbar
+        window.dispatchEvent(new Event('storage'));
+      }
       setForm({ nombre: '', correo: '', password: '', rol: 'Usuario', avatar: '' });
       setEditId(null);
       setShowPassword(false);
@@ -200,6 +208,7 @@ function UsuariosPage() {
           <div className="form-buttons">
             <button type="submit">{editId ? 'Actualizar' : 'Guardar'}</button>
             {editId && <button type="button" onClick={handleCancel}>Cancelar</button>}
+            <button type="button" onClick={handleCancel} className="limpiar-btn">Limpiar</button>
           </div>
         </form>
         {error && <div className="text-red-500 mt-2">{error}</div>}

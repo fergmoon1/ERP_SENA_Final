@@ -38,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> body) {
+    public Map<String, Object> login(@RequestBody Map<String, String> body) {
         logger.info("Body recibido: {}", body);
         String correo = body.get("correo");
         String password = body.get("password");
@@ -76,7 +76,7 @@ public class AuthController {
         }
         // Si el reCAPTCHA es válido, proceder con el login
         try {
-            Map<String, String> result = authService.loginWithRefresh(correo, password);
+            Map<String, Object> result = authService.loginWithRefreshAndUser(correo, password);
             logger.info("Login exitoso para: {}", correo);
             return result;
         } catch (Exception e) {

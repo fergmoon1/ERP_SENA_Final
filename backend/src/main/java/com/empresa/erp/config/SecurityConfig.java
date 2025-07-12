@@ -76,6 +76,7 @@ public class SecurityConfig {
                 .requestMatchers("/login/oauth2/code/**").permitAll()
                 .requestMatchers("/oauth/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/api/files/**").permitAll() // <-- permite imágenes públicas
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.GET, "/api/productos/**").hasAnyRole("ADMIN", "SUPERVISOR", "USER")

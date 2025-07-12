@@ -73,6 +73,26 @@ public class AuthService {
         return generateTokens(usuario);
     }
 
+    public Map<String, Object> loginWithRefreshAndUser(String correo, String password) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario o contraseña incorrectos");
+        }
+        Usuario usuario = usuarioOpt.get();
+        if (!usuario.isActivo()) {
+            throw new RuntimeException("Usuario inactivo. Contacte al administrador.");
+        }
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
+            throw new RuntimeException("Usuario o contraseña incorrectos");
+        }
+        Map<String, String> tokens = generateTokens(usuario);
+        return Map.of(
+            "token", tokens.get("token"),
+            "refreshToken", tokens.get("refreshToken"),
+            "user", usuario
+        );
+    }
+
     public Map<String, String> refreshTokens(Usuario usuario) {
         return generateTokens(usuario);
     }

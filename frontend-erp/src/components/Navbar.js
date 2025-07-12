@@ -9,10 +9,17 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
   const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
   const navigate = useNavigate();
 
-  // Obtener usuario autenticado de localStorage
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+  // Actualiza el usuario si cambia en localStorage (por edición de perfil)
+  useEffect(() => {
+    const handleStorage = () => {
+      setUser(JSON.parse(localStorage.getItem('user')) || {});
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {

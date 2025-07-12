@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 import '../styles/Sidebar.css';
+import Avatar from './Avatar';
 
 // Configuración de la API
 const API_BASE_URL = 'http://localhost:8081/api';
@@ -159,6 +160,17 @@ const Sidebar = () => {
     { id: 4, type: 'Proveedor', name: 'Proveedor XYZ', extra: 'Última compra: 2024-06-01' },
   ];
 
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
+
+  // Actualiza el usuario si cambia en localStorage (por edición de perfil)
+  useEffect(() => {
+    const handleStorage = () => {
+      setUser(JSON.parse(localStorage.getItem('user')) || {});
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   // Colapsar automáticamente en pantallas pequeñas
   useEffect(() => {
     const handleResize = () => {
@@ -185,7 +197,7 @@ const Sidebar = () => {
       
       <div className="user-circles">
         <span className="user-circle user-photo" onClick={() => setShowProfile(true)} style={{cursor: 'pointer'}}>
-          <img src="/imagenes/foto01 mujer.png" alt="Usuario" />
+          <Avatar src={user.avatar} alt={user.nombre || 'Usuario'} size={40} />
         </span>
         <span className="user-circle" onClick={() => setShowNotifications(true)} style={{cursor: 'pointer', position: 'relative'}}>
           <i className="fa-solid fa-bell"></i>

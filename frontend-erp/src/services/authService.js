@@ -52,10 +52,10 @@ class AuthService {
       // Guardar tokens
       localStorage.setItem('jwt', data.token);
       localStorage.setItem('refreshToken', data.refreshToken);
-      
-      // Obtener información del usuario
-      await this.getCurrentUser();
-      
+      // Guardar usuario completo (incluyendo avatar)
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
       return data;
     } catch (error) {
       console.error('Error en login:', error);
