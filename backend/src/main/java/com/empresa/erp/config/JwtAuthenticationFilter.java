@@ -19,9 +19,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Value("${jwt.secret:mysecretkey}")
     private String jwtSecret;
@@ -54,15 +58,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = claimsJws.getBody();
                 String username = claims.getSubject();
                 String rol = claims.get("rol", String.class);
-                
+                logger.info("JWT recibido para usuario: {} con rol: {}", username, rol);
                 if (username != null && rol != null) {
-                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + rol);
+                    String springRole = rol.startsWith("ROLE_") ? rol : ("ROLE_" + rol);
+                    logger.info("Asignando autoridad: {}", springRole);
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(springRole);
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(authority));
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
+                    logger.warn("Token JWT sin username o rol válido");
                 }
             } catch (Exception e) {
-                // Token inválido o expirado, no autenticamos
+                logger.error("Error al validar el token JWT: {}", e.getMessage());
                 SecurityContextHolder.clearContext();
             }
         }

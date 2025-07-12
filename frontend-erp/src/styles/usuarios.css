@@ -1,0 +1,151 @@
+.password-errors {
+  margin-top: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.password-errors::before {
+  content: "🔒";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.password-errors small {
+  color: #495057;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.password-errors ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.password-errors .error-item {
+  color: #6c757d;
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 24px;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.password-errors .error-item::before {
+  content: "○";
+  color: #adb5bd;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.password-errors .error-item.valid {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.password-errors .error-item.valid::before {
+  content: "●";
+  color: #28a745;
+  animation: checkmark 0.3s ease-in-out;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mejorar el campo de contraseña */
+.form-group input[type="password"] {
+  border-color: #ddd;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.form-group input[type="password"]:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-group input[type="password"].error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+.form-group input[type="password"].valid {
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
+}
+
+/* Estilos para el botón de mostrar/ocultar contraseña */
+.form-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #2563eb;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle:focus {
+  outline: none;
+  color: #2563eb;
+}
+
+/* Animación de entrada para el recuadro */
+.password-errors {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 
