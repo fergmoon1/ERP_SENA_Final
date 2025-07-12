@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/clientes.css';
 import FileUpload from '../components/FileUpload';
+import { useNotifications } from '../components/NotificationProvider';
+import CustomModal from '../components/CustomModal';
 
 const API_URL = 'http://localhost:8081/api/usuarios';
 
@@ -11,6 +13,7 @@ const rolOptions = [
 ];
 
 function UsuariosPage() {
+  const { addNotification } = useNotifications();
   const [usuarios, setUsuarios] = useState([]);
   const [form, setForm] = useState({
     nombre: '',
@@ -22,6 +25,8 @@ function UsuariosPage() {
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetchUsuarios();
@@ -68,6 +73,13 @@ function UsuariosPage() {
 
   const handleAvatarUpload = (avatarUrl) => {
     setForm({ ...form, avatar: avatarUrl });
+    if (avatarUrl) {
+      addNotification({
+        type: 'success',
+        title: 'Avatar',
+        message: 'Imagen de avatar subida con éxito.'
+      });
+    }
   };
 
   const handleSubmit = async e => {
@@ -86,6 +98,11 @@ function UsuariosPage() {
       if (!res.ok) {
         const msg = await res.text();
         setError(msg);
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: msg || 'Error al guardar el usuario.'
+        });
         return;
       }
       const updatedUser = await res.json();
@@ -100,8 +117,21 @@ function UsuariosPage() {
       setEditId(null);
       setShowPassword(false);
       fetchUsuarios();
+      addNotification({
+        type: 'success',
+        title: 'Éxito',
+        message: editId ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.'
+      });
+      setSuccessMessage(editId ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.');
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 2500);
     } catch (err) {
       setError('Error de red');
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Error de red al guardar el usuario.'
+      });
     }
   };
 
@@ -253,6 +283,15 @@ function UsuariosPage() {
           </tbody>
         </table>
       </div>
+      <CustomModal
+        show={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="¡Éxito!"
+      >
+        <div style={{textAlign: 'center', fontSize: '1.15em', color: '#2563eb', fontWeight: 600, padding: '10px 0'}}>
+          {successMessage}
+        </div>
+      </CustomModal>
     </div>
   );
 }
