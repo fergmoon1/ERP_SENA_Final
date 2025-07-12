@@ -79,7 +79,7 @@ public class UsuarioService {
         }
         Usuario usuario = usuarioOpt.get();
         // Crear carpeta si no existe
-        String uploadDir = "backend/uploads/";
+        String uploadDir = System.getProperty("user.dir") + "/backend/uploads/";
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
         // Nombre único para el archivo
