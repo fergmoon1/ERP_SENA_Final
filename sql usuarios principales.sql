@@ -100,3 +100,26 @@ SELECT COUNT(*) as total_usuarios FROM usuario;
 -- USER: user@erp.com / user123
 -- Todos los usuarios están ACTIVOS
 -- ===========================================
+
+-- =============================Juana Pérez Admin
+
+INSERT INTO usuario (correo, nombre, password, rol, activo)
+VALUES (
+  'juana.perez@erp.com',
+  'Juana Pérez',
+  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- Contraseña: juana1234
+  'ADMIN',
+  true
+);
+
+ALTER TABLE usuario ADD COLUMN avatar VARCHAR(255) DEFAULT NULL;
+
+-- ========Contraseñas Seguras Modif==================================
+
+USE erp_sena;
+
+UPDATE usuario SET password = '$2a$12$UOUtsiSzhqfoawIkAgEVnO/19JcxLwiBgcso4hsfKjyz/vUjp0y8O' WHERE correo = 'admin@erp.com';
+UPDATE usuario SET password = '$$2a$12$acw1pyH7wtSI6zWI1BueSe1Yecr7nDmWxzPnLvrI4GHAqDlhmqIxW' WHERE correo = 'supervisor@erp.com';
+UPDATE usuario SET password = '$$2a$12$KtyGf1oIe.PZLzkbpURc3ebkU.Aj4ja6qldl3lNLoZF8QQDXcEsnW' WHERE correo = 'user@erp.com';
+
+SELECT id, correo, nombre, password FROM usuario WHERE correo = 'admin@erp.com';

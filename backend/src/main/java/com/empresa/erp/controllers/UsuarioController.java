@@ -3,6 +3,9 @@ package com.empresa.erp.controllers;
 import com.empresa.erp.models.Usuario;
 import com.empresa.erp.services.UsuarioService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.Map;
@@ -48,5 +51,15 @@ public class UsuarioController {
     public void updatePassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String newPassword = body.get("password");
         usuarioService.updatePassword(id, newPassword);
+    }
+
+    @PostMapping("/{id}/avatar")
+    public ResponseEntity<?> uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            String url = usuarioService.saveAvatar(id, file);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error al guardar el avatar"));
+        }
     }
 }

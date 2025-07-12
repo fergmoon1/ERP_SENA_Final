@@ -3,6 +3,8 @@ import '../styles/clientes.css';
 import FileUpload from '../components/FileUpload';
 import { useNotifications } from '../components/NotificationProvider';
 import CustomModal from '../components/CustomModal';
+import { FaEdit, FaTrash, FaPlus, FaEye, FaKey, FaUserPlus, FaSearch, FaArrowRight, FaInfoCircle } from 'react-icons/fa';
+import '../styles/usuarios.css';
 
 const API_URL = 'http://localhost:8081/api/usuarios';
 
@@ -36,9 +38,31 @@ function UsuariosPage() {
     requireSymbol: true
   });
   const [showForm, setShowForm] = useState(false); // Nuevo estado para controlar la visibilidad del formulario
+  const [search, setSearch] = useState('');
+  const [filterRol, setFilterRol] = useState('');
+  const [filterActivo, setFilterActivo] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  // Definir variable para usuarios contratados (puede venir de props, contexto, backend, etc.)
+  const usuariosContratados = 10; // Cambia este valor según tu lógica
+  // Agregar estado local para controlar visibilidad de la contraseña por usuario
+  const [showPasswords, setShowPasswords] = useState({});
+  // Estado para paginación
+  const [usuariosPorPagina, setUsuariosPorPagina] = useState(20);
+  const [paginaActual, setPaginaActual] = useState(1);
+  // Estado para el valor temporal del input de búsqueda
+  const [searchInput, setSearchInput] = useState(search);
+  const [usuarioDetalle, setUsuarioDetalle] = useState(null);
+  const [showDetalleModal, setShowDetalleModal] = useState(false);
 
   useEffect(() => {
     fetchUsuarios();
+    // Obtener usuario actual del localStorage (ajusta según tu auth)
+    const userStr = localStorage.getItem('usuario');
+    if (userStr) {
+      try {
+        setCurrentUser(JSON.parse(userStr));
+      } catch {}
+    }
   }, []);
 
   const fetchUsuarios = async () => {
@@ -256,16 +280,20 @@ function UsuariosPage() {
     }
   };
 
-  const handleEdit = usuario => {
+  // Función para editar usuario
+  const handleEdit = (usuario) => {
     setForm({
       nombre: usuario.nombre || '',
       correo: usuario.correo || '',
-      password: '',
+      password: '', // No mostrar la contraseña actual
       rol: usuario.rol || 'Usuario',
       avatar: usuario.avatar || '',
+      activo: usuario.activo !== undefined ? usuario.activo : true
     });
     setEditId(usuario.id);
+    setShowForm(true);
     setError('');
+    setShowPassword(false);
   };
 
   const handleDelete = async id => {
@@ -278,6 +306,37 @@ function UsuariosPage() {
       }
     });
     fetchUsuarios();
+  };
+
+  const handleView = (usuario) => {
+    // Función para ver detalles del usuario
+    alert(`Viendo detalles de: ${usuario.nombre}\nCorreo: ${usuario.correo}\nRol: ${usuario.rol}\nEstado: ${usuario.activo ? 'Activo' : 'Inactivo'}`);
+  };
+
+  const handleResetPassword = async (usuario) => {
+    if (window.confirm(`¿Estás seguro de que quieres resetear la contraseña de ${usuario.nombre}?`)) {
+      try {
+        const response = await fetch(`${API_URL}/${usuario.id}/reset-password`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nuevaContraseña: 'NuevaContraseña123!' // Contraseña temporal segura
+          })
+        });
+
+        if (response.ok) {
+          alert(`Contraseña reseteada exitosamente para ${usuario.nombre}`);
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message || 'Error al resetear contraseña');
+        }
+      } catch (error) {
+        alert('Error de conexión al resetear contraseña');
+      }
+    }
   };
 
   const handleCancel = () => {
@@ -297,12 +356,359 @@ function UsuariosPage() {
   // Determinar modo edición o creación
   const isEditMode = editId !== null;
 
-  return (
-    <div className="usuarios-page">
-      <div className="clientes-header">
-        {/* <h1>Usuarios</h1> */}
-      </div>
+  // Determinar si mostrar mensaje de bienvenida
+  const showWelcome = usuarios.length <= 3;
 
+  // Filtrar usuarios según búsqueda y filtros
+  const filteredUsuarios = usuarios.filter(usuario => {
+    const matchesSearch =
+      usuario.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      usuario.correo.toLowerCase().includes(search.toLowerCase()) ||
+      usuario.rol.toLowerCase().includes(search.toLowerCase());
+    const matchesRol = filterRol ? usuario.rol === filterRol : true;
+    const matchesActivo = filterActivo ? (filterActivo === 'activo' ? usuario.activo : !usuario.activo) : true;
+    return matchesSearch && matchesRol && matchesActivo;
+  });
+
+  // Calcular usuarios a mostrar según paginación
+  const indiceUltimoUsuario = paginaActual * usuariosPorPagina;
+  const indicePrimerUsuario = indiceUltimoUsuario - usuariosPorPagina;
+  const usuariosPaginados = filteredUsuarios.slice(indicePrimerUsuario, indiceUltimoUsuario);
+  const totalPaginas = Math.ceil(filteredUsuarios.length / usuariosPorPagina);
+
+  // Panel resumen
+  const totalUsuarios = usuarios.length;
+  const activos = usuarios.filter(u => u.activo).length;
+  const inactivos = usuarios.filter(u => !u.activo).length;
+  const roles = {};
+  usuarios.forEach(u => {
+    roles[u.rol] = (roles[u.rol] || 0) + 1;
+  });
+
+  const toggleShowPassword = (id) => {
+    setShowPasswords(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleVerDetalle = (usuario) => {
+    setUsuarioDetalle(usuario);
+    setShowDetalleModal(true);
+  };
+
+  // Función para ejecutar la búsqueda
+  const ejecutarBusqueda = () => {
+    setSearch(searchInput);
+    setPaginaActual(1);
+  };
+
+  // Determinar el título del recuadro amarillo según los filtros
+  let tituloUsuarios = 'Usuarios encontrados';
+  if (search && filterRol) {
+    tituloUsuarios = `Usuarios encontrados por búsqueda y rol ${filterRol.charAt(0) + filterRol.slice(1).toLowerCase()}`;
+  } else if (search) {
+    tituloUsuarios = 'Usuarios encontrados por búsqueda';
+  } else if (filterRol) {
+    tituloUsuarios = `Usuarios encontrados por rol ${filterRol.charAt(0) + filterRol.slice(1).toLowerCase()}`;
+  }
+
+  // Panel superior y tabla adaptados al HTML de referencia
+  return (
+    <div className="usuarios-html-bg" style={{ minHeight: '100vh', background: '#f3f4f6', padding: '32px 0' }}>
+      <div className="usuarios-html-main" style={{ maxWidth: 1450, margin: '0 auto', background: '#fff', borderRadius: 12, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: '24px 0 32px 0', border: '1.5px solid #d1d5db' }}>
+        {/* Breadcrumb */}
+        <div className="text-sm bg-gray-200 px-3 py-1" style={{ borderRadius: 6, marginBottom: 12, marginLeft: 0, marginRight: 0 }}>
+          Estás en: <span className="font-semibold">Administración</span> &gt; <span className="font-semibold">Usuarios</span>
+        </div>
+        {/* Panel superior */}
+        <div className="usuarios-html-panel" style={{ display: 'flex', alignItems: 'stretch', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 18, borderRadius: 8, border: '1.5px solid #d1d5db', background: '#fff', padding: 0, minHeight: 96 }}>
+          {/* Botón vertical 'nuevo' */}
+          <button
+            type="button"
+            className="usuarios-html-nuevo"
+            aria-label="nuevo"
+            onClick={() => setShowForm(true)}
+            style={{ minWidth: 64, width: 64, height: 96, background: '#009ec7', color: '#fff', border: 'none', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderRight: '2px solid #d1d5db', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '1.1em', boxShadow: 'none', margin: 0 }}
+          >
+            <FaUserPlus className="text-2xl mb-1" />
+            <span style={{ color: '#fff', fontSize: '0.95em', fontWeight: 600 }}>nuevo</span>
+          </button>
+          {/* Contenido a la derecha del botón */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, padding: '0 18px', minHeight: 96 }}>
+            {/* Lupa, campo de búsqueda y filtros en una sola fila */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8, gap: 10 }}>
+              <FaSearch style={{ color: '#374151', fontSize: 16, marginRight: 8 }} />
+              <input
+                type="text"
+                className="usuarios-search"
+                placeholder="Buscar por nombre, correo o rol..."
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') ejecutarBusqueda(); }}
+                style={{ minWidth: 220, width: 220, background: '#fff', border: '1.5px solid #009ec7', borderRadius: 8, padding: '7px 12px', fontSize: 13, color: '#222', fontWeight: 500, outline: 'none', boxShadow: 'none', fontFamily: 'Segoe UI, Arial, sans-serif' }}
+              />
+              <button
+                type="button"
+                onClick={ejecutarBusqueda}
+                style={{ background: '#009ec7', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 18px', fontWeight: 600, fontSize: 13, fontFamily: 'Segoe UI, Arial, sans-serif', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'background 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.background = '#036b87'}
+                onMouseOut={e => e.currentTarget.style.background = '#009ec7'}
+              >
+                <FaSearch /> Buscar
+              </button>
+              <select
+                className="usuarios-filter"
+                value={filterRol}
+                onChange={e => setFilterRol(e.target.value)}
+                style={{ background: '#fff', border: '1.5px solid #009ec7', borderRadius: 8, padding: '7px 12px', fontSize: 13, color: '#222', minWidth: 140, fontFamily: 'Segoe UI, Arial, sans-serif' }}
+              >
+                <option value="">Todos los roles</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="SUPERVISOR">SUPERVISOR</option>
+                <option value="USER">USER</option>
+                <option value="VENDEDOR">VENDEDOR</option>
+                <option value="INVENTARIO">INVENTARIO</option>
+              </select>
+              <select
+                className="usuarios-filter"
+                value={filterActivo}
+                onChange={e => setFilterActivo(e.target.value)}
+                style={{ background: '#fff', border: '1.5px solid #009ec7', borderRadius: 8, padding: '7px 12px', fontSize: 13, color: '#222', minWidth: 100, fontFamily: 'Segoe UI, Arial, sans-serif' }}
+              >
+                <option value="">Todos</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+              </select>
+              <span style={{ marginLeft: 16, fontSize: 13, color: '#222', fontWeight: 500 }}>
+                Mostrar
+                <select
+                  style={{ borderRadius: 4, border: '1.5px solid #009ec7', padding: '4px 8px', fontSize: 13, margin: '0 6px', fontFamily: 'Segoe UI, Arial, sans-serif' }}
+                  value={usuariosPorPagina}
+                  onChange={e => { setUsuariosPorPagina(Number(e.target.value)); setPaginaActual(1); }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+                por página
+              </span>
+            </div>
+            {/* Cuadro amarillo con usuarios encontrados */}
+            <div style={{ background: '#fff3b0', color: '#7c5e00', fontWeight: 500, fontSize: 13, borderRadius: 8, padding: '7px 12px', border: '1.5px solid #ffe066', display: 'inline-block', minWidth: 320, width: 320, fontFamily: 'Segoe UI, Arial, sans-serif', marginTop: 0 }}>
+              <div style={{ fontWeight: 700, color: '#222', fontSize: 13, fontFamily: 'Segoe UI, Arial, sans-serif', marginBottom: 2 }}>{tituloUsuarios}</div>
+              <div>Cantidad: {filteredUsuarios.length}</div>
+            </div>
+          </div>
+        </div>
+        {/* Barra azul */}
+        <div style={{ background: '#00a6c7', color: '#fff', borderTopLeftRadius: 10, borderTopRightRadius: 10, padding: '12px 18px 10px 18px', fontWeight: 700, fontSize: '1.18em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0, marginLeft: 0, marginRight: 0 }}>
+          <span>Usuarios</span>
+          <span style={{ fontSize: '0.85em', fontWeight: 500 }}>
+            Resultados {indicePrimerUsuario + 1}-{Math.min(indiceUltimoUsuario, filteredUsuarios.length)} de {filteredUsuarios.length}
+          </span>
+        </div>
+        {/* Tabla de usuarios */}
+        <div style={{ border: '1.5px solid #d1d5db', borderTop: 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, overflowX: 'auto', marginBottom: 18, marginLeft: 0, marginRight: 0 }}>
+          <table className="w-full border-collapse text-xs" style={{ background: '#fff', width: '100%' }}>
+            <thead style={{ background: '#e5e7eb' }}>
+              <tr>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Id</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Usuario</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody style={{ background: '#fff', color: '#222' }}>
+              {usuariosPaginados.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
+              ) : (
+                usuariosPaginados.map((usuario, idx) => (
+                  <tr key={usuario.id || idx} style={{ border: '1px solid #d1d5db', background: idx % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center' }}>{usuario.id || '-'}</td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500 }}>{usuario.nombre}
+                      {usuario.trabajadorVinculado && (<><br /><span style={{ fontWeight: 700 }}>Trabajador vinculado:</span> {usuario.trabajadorVinculado}</>)}
+                    </td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#374151' }}>{usuario.correo || '••••••••'}</td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        <input
+                          type={showPasswords[usuario.id] ? 'text' : 'password'}
+                          value={usuario.password ? usuario.password : '••••'}
+                          readOnly
+                          style={{ border: '1.5px solid #00b6e3', borderRadius: 6, padding: '2px 6px', fontSize: '0.98em', width: 90, textAlign: 'center', background: '#fff', letterSpacing: '2px' }}
+                        />
+                        <button
+                          type="button"
+                          aria-label={showPasswords[usuario.id] ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                          style={{ color: '#00b6e3', background: 'none', border: 'none', fontSize: '1.1em', marginLeft: 2, cursor: 'pointer' }}
+                          onClick={() => toggleShowPassword(usuario.id)}
+                        >
+                          <FaEye />
+                        </button>
+                      </div>
+                    </td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#00b6e3', fontWeight: 500 }}>
+                      {usuario.ultimoAcceso || '-'}
+                      <button
+                        type="button"
+                        aria-label="Detalles último acceso"
+                        style={{ color: '#00b6e3', background: 'none', border: 'none', marginLeft: 6, fontSize: '1.1em', cursor: 'pointer' }}
+                        onClick={() => handleView(usuario)}
+                      >
+                        <FaInfoCircle />
+                      </button>
+                    </td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '4px', width: '180px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        {/* Botón Editar */}
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(usuario)}
+                          style={{ 
+                            background: '#009ec7', 
+                            color: '#fff', 
+                            border: 'none', 
+                            borderRadius: 4, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
+                            fontWeight: 600, 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseOver={e => e.currentTarget.style.background = '#036b87'}
+                          onMouseOut={e => e.currentTarget.style.background = '#009ec7'}
+                        >
+                          <FaEdit /> Editar
+                        </button>
+                        
+                        {/* Botón Eliminar */}
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(usuario.id)}
+                          style={{ 
+                            background: '#dc2626', 
+                            color: '#fff', 
+                            border: 'none', 
+                            borderRadius: 4, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
+                            fontWeight: 600, 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseOver={e => e.currentTarget.style.background = '#b91c1c'}
+                          onMouseOut={e => e.currentTarget.style.background = '#dc2626'}
+                        >
+                          <FaTrash /> Eliminar
+                        </button>
+                        
+                        {/* Botón Ver Detalles */}
+                        <button
+                          type="button"
+                          onClick={() => handleVerDetalle(usuario)}
+                          style={{ 
+                            background: '#059669', 
+                            color: '#fff', 
+                            border: 'none', 
+                            borderRadius: 4, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
+                            fontWeight: 600, 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseOver={e => e.currentTarget.style.background = '#047857'}
+                          onMouseOut={e => e.currentTarget.style.background = '#059669'}
+                        >
+                          <FaEye /> Ver
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Paginación */}
+        {totalPaginas > 1 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: '16px 18px', 
+            background: '#f9fafb', 
+            border: '1.5px solid #d1d5db', 
+            borderTop: 0, 
+            borderBottomLeftRadius: 10, 
+            borderBottomRightRadius: 10,
+            marginLeft: 0,
+            marginRight: 0
+          }}>
+            <div style={{ fontSize: 13, color: '#374151', fontWeight: 500 }}>
+              Mostrando {indicePrimerUsuario + 1}-{Math.min(indiceUltimoUsuario, filteredUsuarios.length)} de {filteredUsuarios.length} usuarios
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setPaginaActual(Math.max(1, paginaActual - 1))}
+                disabled={paginaActual === 1}
+                style={{ 
+                  background: paginaActual === 1 ? '#d1d5db' : '#009ec7', 
+                  color: '#fff', 
+                  border: 'none', 
+                  borderRadius: 6, 
+                  padding: '6px 12px', 
+                  fontSize: 12, 
+                  fontWeight: 600, 
+                  cursor: paginaActual === 1 ? 'not-allowed' : 'pointer',
+                  opacity: paginaActual === 1 ? 0.5 : 1
+                }}
+              >
+                Anterior
+              </button>
+              <span style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '6px 12px', 
+                fontSize: 12, 
+                fontWeight: 600, 
+                color: '#374151' 
+              }}>
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <button
+                onClick={() => setPaginaActual(Math.min(totalPaginas, paginaActual + 1))}
+                disabled={paginaActual === totalPaginas}
+                style={{ 
+                  background: paginaActual === totalPaginas ? '#d1d5db' : '#009ec7', 
+                  color: '#fff', 
+                  border: 'none', 
+                  borderRadius: 6, 
+                  padding: '6px 12px', 
+                  fontSize: 12, 
+                  fontWeight: 600, 
+                  cursor: paginaActual === totalPaginas ? 'not-allowed' : 'pointer',
+                  opacity: paginaActual === totalPaginas ? 0.5 : 1
+                }}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       {/* Formulario Agregar/Editar */}
       {showForm && (
         <div className="form-overlay">
@@ -403,7 +809,7 @@ function UsuariosPage() {
               </div>
               <div className="form-group">
                 <label>Avatar:</label>
-                <FileUpload onUpload={handleAvatarUpload} />
+                <FileUpload onFileUpload={handleAvatarUpload} currentAvatar={form.avatar} userId={editId} />
               </div>
               {error && <div className="error-message">{error}</div>}
               <div className="form-buttons">
@@ -423,44 +829,6 @@ function UsuariosPage() {
       )}
 
       {/* Tabla de usuarios */}
-      <div className="clientes-table-section">
-        <h2>Lista de Usuarios</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{textAlign: 'center', color: '#888'}}>No hay usuarios para mostrar.</td>
-              </tr>
-            ) : (
-              usuarios.map(usuario => (
-                <tr key={usuario.id}>
-                  <td>{usuario.id}</td>
-                  <td>{usuario.nombre}</td>
-                  <td>{usuario.correo}</td>
-                  <td>{usuario.rol}</td>
-                  <td className="acciones">
-                    <button className="edit-btn" onClick={() => handleEdit(usuario)}>
-                      <i className="fa fa-edit"></i> Editar
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDelete(usuario.id)}>
-                      <i className="fa fa-trash"></i> Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
       <CustomModal
         show={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
@@ -470,6 +838,19 @@ function UsuariosPage() {
           {successMessage}
         </div>
       </CustomModal>
+      {/* Modal de detalles del usuario */}
+      {showDetalleModal && usuarioDetalle && (
+        <CustomModal show={showDetalleModal} onClose={() => setShowDetalleModal(false)} title="Detalles del usuario">
+          <div style={{ padding: 12, fontSize: 15, fontFamily: 'Segoe UI, Arial, sans-serif' }}>
+            <div><b>Nombre:</b> {usuarioDetalle.nombre}</div>
+            <div><b>Correo:</b> {usuarioDetalle.correo}</div>
+            <div><b>Rol:</b> {usuarioDetalle.rol}</div>
+            <div><b>Estado:</b> {usuarioDetalle.activo ? 'Activo' : 'Inactivo'}</div>
+            <div><b>Último acceso:</b> {usuarioDetalle.ultimoAcceso || '-'}</div>
+            <div><b>Sesión actual:</b> {usuarioDetalle.horaSesion || '-'}</div>
+          </div>
+        </CustomModal>
+      )}
     </div>
   );
 }

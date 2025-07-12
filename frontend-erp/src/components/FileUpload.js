@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import '../styles/FileUpload.css';
 import Avatar from './Avatar';
 
-const FileUpload = ({ onFileUpload, currentAvatar, disabled = false }) => {
+const FileUpload = ({ onFileUpload, currentAvatar, userId, disabled = false }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -41,34 +41,33 @@ const FileUpload = ({ onFileUpload, currentAvatar, disabled = false }) => {
       setError('Solo se permiten archivos de imagen');
       return;
     }
-
     // Validar tamaño (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('El archivo es demasiado grande. Máximo 5MB');
       return;
     }
-
     setError('');
     setUploading(true);
-
     try {
       const formData = new FormData();
       formData.append('file', file);
-
       const token = localStorage.getItem('jwt');
-      const response = await fetch('http://localhost:8081/api/files/upload', {
+      if (!userId) {
+        setError('No se puede subir el avatar sin ID de usuario');
+        setUploading(false);
+        return;
+      }
+      const response = await fetch(`http://localhost:8081/api/usuarios/${userId}/avatar`, {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : ''
         },
         body: formData
       });
-
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
       }
-
       const result = await response.json();
       onFileUpload(result.url);
     } catch (err) {

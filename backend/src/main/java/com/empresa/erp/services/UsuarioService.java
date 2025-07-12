@@ -6,6 +6,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.empresa.erp.services.PasswordPolicyService;
 import com.empresa.erp.models.PasswordPolicy;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +70,27 @@ public class UsuarioService {
         } else {
             throw new RuntimeException("Usuario no encontrado");
         }
+    }
+
+    public String saveAvatar(Long id, MultipartFile file) throws IOException {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        Usuario usuario = usuarioOpt.get();
+        // Crear carpeta si no existe
+        String uploadDir = "backend/uploads/";
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+        // Nombre único para el archivo
+        String filename = "avatar_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]+", "_");
+        File dest = new File(uploadDir + filename);
+        file.transferTo(dest);
+        // Guardar la ruta relativa en el usuario
+        usuario.setAvatar("/uploads/" + filename);
+        usuarioRepository.save(usuario);
+        // Devolver la URL relativa
+        return "/uploads/" + filename;
     }
 
     private boolean validatePasswordPolicy(String password, PasswordPolicy policy) {
