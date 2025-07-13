@@ -240,7 +240,7 @@ function UsuariosPage() {
         addNotification({
           type: 'success',
           title: 'Éxito',
-          message: editId ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.'
+          message: editId ? 'Usuario editado correctamente.' : 'Usuario creado correctamente.'
         });
         
         // Actualizar lista
@@ -420,16 +420,18 @@ function UsuariosPage() {
         </div>
         {/* Panel superior */}
         <div className="usuarios-html-panel" style={{ display: 'flex', alignItems: 'stretch', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 18, borderRadius: 8, border: '1.5px solid #d1d5db', background: '#fff', padding: 0, minHeight: 96 }}>
-          {/* Botón vertical 'nuevo' */}
+          {/* Botón vertical 'crear usuario' */}
           <button
             type="button"
             className="usuarios-html-nuevo"
-            aria-label="nuevo"
-            onClick={() => setShowForm(true)}
-            style={{ minWidth: 64, width: 64, height: 96, background: '#009ec7', color: '#fff', border: 'none', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderRight: '2px solid #d1d5db', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '1.1em', boxShadow: 'none', margin: 0 }}
+            aria-label="crear usuario"
+            onClick={() => { setShowForm(true); setEditId(null); setForm({ nombre: '', correo: '', password: '', rol: 'Usuario', avatar: '', activo: true }); }}
+            style={{ minWidth: 120, width: 120, height: 96, background: '#005fa3', color: '#fff', border: 'none', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderRight: '2px solid #d1d5db', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '1.1em', fontWeight: 700, boxShadow: 'none', margin: 0, letterSpacing: '0.5px', transition: 'background 0.2s' }}
+            onMouseOver={e => e.currentTarget.style.background = '#003f6b'}
+            onMouseOut={e => e.currentTarget.style.background = '#005fa3'}
           >
-            <FaUserPlus className="text-2xl mb-1" />
-            <span style={{ color: '#fff', fontSize: '0.95em', fontWeight: 600 }}>nuevo</span>
+            <FaUserPlus className="text-2xl mb-1" style={{ fontSize: '1.6em' }} />
+            <span style={{ color: '#fff', fontSize: '0.95em', fontWeight: 700 }}>Crear usuario</span>
           </button>
           {/* Contenido a la derecha del botón */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, padding: '0 18px', minHeight: 96 }}>
@@ -512,26 +514,38 @@ function UsuariosPage() {
           <table className="w-full border-collapse text-xs" style={{ background: '#fff', width: '100%' }}>
             <thead style={{ background: '#e5e7eb' }}>
               <tr>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Id</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Usuario</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '6%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Id</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '8%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Avatar</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '22%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '22%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Usuario</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
               </tr>
             </thead>
             <tbody style={{ background: '#fff', color: '#222' }}>
               {usuariosPaginados.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
               ) : (
                 usuariosPaginados.map((usuario, idx) => (
-                  <tr key={usuario.id || idx} style={{ border: '1px solid #d1d5db', background: idx % 2 === 0 ? '#fff' : '#f9fafb' }}>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center' }}>{usuario.id || '-'}</td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500 }}>{usuario.nombre}
+                  <tr key={usuario.id || idx} style={{ border: '1px solid #d1d5db', background: idx % 2 === 0 ? '#fff' : '#f9fafb', height: 60, minHeight: 60 }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle' }}>{usuario.id || '-'}</td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle', padding: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        {usuario.avatar ? (
+                          <img src={usuario.avatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }} />
+                        ) : (
+                          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fff', border: '2px solid #d1d5db', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 10, fontWeight: 600 }}>
+                            sube tu foto
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500, verticalAlign: 'middle' }}>{usuario.nombre}
                       {usuario.trabajadorVinculado && (<><br /><span style={{ fontWeight: 700 }}>Trabajador vinculado:</span> {usuario.trabajadorVinculado}</>)}
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#374151' }}>{usuario.correo || '••••••••'}</td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center' }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#374151', verticalAlign: 'middle' }}>{usuario.correo || '••••••••'}</td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                         <input
                           type={showPasswords[usuario.id] ? 'text' : 'password'}
@@ -549,7 +563,7 @@ function UsuariosPage() {
                         </button>
                       </div>
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#00b6e3', fontWeight: 500 }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#00b6e3', fontWeight: 500, verticalAlign: 'middle' }}>
                       {usuario.ultimoAcceso || '-'}
                       <button
                         type="button"
@@ -560,8 +574,8 @@ function UsuariosPage() {
                         <FaInfoCircle />
                       </button>
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '4px', width: '180px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '2px', width: '16.6%', verticalAlign: 'middle' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
                         {/* Botón Editar */}
                         <button
                           type="button"
@@ -571,13 +585,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '4px 8px', 
-                            fontSize: 11, 
+                            padding: '2px 6px', 
+                            fontSize: 10, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 3,
+                            gap: 2,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#036b87'}
@@ -585,7 +599,6 @@ function UsuariosPage() {
                         >
                           <FaEdit /> Editar
                         </button>
-                        
                         {/* Botón Eliminar */}
                         <button
                           type="button"
@@ -595,13 +608,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '4px 8px', 
-                            fontSize: 11, 
+                            padding: '2px 6px', 
+                            fontSize: 10, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 3,
+                            gap: 2,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#b91c1c'}
@@ -609,7 +622,6 @@ function UsuariosPage() {
                         >
                           <FaTrash /> Eliminar
                         </button>
-                        
                         {/* Botón Ver Detalles */}
                         <button
                           type="button"
@@ -619,13 +631,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '4px 8px', 
-                            fontSize: 11, 
+                            padding: '2px 6px', 
+                            fontSize: 10, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 3,
+                            gap: 2,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#047857'}
@@ -712,8 +724,12 @@ function UsuariosPage() {
       {/* Formulario Agregar/Editar */}
       {showForm && (
         <div className="form-overlay">
-          <div className="form-container">
-            <h2>{isEditMode ? 'Editar Usuario' : 'Crear Usuario'}</h2>
+          <div className="form-container" style={{ position: 'relative' }}>
+            {/* Botón de cierre (X) */}
+            <button onClick={() => setShowForm(false)} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer', zIndex: 2 }} aria-label="Cerrar formulario">×</button>
+            <h2 style={{ fontSize: '1.35em', fontWeight: 700, color: '#009ec7', textAlign: 'center', marginBottom: 18 }}>
+              {isEditMode ? 'Editar Usuario' : 'Crear Usuario'}
+            </h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Nombre:</label>
@@ -841,6 +857,7 @@ function UsuariosPage() {
       {/* Modal de detalles del usuario */}
       {showDetalleModal && usuarioDetalle && (
         <CustomModal show={showDetalleModal} onClose={() => setShowDetalleModal(false)} title="Detalles del usuario">
+          <button onClick={() => setShowDetalleModal(false)} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer', zIndex: 2 }} aria-label="Cerrar detalles">×</button>
           <div style={{ padding: 12, fontSize: 15, fontFamily: 'Segoe UI, Arial, sans-serif' }}>
             <div><b>Nombre:</b> {usuarioDetalle.nombre}</div>
             <div><b>Correo:</b> {usuarioDetalle.correo}</div>

@@ -81,11 +81,25 @@ public class UsuarioService {
         // Crear carpeta si no existe
         String uploadDir = System.getProperty("user.dir") + "/backend/uploads/";
         File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            System.out.println("[INFO] Carpeta creada: " + dir.getAbsolutePath() + " => " + created);
+        }
+        if (!dir.exists() || !dir.canWrite()) {
+            System.err.println("[ERROR] La carpeta de uploads no existe o no tiene permisos de escritura: " + dir.getAbsolutePath());
+            throw new IOException("No se puede escribir en la carpeta de uploads: " + dir.getAbsolutePath());
+        }
         // Nombre único para el archivo
         String filename = "avatar_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]+", "_");
         File dest = new File(uploadDir + filename);
-        file.transferTo(dest);
+        System.out.println("[INFO] Intentando guardar archivo en: " + dest.getAbsolutePath());
+        try {
+            file.transferTo(dest);
+        } catch (Exception e) {
+            System.err.println("[ERROR] No se pudo guardar el archivo de avatar: " + e.getMessage());
+            e.printStackTrace();
+            throw new IOException("No se pudo guardar el archivo de avatar: " + e.getMessage(), e);
+        }
         // Guardar la ruta relativa en el usuario
         usuario.setAvatar("/uploads/" + filename);
         usuarioRepository.save(usuario);
