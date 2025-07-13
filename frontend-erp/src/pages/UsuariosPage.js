@@ -516,11 +516,11 @@ function UsuariosPage() {
               <tr>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '6%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Id</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '8%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Avatar</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '22%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '16%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '22%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Usuario</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '20%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
               </tr>
             </thead>
             <tbody style={{ background: '#fff', color: '#222' }}>
@@ -533,12 +533,34 @@ function UsuariosPage() {
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle', padding: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                         {usuario.avatar ? (
-                          <img src={usuario.avatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }} />
-                        ) : (
-                          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fff', border: '2px solid #d1d5db', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 10, fontWeight: 600 }}>
-                            sube tu foto
-                          </div>
-                        )}
+                          <img 
+                            src={usuario.avatar} 
+                            alt="avatar" 
+                            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }}
+                            onError={(e) => {
+                              console.error(`Error cargando avatar para ${usuario.nombre}:`, e.target.src);
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          style={{ 
+                            width: 44, 
+                            height: 44, 
+                            borderRadius: '50%', 
+                            background: '#fff', 
+                            border: '2px solid #d1d5db', 
+                            display: usuario.avatar ? 'none' : 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            color: '#bbb', 
+                            fontSize: 10, 
+                            fontWeight: 600 
+                          }}
+                        >
+                          {usuario.avatar ? 'error' : 'sube tu foto'}
+                        </div>
                       </div>
                     </td>
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500, verticalAlign: 'middle' }}>{usuario.nombre}
@@ -574,8 +596,8 @@ function UsuariosPage() {
                         <FaInfoCircle />
                       </button>
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '2px', width: '16.6%', verticalAlign: 'middle' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '4px', width: '20%', verticalAlign: 'middle' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                         {/* Botón Editar */}
                         <button
                           type="button"
@@ -585,13 +607,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '2px 6px', 
-                            fontSize: 10, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 2,
+                            gap: 3,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#036b87'}
@@ -608,13 +630,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '2px 6px', 
-                            fontSize: 10, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 2,
+                            gap: 3,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#b91c1c'}
@@ -631,13 +653,13 @@ function UsuariosPage() {
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: 4, 
-                            padding: '2px 6px', 
-                            fontSize: 10, 
+                            padding: '4px 8px', 
+                            fontSize: 11, 
                             fontWeight: 600, 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 2,
+                            gap: 3,
                             transition: 'background 0.2s'
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#047857'}

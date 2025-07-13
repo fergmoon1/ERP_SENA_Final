@@ -69,22 +69,61 @@ public class FileUploadController {
         }
     }
     
-    @GetMapping("/{filename}")
+    @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
-            Path filePath = uploadPath.resolve(filename);
+            // Decodificar el nombre del archivo si viene codificado
+            String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
+            
+            Path filePath = uploadPath.resolve(decodedFilename);
             Resource resource = new UrlResource(filePath.toUri());
             
             if (resource.exists() && resource.isReadable()) {
+                // Determinar el tipo MIME basado en la extensión del archivo
+                String contentType = determineContentType(decodedFilename);
+                
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
-                    .contentType(MediaType.IMAGE_JPEG) // Ajustar según el tipo de imagen
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
+                    .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
             } else {
+                // Log para debugging
+                System.out.println("Archivo no encontrado: " + decodedFilename);
+                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
+                System.out.println("Archivos en uploads:");
+                try {
+                    Files.list(uploadPath).forEach(System.out::println);
+                } catch (IOException e) {
+                    System.out.println("Error listando archivos: " + e.getMessage());
+                }
                 return ResponseEntity.notFound().build();
             }
         } catch (IOException e) {
+            System.out.println("Error accediendo al archivo: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    private String determineContentType(String filename) {
+        String extension = "";
+        if (filename.contains(".")) {
+            extension = filename.substring(filename.lastIndexOf(".")).toLowerCase();
+        }
+        
+        switch (extension) {
+            case ".png":
+                return "image/png";
+            case ".jpg":
+            case ".jpeg":
+                return "image/jpeg";
+            case ".gif":
+                return "image/gif";
+            case ".webp":
+                return "image/webp";
+            case ".bmp":
+                return "image/bmp";
+            default:
+                return "image/jpeg"; // Por defecto JPEG
         }
     }
     
