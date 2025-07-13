@@ -123,3 +123,10 @@ UPDATE usuario SET password = '$$2a$12$acw1pyH7wtSI6zWI1BueSe1Yecr7nDmWxzPnLvrI4
 UPDATE usuario SET password = '$$2a$12$KtyGf1oIe.PZLzkbpURc3ebkU.Aj4ja6qldl3lNLoZF8QQDXcEsnW' WHERE correo = 'user@erp.com';
 
 SELECT id, correo, nombre, password FROM usuario WHERE correo = 'admin@erp.com';
+
+
+-- ============================Juana Perez ejemplo para avatar
+
+  UPDATE usuario
+  SET avatar = '/api/files/avatar_27_1752363512183_foto01_mujer.png'
+  WHERE correo = 'juana.perez@erp.com';

@@ -1,4 +1,4 @@
--- Script para agregar Juana Pérez a la base de datos con avatar
+image.png-- Script para agregar Juana Pérez a la base de datos con avatar
 USE erp_sena;
 
 -- Verificar si Juana Pérez ya existe

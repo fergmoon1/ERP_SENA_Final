@@ -145,3 +145,11 @@ ORDER BY cantidad DESC;
 SELECT id, fecha, total, estado FROM pedido ORDER BY id;
 
 SELECT estado, COUNT(*) as cantidad FROM pedido WHERE estado IS NOT NULL AND estado != '' GROUP BY estado;
+
+-- ======================================
+
+UPDATE pedido SET estado = 'Pendiente' WHERE LOWER(estado) IN ('pendiente', 'pendiente ', 'pendient', 'pendente', 'pend', 'pendiente');
+UPDATE pedido SET estado = 'Enviado' WHERE LOWER(estado) IN ('enviado', 'enviadoo', 'enviada');
+UPDATE pedido SET estado = 'Entregado' WHERE LOWER(estado) IN ('entregado', 'entregada');
+UPDATE pedido SET estado = 'Cancelado' WHERE LOWER(estado) IN ('cancelado', 'cancelada');
+UPDATE pedido SET estado = 'Completado' WHERE LOWER(estado) IN ('completado', 'completada');
