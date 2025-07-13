@@ -517,15 +517,16 @@ function UsuariosPage() {
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '6%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Id</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '8%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Avatar</th>
                 <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '16%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'left' }}>Nombre</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '22%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Usuario</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '14%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
-                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '20%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '12%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Rol</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '18%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Correo</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '12%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Contraseña</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '12%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Último acceso</th>
+                <th style={{ border: '1px solid #d1d5db', padding: '7px 8px', width: '16%', color: '#374151', fontWeight: 700, fontSize: '1em', textAlign: 'center' }}>Acciones</th>
               </tr>
             </thead>
             <tbody style={{ background: '#fff', color: '#222' }}>
               {usuariosPaginados.length === 0 ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
+                <tr><td colSpan="8" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
               ) : (
                 usuariosPaginados.map((usuario, idx) => (
                   <tr key={usuario.id || idx} style={{ border: '1px solid #d1d5db', background: idx % 2 === 0 ? '#fff' : '#f9fafb', height: 60, minHeight: 60 }}>
@@ -533,38 +534,29 @@ function UsuariosPage() {
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle', padding: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                         {usuario.avatar ? (
-                          <img 
-                            src={usuario.avatar} 
-                            alt="avatar" 
-                            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }}
-                            onError={(e) => {
-                              console.error(`Error cargando avatar para ${usuario.nombre}:`, e.target.src);
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div 
-                          style={{ 
-                            width: 44, 
-                            height: 44, 
-                            borderRadius: '50%', 
-                            background: '#fff', 
-                            border: '2px solid #d1d5db', 
-                            display: usuario.avatar ? 'none' : 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            color: '#bbb', 
-                            fontSize: 10, 
-                            fontWeight: 600 
-                          }}
-                        >
-                          {usuario.avatar ? 'error' : 'sube tu foto'}
-                        </div>
+                          <img src={usuario.avatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }} />
+                        ) : (
+                          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fff', border: '2px solid #d1d5db', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 10, fontWeight: 600 }}>
+                            sube tu foto
+                          </div>
+                        )}
                       </div>
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500, verticalAlign: 'middle' }}>{usuario.nombre}
-                      {usuario.trabajadorVinculado && (<><br /><span style={{ fontWeight: 700 }}>Trabajador vinculado:</span> {usuario.trabajadorVinculado}</>)}
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'left', fontWeight: 500, verticalAlign: 'middle' }}>{usuario.nombre}</td>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle' }}>
+                      <span style={{ 
+                        background: usuario.rol === 'ADMIN' ? '#dc2626' : 
+                                  usuario.rol === 'SUPERVISOR' ? '#f59e0b' : 
+                                  usuario.rol === 'USER' ? '#059669' : '#6b7280',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase'
+                      }}>
+                        {usuario.rol || 'USER'}
+                      </span>
                     </td>
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'center', color: '#374151', verticalAlign: 'middle' }}>{usuario.correo || '••••••••'}</td>
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle' }}>
@@ -596,9 +588,8 @@ function UsuariosPage() {
                         <FaInfoCircle />
                       </button>
                     </td>
-                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '4px', width: '20%', verticalAlign: 'middle' }}>
+                    <td style={{ border: '1px solid #d1d5db', textAlign: 'center', padding: '4px', width: '16%', verticalAlign: 'middle' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                        {/* Botón Editar */}
                         <button
                           type="button"
                           onClick={() => handleEdit(usuario)}
@@ -621,7 +612,6 @@ function UsuariosPage() {
                         >
                           <FaEdit /> Editar
                         </button>
-                        {/* Botón Eliminar */}
                         <button
                           type="button"
                           onClick={() => handleDelete(usuario.id)}
@@ -637,14 +627,14 @@ function UsuariosPage() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 3,
-                            transition: 'background 0.2s'
+                            transition: 'background 0.2s',
+                            marginTop: 4
                           }}
                           onMouseOver={e => e.currentTarget.style.background = '#b91c1c'}
                           onMouseOut={e => e.currentTarget.style.background = '#dc2626'}
                         >
                           <FaTrash /> Eliminar
                         </button>
-                        {/* Botón Ver Detalles */}
                         <button
                           type="button"
                           onClick={() => handleVerDetalle(usuario)}
@@ -879,14 +869,259 @@ function UsuariosPage() {
       {/* Modal de detalles del usuario */}
       {showDetalleModal && usuarioDetalle && (
         <CustomModal show={showDetalleModal} onClose={() => setShowDetalleModal(false)} title="Detalles del usuario">
-          <button onClick={() => setShowDetalleModal(false)} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer', zIndex: 2 }} aria-label="Cerrar detalles">×</button>
-          <div style={{ padding: 12, fontSize: 15, fontFamily: 'Segoe UI, Arial, sans-serif' }}>
-            <div><b>Nombre:</b> {usuarioDetalle.nombre}</div>
-            <div><b>Correo:</b> {usuarioDetalle.correo}</div>
-            <div><b>Rol:</b> {usuarioDetalle.rol}</div>
-            <div><b>Estado:</b> {usuarioDetalle.activo ? 'Activo' : 'Inactivo'}</div>
-            <div><b>Último acceso:</b> {usuarioDetalle.ultimoAcceso || '-'}</div>
-            <div><b>Sesión actual:</b> {usuarioDetalle.horaSesion || '-'}</div>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            gap: '24px',
+            padding: '20px 0'
+          }}>
+            {/* Avatar grande */}
+            <div style={{
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '4px solid #e5e7eb',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#f9fafb'
+            }}>
+              {usuarioDetalle.avatar ? (
+                <img 
+                  src={usuarioDetalle.avatar} 
+                  alt={`Avatar de ${usuarioDetalle.nombre}`}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '2.5rem',
+                  fontWeight: 'bold'
+                }}>
+                  {usuarioDetalle.nombre ? usuarioDetalle.nombre.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
+            </div>
+
+            {/* Información del usuario */}
+            <div style={{
+              width: '100%',
+              maxWidth: '400px'
+            }}>
+              {/* Nombre */}
+              <div style={{
+                textAlign: 'center',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  margin: '0 0 4px 0',
+                  fontFamily: 'Segoe UI, Arial, sans-serif'
+                }}>
+                  {usuarioDetalle.nombre}
+                </h3>
+                <div style={{
+                  display: 'inline-block',
+                  background: usuarioDetalle.rol === 'ADMIN' ? '#dc2626' : 
+                              usuarioDetalle.rol === 'SUPERVISOR' ? '#f59e0b' : 
+                              usuarioDetalle.rol === 'USER' ? '#059669' : '#6b7280',
+                  color: 'white',
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  {usuarioDetalle.rol || 'USER'}
+                </div>
+              </div>
+
+              {/* Detalles */}
+              <div style={{
+                display: 'grid',
+                gap: '16px',
+                background: '#f9fafb',
+                padding: '20px',
+                borderRadius: '12px',
+                border: '1px solid #e5e7eb'
+              }}>
+                {/* Correo */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: '#3b82f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '1.1rem'
+                  }}>
+                    <i className="fas fa-envelope"></i>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#6b7280',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '2px'
+                    }}>
+                      Correo electrónico
+                    </div>
+                    <div style={{
+                      fontSize: '0.95rem',
+                      color: '#1f2937',
+                      fontWeight: '500'
+                    }}>
+                      {usuarioDetalle.correo}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Estado */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: usuarioDetalle.activo ? '#10b981' : '#ef4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '1.1rem'
+                  }}>
+                    <i className={`fas fa-${usuarioDetalle.activo ? 'check-circle' : 'times-circle'}`}></i>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#6b7280',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '2px'
+                    }}>
+                      Estado
+                    </div>
+                    <div style={{
+                      fontSize: '0.95rem',
+                      color: '#1f2937',
+                      fontWeight: '500'
+                    }}>
+                      {usuarioDetalle.activo ? 'Activo' : 'Inactivo'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Último acceso */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: '#8b5cf6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '1.1rem'
+                  }}>
+                    <i className="fas fa-clock"></i>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#6b7280',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '2px'
+                    }}>
+                      Último acceso
+                    </div>
+                    <div style={{
+                      fontSize: '0.95rem',
+                      color: '#1f2937',
+                      fontWeight: '500'
+                    }}>
+                      {usuarioDetalle.ultimoAcceso || 'No registrado'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sesión actual */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: '#f59e0b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '1.1rem'
+                  }}>
+                    <i className="fas fa-user-clock"></i>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#6b7280',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '2px'
+                    }}>
+                      Sesión actual
+                    </div>
+                    <div style={{
+                      fontSize: '0.95rem',
+                      color: '#1f2937',
+                      fontWeight: '500'
+                    }}>
+                      {usuarioDetalle.horaSesion || 'No disponible'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </CustomModal>
       )}
