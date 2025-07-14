@@ -184,6 +184,48 @@ function ProductosPage() {
           </tbody>
         </table>
       </div>
+      {/* Tabla visual de productos con acciones */}
+      <div className="inventario-tabla-area">
+        <h2 className="inventario-tabla-title"><i className="fas fa-table"></i> Catálogo de Productos</h2>
+        <div className="tabla-productos-scroll">
+          <table className="tabla-productos">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Stock</th>
+                <th>Precio</th>
+                <th>Valor total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map((p) => {
+                const stock = p.stock ?? p.stockActual ?? 0;
+                let estado = 'Normal';
+                let color = '#28a745';
+                if (stock === 0) { estado = 'Agotado'; color = '#dc3545'; }
+                else if (stock <= (p.stockMinimo || 10)) { estado = 'Bajo'; color = '#ffc107'; }
+                return (
+                  <tr key={p.id} style={{ background: stock === 0 ? '#ffeaea' : stock <= (p.stockMinimo || 10) ? '#fffbe6' : 'white' }}>
+                    <td><img src={p.imagenUrl || '/imagenes/foto01 mujer.png'} alt={p.nombre} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /></td>
+                    <td>{p.nombre}</td>
+                    <td><b>{stock}</b></td>
+                    <td>${p.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
+                    <td>${((stock) * (p.precio ?? 0)).toLocaleString('es-CO', {minimumFractionDigits: 0})}</td>
+                    <td><span style={{ color, fontWeight: 600 }}>{estado}</span></td>
+                    <td>
+                      <button className="btn-restock">Reponer</button>
+                      <button className="btn-history">Historial</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
       <ModalMensaje
         show={modal.show}
         titulo={modal.titulo}

@@ -2,31 +2,40 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import '../styles/InventarioPage.css';
 import ReactDOM from 'react-dom';
+import { Treemap, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const API_URL = 'http://localhost:8081/api';
 
 function InventarioPage() {
-  const [productos, setProductos] = useState([]);
-  const [movimientos, setMovimientos] = useState([]);
-  const [form, setForm] = useState({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
-  const [editId, setEditId] = useState(null);
-  const [alertaStock, setAlertaStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [historial, setHistorial] = useState([]);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [showRegistrarModal, setShowRegistrarModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [historialProducto, setHistorialProducto] = useState(null);
-  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, useCenter: false });
-  const popoverRef = useRef(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [historial, setHistorial] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({
     id: '', productoId: '', cantidad: '', tipo: '', motivo: '', fecha: '', usuario: '', stockAnterior: '', stockPosterior: ''
   });
-  const [editFeedback, setEditFeedback] = useState('');
-  const [deleteFeedback, setDeleteFeedback] = useState('');
+  const [form, setForm] = useState({
+    productoId: '',
+    cantidad: '',
+    tipo: 'ENTRADA',
+    motivo: ''
+  });
+  const [productos, setProductos] = useState([]);
+  const [movimientos, setMovimientos] = useState([]);
+  const [alertaStock, setAlertaStock] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [stockThreshold, setStockThreshold] = useState(10);
-  const [showStockModal, setShowStockModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, useCenter: false });
+  const popoverRef = useRef(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showSuccessPopover, setShowSuccessPopover] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [editFeedback, setEditFeedback] = useState('');
+  const [deleteFeedback, setDeleteFeedback] = useState('');
 
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
@@ -65,29 +74,46 @@ function InventarioPage() {
     }
   };
 
-  const addNotification = (notification) => {
+  const addNotification = React.useCallback((notification) => {
     const newNotification = {
       ...notification,
       id: Date.now(),
       timestamp: new Date()
     };
     setNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // Mantener solo las últimas 5
-  };
+  }, []);
 
   const removeNotification = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const fetchProductos = async () => {
+  const fetchProductos = React.useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/productos`, config);
-      setProductos(res.data);
+      console.log('=== DEBUG PRODUCTOS ===');
+      console.log('Productos recibidos del backend:', res.data);
+      console.log('Primer producto:', res.data[0]);
+      
+      // Filtrar productos que tengan un id válido
+      const productosValidos = res.data.filter(producto => 
+        producto && producto.id && !isNaN(producto.id) && producto.id !== undefined && producto.id !== null
+      );
+      
+      console.log('Productos válidos después del filtro:', productosValidos);
+      console.log('Primer producto válido:', productosValidos[0]);
+      
+      if (productosValidos.length !== res.data.length) {
+        console.warn(`Se filtraron ${res.data.length - productosValidos.length} productos sin ID válido`);
+      }
+      
+      setProductos(productosValidos);
     } catch (err) {
+      console.error('Error al obtener productos:', err);
       setProductos([]);
     }
-  };
+  }, [config]);
 
-  const fetchMovimientos = async () => {
+  const fetchMovimientos = React.useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_URL}/movimientos-inventario`, config);
@@ -96,72 +122,100 @@ function InventarioPage() {
       setMovimientos([]);
     }
     setLoading(false);
-  };
+  }, [config]);
 
-  const fetchAlertaStock = async () => {
+  const fetchAlertaStock = React.useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/reportes/stock-bajo`, config);
       setAlertaStock(res.data);
     } catch (err) {
       setAlertaStock([]);
     }
-  };
+  }, [config]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
-    if (!form.productoId || !form.cantidad || !form.motivo.trim()) {
-      addNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'Todos los campos son obligatorios'
-      });
-      return;
-    }
-
+    
+    // Mostrar indicador de carga
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    submitButton.disabled = true;
+    
     try {
+      // Obtener los valores del formulario directamente del evento
+      const formData = new FormData(e.target);
+      const productoId = formData.get('productoId');
+      const cantidad = parseInt(formData.get('cantidad'));
+      const tipo = formData.get('tipo');
+      const motivo = formData.get('motivo');
+      
+      // Validar que todos los campos estén presentes
+      if (!productoId || !cantidad || !tipo || !motivo) {
+        throw new Error('Todos los campos son obligatorios');
+      }
+      
+      // Buscar el producto en la lista para obtener el objeto completo
+      const producto = productos.find(p => p.id == productoId);
+      if (!producto) {
+        throw new Error('Producto no encontrado');
+      }
+      
+      // Crear el objeto de movimiento con la estructura que espera el backend
+      const movimientoData = {
+        producto: {
+          id: producto.id
+        },
+        tipo: tipo,
+        cantidad: cantidad,
+        motivo: motivo
+      };
+
+      console.log('Enviando datos al backend:', movimientoData);
+
       if (editId) {
-        await axios.put(`${API_URL}/movimientos-inventario/${editId}`, {
-          productoId: form.productoId,
-          cantidad: parseInt(form.cantidad, 10),
-          tipo: form.tipo,
-          motivo: form.motivo
-        }, config);
+        await axios.put(`${API_URL}/movimientos-inventario/${editId}`, movimientoData, config);
         addNotification({
           type: 'success',
           title: 'Éxito',
           message: 'Movimiento actualizado correctamente'
         });
+        setEditId(null);
       } else {
-        await axios.post(`${API_URL}/movimientos-inventario`, {
-          producto: { id: form.productoId },
-          cantidad: parseInt(form.cantidad, 10),
-          tipo: form.tipo,
-          motivo: form.motivo
-        }, config);
+        await axios.post(`${API_URL}/movimientos-inventario`, movimientoData, config);
         addNotification({
           type: 'success',
           title: 'Éxito',
           message: 'Movimiento registrado correctamente'
         });
       }
+
+      // Cerrar modal después de éxito
+      setShowRegistrarModal(false);
       
-      setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
-      setEditId(null);
-      fetchMovimientos();
-      fetchProductos();
-      fetchAlertaStock();
-    } catch (err) {
+      // Recargar datos
+      await fetchMovimientos();
+      await fetchProductos();
+      await fetchAlertaStock();
+      
+    } catch (error) {
+      console.error('Error al registrar movimiento:', error);
+      console.error('Error completo:', error.response?.data || error.message);
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'Error al guardar el movimiento: ' + (err.response?.data || err.message)
+        message: error.response?.data?.message || error.message || 'Error al registrar movimiento'
       });
+      
+      // Restaurar botón en caso de error
+      submitButton.innerHTML = originalText;
+      submitButton.disabled = false;
     }
-  };
+  }, [editId, config, addNotification, setShowRegistrarModal, fetchMovimientos, fetchProductos, fetchAlertaStock, productos]);
 
   const handleEdit = (mov) => {
     setEditForm({
@@ -247,16 +301,50 @@ function InventarioPage() {
   };
 
   const handleShowHistorial = async (producto, event) => {
+    console.log('=== DEBUG HISTORIAL ===');
+    console.log('Producto recibido:', producto);
+    console.log('Tipo de producto:', typeof producto);
+    console.log('Producto.id:', producto?.id);
+    console.log('Tipo de producto.id:', typeof producto?.id);
+    
+    // Validación simplificada
+    if (!producto) {
+      console.error('Producto es null o undefined');
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Producto no válido para mostrar historial'
+      });
+      return;
+    }
+
+    // Verificar si el producto tiene un id válido
+    const productoId = producto.id || producto.productoId;
+    if (!productoId) {
+      console.error('Producto no tiene ID válido:', producto);
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Producto no válido para mostrar historial'
+      });
+      return;
+    }
+
+    console.log('ID del producto a usar:', productoId);
+
     try {
-      const res = await axios.get(`${API_URL}/movimientos-inventario/producto/${producto.id}/historial`, config);
+      const res = await axios.get(`${API_URL}/movimientos-inventario/producto/${productoId}/historial`, config);
+      console.log('Historial obtenido exitosamente:', res.data);
       setHistorial(res.data);
       setHistorialProducto(producto);
       setShowModal(true);
     } catch (error) {
+      console.error('Error al obtener historial:', error);
+      console.error('Response:', error.response);
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'Error al obtener historial'
+        message: 'Error al obtener historial: ' + (error.response?.data || error.message)
       });
     }
   };
@@ -280,62 +368,479 @@ function InventarioPage() {
       return;
     }
 
+    // Validar que selectedProduct existe y tiene id
+    if (!selectedProduct || !selectedProduct.productoId) {
+      console.error('selectedProduct:', selectedProduct);
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Producto no seleccionado correctamente'
+      });
+      return;
+    }
+
     try {
-      await axios.post(`${API_URL}/movimientos-inventario`, {
-        producto: { id: selectedProduct.id },
-        cantidad: cantidad,
+      const productoId = parseInt(selectedProduct.productoId, 10);
+      if (isNaN(productoId)) {
+        console.error('ID del producto no es válido:', selectedProduct.productoId);
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'ID del producto no es válido'
+        });
+        return;
+      }
+
+      const dataToSend = {
+        producto: { id: productoId }, // Corregido: objeto con id
+        cantidad: Number(cantidad),
         tipo: 'ENTRADA',
         motivo: `Reposición rápida: ${motivo}`
-      }, config);
-
-      addNotification({
-        type: 'success',
-        title: 'Éxito',
-        message: `Stock repuesto para ${selectedProduct.nombre}`
-      });
+      };
+      console.log('Enviando a backend:', dataToSend);
+      await axios.post(`${API_URL}/movimientos-inventario`, dataToSend, config);
 
       setShowStockModal(false);
       setSelectedProduct(null);
+
+      // Mostrar popover de éxito
+      setSuccessMessage(`Stock repuesto para ${selectedProduct.nombre}`);
+      setShowSuccessPopover(true);
+      setTimeout(() => setShowSuccessPopover(false), 1800);
+
       fetchMovimientos();
       fetchProductos();
       fetchAlertaStock();
     } catch (err) {
+      console.error('Error completo:', err);
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'Error al reponer stock'
+        message: 'Error al reponer stock: ' + (err.response?.data || err.message)
       });
     }
   };
 
-  return (
-    <div className="inventario-area-container">
-      {/* Notificaciones */}
-      <div className="notifications-container">
-        {notifications.map(notification => (
-          <div key={notification.id} className={`notification ${notification.type}`}>
-            <div className="notification-header">
-              <span className="notification-title">{notification.title}</span>
+  // Cálculos para tarjetas enriquecidas
+  const totalStock = productos.reduce((acc, p) => acc + (p.stock ?? p.stockActual ?? 0), 0);
+  const agotados = productos.filter(p => (p.stock ?? p.stockActual ?? 0) === 0);
+  const productoMasStock = productos.reduce((max, p) => ((p.stock ?? p.stockActual ?? 0) > (max.stock ?? max.stockActual ?? 0) ? p : max), productos[0] || {});
+  const productoMenosStock = productos.reduce((min, p) => ((p.stock ?? p.stockActual ?? 0) < (min.stock ?? min.stockActual ?? 0) ? p : min), productos[0] || {});
+  const valorTotalInventario = productos.reduce((acc, p) => acc + ((p.stock ?? p.stockActual ?? 0) * (p.precio ?? 0)), 0);
+
+  // Para gráfica de pastel: top 5 productos y "Otros"
+  const sortedProductos = [...productos].sort((a, b) => (b.stock ?? b.stockActual ?? 0) - (a.stock ?? a.stockActual ?? 0));
+  const top5 = sortedProductos.slice(0, 5);
+  const otrosStock = sortedProductos.slice(5).reduce((acc, p) => acc + (p.stock ?? p.stockActual ?? 0), 0);
+  const pieData = [
+    ...top5.map(p => ({ name: p.nombre, value: p.stock ?? p.stockActual ?? 0 })),
+    ...(otrosStock > 0 ? [{ name: 'Otros', value: otrosStock }] : [])
+  ];
+  const pieColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F', '#d0ed57'];
+
+  // Modal de Reposición Rápida como componente
+  function ModalReposicion({ show, producto, onClose, onSubmit }) {
+    const handleOverlayClick = (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    React.useEffect(() => {
+      if (show) {
+        document.addEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.removeEventListener('keydown', handleKeyDown);
+          document.body.style.overflow = 'unset';
+        };
+      }
+    }, [show]);
+
+    if (!show || !producto) return null;
+
+    return ReactDOM.createPortal(
+      <div className="modal-overlay" onClick={handleOverlayClick}>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Reponer Stock - {producto.nombre}</h3>
+            <button className="modal-close" onClick={onClose} aria-label="Cerrar modal">×</button>
+          </div>
+          <form onSubmit={onSubmit}>
+            <div className="form-group">
+              <label htmlFor="cantidad-modal">Cantidad a agregar:</label>
+              <input
+                type="number"
+                id="cantidad-modal"
+                name="cantidad"
+                min="1"
+                required
+                className="form-input"
+                autoFocus
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="motivo-modal">Motivo:</label>
+              <textarea
+                id="motivo-modal"
+                name="motivo"
+                required
+                className="form-textarea"
+                placeholder="Motivo de la reposición..."
+              />
+            </div>
+            <div className="modal-actions">
+              <button type="submit" className="btn-primary">
+                <i className="fas fa-plus"></i> Reponer
+              </button>
+              <button type="button" className="btn-secondary" onClick={onClose}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // Modal de Historial como componente
+  function ModalHistorial({ show, producto, historial, onClose }) {
+    const handleOverlayClick = (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    React.useEffect(() => {
+      if (show) {
+        document.addEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.removeEventListener('keydown', handleKeyDown);
+          document.body.style.overflow = 'unset';
+        };
+      }
+    }, [show]);
+
+    if (!show || !producto) return null;
+
+    return ReactDOM.createPortal(
+      <div className="modal-overlay" onClick={handleOverlayClick}>
+        <div className="modal-content historial-modal">
+          <div className="modal-header">
+            <h3>Historial de Movimientos - {producto.nombre}</h3>
+            <button className="modal-close" onClick={onClose} aria-label="Cerrar modal">×</button>
+          </div>
+          <div className="modal-body">
+            {historial && historial.length > 0 ? (
+              <div className="historial-table-area">
+                <table className="historial-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Tipo</th>
+                      <th>Cantidad</th>
+                      <th>Stock Anterior</th>
+                      <th>Stock Posterior</th>
+                      <th>Motivo</th>
+                      <th>Usuario</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historial.map((movimiento) => (
+                      <tr key={movimiento.id}>
+                        <td>{new Date(movimiento.fecha).toLocaleString('es-ES')}</td>
+                        <td>
+                          <span className={`estado-${movimiento.tipo.toLowerCase()}`}>
+                            {movimiento.tipo}
+                          </span>
+                        </td>
+                        <td>{movimiento.cantidad}</td>
+                        <td>{movimiento.stockAnterior}</td>
+                        <td>{movimiento.stockPosterior}</td>
+                        <td>{movimiento.motivo}</td>
+                        <td>{movimiento.usuario?.nombre || 'Sistema'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                <i className="fas fa-info-circle" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
+                <p>No hay movimientos registrados para este producto.</p>
+              </div>
+            )}
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn-secondary" onClick={onClose}>
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // Modal de Registrar Movimiento como componente
+  function ModalRegistrarMovimiento({ show, onClose, onSubmit, editId, productos }) {
+    // Estado interno del modal para evitar re-renderizados
+    const [formData, setFormData] = React.useState({
+      productoId: '',
+      cantidad: '',
+      tipo: 'ENTRADA',
+      motivo: ''
+    });
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    // Resetear formulario cuando se abre el modal
+    React.useEffect(() => {
+      if (show) {
+        setFormData({
+          productoId: '',
+          cantidad: '',
+          tipo: 'ENTRADA',
+          motivo: ''
+        });
+        setIsSubmitting(false);
+      }
+    }, [show]);
+
+    const handleOverlayClick = React.useCallback((e) => {
+      if (e.target === e.currentTarget && !isSubmitting) {
+        onClose();
+      }
+    }, [onClose, isSubmitting]);
+
+    const handleKeyDown = React.useCallback((e) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onClose();
+      }
+    }, [onClose, isSubmitting]);
+
+    const handleChange = React.useCallback((e) => {
+      const { name, value } = e.target;
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleSubmit = React.useCallback(async (e) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      
+      try {
+        await onSubmit(e);
+        // El modal se cerrará automáticamente después del éxito
+      } catch (error) {
+        // En caso de error, el modal permanecerá abierto
+        setIsSubmitting(false);
+      }
+    }, [onSubmit]);
+
+    const handleClose = React.useCallback(() => {
+      if (!isSubmitting) {
+        onClose();
+      }
+    }, [onClose, isSubmitting]);
+
+    React.useEffect(() => {
+      if (show) {
+        document.addEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.removeEventListener('keydown', handleKeyDown);
+          document.body.style.overflow = 'unset';
+        };
+      }
+    }, [show, handleKeyDown]);
+
+    // Memoizar el contenido del modal para evitar re-renderizados
+    const modalContent = React.useMemo(() => {
+      if (!show) return null;
+
+      return ReactDOM.createPortal(
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-content registrar-movimiento-modal">
+            <div className="modal-header">
+              <h3>{editId ? 'Actualizar Movimiento' : 'Registrar Movimiento de Inventario'}</h3>
               <button 
-                className="notification-close"
-                onClick={() => removeNotification(notification.id)}
+                className="modal-close" 
+                onClick={handleClose} 
+                aria-label="Cerrar modal"
+                disabled={isSubmitting}
               >
                 ×
               </button>
             </div>
-            <div className="notification-message">{notification.message}</div>
-            {notification.products && (
-              <div className="notification-products">
-                {notification.products.map(product => (
-                  <span key={product.id} className="product-tag">
-                    {product.nombre} ({product.stockActual})
-                  </span>
-                ))}
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="producto-modal" className="form-label">Producto *</label>
+                  <select
+                    id="producto-modal"
+                    name="productoId"
+                    value={formData.productoId}
+                    onChange={handleChange}
+                    className="form-select"
+                    required
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Seleccionar producto</option>
+                    {productos.map(producto => (
+                      <option key={producto.id} value={producto.id}>
+                        {producto.nombre} (Stock: {producto.stockActual})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="tipo-modal" className="form-label">Tipo de Movimiento *</label>
+                  <select
+                    id="tipo-modal"
+                    name="tipo"
+                    value={formData.tipo}
+                    onChange={handleChange}
+                    className="form-select"
+                    required
+                    disabled={isSubmitting}
+                  >
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                    <option value="AJUSTE">Ajuste</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="cantidad-modal" className="form-label">Cantidad *</label>
+                  <input
+                    type="number"
+                    id="cantidad-modal"
+                    name="cantidad"
+                    value={formData.cantidad}
+                    onChange={handleChange}
+                    className="form-input"
+                    min="1"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
               </div>
-            )}
+
+              <div className="form-group">
+                <label htmlFor="motivo-modal" className="form-label">Motivo *</label>
+                <textarea
+                  id="motivo-modal"
+                  name="motivo"
+                  value={formData.motivo}
+                  onChange={handleChange}
+                  className="form-textarea"
+                  placeholder="Describa el motivo del movimiento..."
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i>
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save"></i>
+                      {editId ? 'Actualizar Movimiento' : 'Registrar Movimiento'}
+                    </>
+                  )}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
-        ))}
-      </div>
+        </div>,
+        document.body
+      );
+    }, [show, formData, editId, productos, isSubmitting, handleOverlayClick, handleChange, handleSubmit, handleClose]);
+
+    return modalContent;
+  }
+
+  function SuccessPopover({ show, message, onClose }) {
+    if (!show) return null;
+    return ReactDOM.createPortal(
+      <div className="success-popover-overlay">
+        <div className="success-popover">
+          <div className="success-popover-content">
+            <span className="success-popover-icon">✔️</span>
+            <span>{message}</span>
+            <button className="success-popover-close" onClick={onClose} aria-label="Cerrar notificación">×</button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  return (
+    <div className="inventario-area-container">
+      {/* Notificaciones */}
+      <SuccessPopover show={showSuccessPopover} message={successMessage} onClose={() => setShowSuccessPopover(false)} />
+      {/* Componente de Notificaciones */}
+      {/* Notificaciones centradas, solo cuando el modal está cerrado */}
+      {!showRegistrarModal && (
+        <div className="notifications-container">
+          {notifications.map((notification) => (
+            <div key={notification.id} className={`notification ${notification.type}`}>
+              <div className="notification-header">
+                <div className="notification-title">{notification.title}</div>
+                <button 
+                  className="notification-close" 
+                  onClick={() => removeNotification(notification.id)}
+                  aria-label="Cerrar notificación"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="notification-message">{notification.message}</div>
+              {notification.products && (
+                <div className="notification-products">
+                  {notification.products.map((product, index) => (
+                    <span key={index} className="product-tag">
+                      {product.nombre}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="inventario-header-area">
         <h1 className="inventario-title">Gestión de Inventario</h1>
@@ -355,6 +860,113 @@ function InventarioPage() {
           >
             <i className="fas fa-sync-alt"></i> Actualizar
           </button>
+        </div>
+      </div>
+
+      {/* Tarjetas Resumen de Inventario */}
+      <div className="inventario-kpi-cards">
+        <div className="kpi-card kpi-total-productos" key="kpi-total-productos">
+          <div className="kpi-title">Total de productos</div>
+          <div className="kpi-value">{productos.length}</div>
+          <div className="kpi-extra">{agotados.length} agotados</div>
+        </div>
+        <div className="kpi-card kpi-stock-bajo" key="kpi-stock-bajo">
+          <div className="kpi-title">Stock bajo</div>
+          <div className="kpi-value">{alertaStock.length}</div>
+          <div className="kpi-extra">Mínimo: {productoMenosStock?.nombre || '-'} ({productoMenosStock?.stock ?? productoMenosStock?.stockActual ?? '-'})</div>
+        </div>
+        <div className="kpi-card kpi-mas-stock" key="kpi-mas-stock">
+          <div className="kpi-title">Producto con más stock</div>
+          <div className="kpi-value">{productoMasStock?.nombre || '-'}</div>
+          <div className="kpi-extra">{productoMasStock?.stock ?? productoMasStock?.stockActual ?? '-'}</div>
+        </div>
+        <div className="kpi-card kpi-stock-total" key="kpi-stock-total">
+          <div className="kpi-title">Stock total</div>
+          <div className="kpi-value">{totalStock}</div>
+          <div className="kpi-extra">Valor total: ${valorTotalInventario.toLocaleString('es-CO', {minimumFractionDigits: 0})}</div>
+        </div>
+      </div>
+
+      {/* Gráfica de pastel (stock por producto) */}
+      <div className="inventario-pie-area">
+        <h2 className="inventario-pie-title"><i className="fas fa-chart-pie"></i> Distribución de Stock (Top 5)</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+              {pieData.map((entry, idx) => (
+                <Cell key={`cell-${idx}`} fill={pieColors[idx % pieColors.length]} />
+              ))}
+            </Pie>
+            <Tooltip formatter={(value, name) => [`${value} unidades`, name]} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Barras de progreso por producto */}
+      <div className="inventario-progress-area">
+        <h2 className="inventario-progress-title"><i className="fas fa-tasks"></i> Stock por Producto</h2>
+        <div className="progress-list">
+          {productos.map((p, idx) => {
+            const stock = p.stock ?? p.stockActual ?? 0;
+            const max = Math.max(...productos.map(x => x.stock ?? x.stockActual ?? 0), 1);
+            const percent = max > 0 ? Math.round((stock / max) * 100) : 0;
+            return (
+              <div className="progress-item" key={p.id}>
+                <div className="progress-label">{p.nombre} <span className="progress-value">{stock} u.</span></div>
+                <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: percent + '%', background: pieColors[idx % pieColors.length] }}></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tabla de productos con colores por estado de stock */}
+      <div className="inventario-tabla-area">
+        <h2 className="inventario-tabla-title"><i className="fas fa-table"></i> Tabla de Productos</h2>
+        <div className="tabla-productos-scroll">
+          <table className="tabla-productos">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Stock</th>
+                <th>Precio</th>
+                <th>Valor total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map((p) => {
+                const stock = p.stock ?? p.stockActual ?? 0;
+                let estado = 'Normal';
+                let color = '#28a745';
+                if (stock === 0) { estado = 'Agotado'; color = '#dc3545'; }
+                else if (stock <= (p.stockMinimo || 10)) { estado = 'Bajo'; color = '#ffc107'; }
+                return (
+                  <tr key={p.id} style={{ background: stock === 0 ? '#ffeaea' : stock <= (p.stockMinimo || 10) ? '#fffbe6' : 'white' }}>
+                    <td><img src={p.imagenUrl || '/imagenes/foto01 mujer.png'} alt={p.nombre} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /></td>
+                    <td>{p.nombre}</td>
+                    <td><b>{stock}</b></td>
+                    <td>${p.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
+                    <td>${((stock) * (p.precio ?? 0)).toLocaleString('es-CO', {minimumFractionDigits: 0})}</td>
+                    <td><span style={{ color, fontWeight: 600 }}>{estado}</span></td>
+                    <td>
+                      <button className="btn-restock" title="Reponer" onClick={() => handleQuickRestock(p)}>
+                        <i className="fas fa-plus"></i>
+                      </button>
+                      <button className="btn-history" title="Historial" onClick={(e) => handleShowHistorial(p, e)}>
+                        <i className="fas fa-history"></i>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -407,151 +1019,104 @@ function InventarioPage() {
         )}
       </div>
 
-      {/* Formulario de Movimientos */}
+      {/* Botón para Registrar Movimiento */}
       <div className="inventario-form-card">
-        <h2 className="inventario-form-title">
-          <i className="fas fa-plus-circle"></i>
-          Registrar Movimiento de Inventario
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="producto" className="form-label">Producto *</label>
-              <select
-                id="producto"
-                name="productoId"
-                value={form.productoId}
-                onChange={handleChange}
-                className="form-select"
-                required
-              >
-                <option value="">Seleccionar producto</option>
-                {productos.map(producto => (
-                  <option key={producto.id} value={producto.id}>
-                    {producto.nombre} (Stock: {producto.stockActual})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="tipo" className="form-label">Tipo de Movimiento *</label>
-              <select
-                id="tipo"
-                name="tipo"
-                value={form.tipo}
-                onChange={handleChange}
-                className="form-select"
-                required
-              >
-                <option value="ENTRADA">Entrada</option>
-                <option value="SALIDA">Salida</option>
-                <option value="AJUSTE">Ajuste</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="cantidad" className="form-label">Cantidad *</label>
-              <input
-                type="number"
-                id="cantidad"
-                name="cantidad"
-                value={form.cantidad}
-                onChange={handleChange}
-                className="form-input"
-                min="1"
-                required
-              />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="inventario-form-title">
+            <i className="fas fa-plus-circle"></i>
+            Gestión de Movimientos
+          </h2>
+          <button 
+            className="btn-primary"
+            onClick={() => setShowRegistrarModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <i className="fas fa-plus"></i>
+            Registrar Movimiento
+          </button>
+        </div>
+        {/* Notificación justo debajo del botón, solo cuando el modal está cerrado */}
+        {!showRegistrarModal && notifications.length > 0 && (
+          <div className="notification-inline-container">
+            <div className={`notification notification-inline ${notifications[0].type}`}>
+              <div className="notification-header">
+                <div className="notification-title">{notifications[0].title}</div>
+                <button 
+                  className="notification-close" 
+                  onClick={() => removeNotification(notifications[0].id)}
+                  aria-label="Cerrar notificación"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="notification-message">{notifications[0].message}</div>
+              {notifications[0].products && (
+                <div className="notification-products">
+                  {notifications[0].products.map((product, index) => (
+                    <span key={index} className="product-tag">
+                      {product.nombre}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="motivo" className="form-label">Motivo *</label>
-            <textarea
-              id="motivo"
-              name="motivo"
-              value={form.motivo}
-              onChange={handleChange}
-              className="form-textarea"
-              placeholder="Describa el motivo del movimiento..."
-              required
-            />
-          </div>
-
-          <div className="form-actions">
-            <button type="submit" className="btn-primary">
-              <i className="fas fa-save"></i>
-              {editId ? 'Actualizar Movimiento' : 'Registrar Movimiento'}
-            </button>
-            {editId && (
-              <button 
-                type="button" 
-                className="btn-secondary"
-                onClick={() => {
-                  setEditId(null);
-                  setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
-                }}
-              >
-                <i className="fas fa-times"></i> Cancelar
-              </button>
-            )}
-          </div>
-        </form>
+        )}
       </div>
-
-      {/* Resto del código existente... */}
       
       {/* Modal de Reposición Rápida */}
-      {showStockModal && selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Reponer Stock - {selectedProduct.nombre}</h3>
+      <ModalReposicion
+        show={showStockModal}
+        producto={selectedProduct}
+        onClose={() => { setShowStockModal(false); setSelectedProduct(null); }}
+        onSubmit={handleRestockSubmit}
+      />
+
+      {/* Modal de Historial */}
+      <ModalHistorial
+        show={showModal}
+        producto={historialProducto}
+        historial={historial}
+        onClose={() => { setShowModal(false); setHistorialProducto(null); }}
+      />
+
+      {/* Modal de Registrar Movimiento */}
+      <ModalRegistrarMovimiento
+        show={showRegistrarModal}
+        onClose={() => setShowRegistrarModal(false)}
+        onSubmit={handleSubmit}
+        editId={editId}
+        productos={productos}
+      />
+
+      {/* Notificación centrada, moderna y llamativa, solo la más reciente */}
+      {!showRegistrarModal && notifications.length > 0 && (
+        <div className="notification-center-container">
+          <div className={`notification notification-center ${notifications[0].type}`}>
+            <div className="notification-header">
+              <div className="notification-title">{notifications[0].title}</div>
               <button 
-                className="modal-close"
-                onClick={() => setShowStockModal(false)}
+                className="notification-close" 
+                onClick={() => removeNotification(notifications[0].id)}
+                aria-label="Cerrar notificación"
               >
                 ×
               </button>
             </div>
-            <form onSubmit={handleRestockSubmit}>
-              <div className="form-group">
-                <label>Cantidad a agregar:</label>
-                <input 
-                  type="number" 
-                  name="cantidad" 
-                  min="1" 
-                  required 
-                  className="form-input"
-                />
+            <div className="notification-message">{notifications[0].message}</div>
+            {notifications[0].products && (
+              <div className="notification-products">
+                {notifications[0].products.map((product, index) => (
+                  <span key={index} className="product-tag">
+                    {product.nombre}
+                  </span>
+                ))}
               </div>
-              <div className="form-group">
-                <label>Motivo:</label>
-                <textarea 
-                  name="motivo" 
-                  required 
-                  className="form-textarea"
-                  placeholder="Motivo de la reposición..."
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="submit" className="btn-primary">
-                  <i className="fas fa-plus"></i> Reponer
-                </button>
-                <button 
-                  type="button" 
-                  className="btn-secondary"
-                  onClick={() => setShowStockModal(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
 
-      {/* Resto del código existente para modales y tablas... */}
     </div>
   );
 }

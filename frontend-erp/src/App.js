@@ -49,7 +49,7 @@ function App() {
               path="/inventario"
               element={
                 <ProtectedRoute>
-                  <Layout><InventarioPage /></Layout>
+                  <Layout title="Inventarios" subtitle="Gestión de Inventario"><InventarioPage /></Layout>
                 </ProtectedRoute>
               }
             />
