@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import '../styles/InventarioPage.css';
 import ReactDOM from 'react-dom';
-import { Treemap, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { Treemap, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts';
 
 const API_URL = 'http://localhost:8081/api';
 
@@ -179,24 +179,27 @@ function InventarioPage() {
 
       if (editId) {
         await axios.put(`${API_URL}/movimientos-inventario/${editId}`, movimientoData, config);
-        addNotification({
-          type: 'success',
-          title: 'Éxito',
-          message: 'Movimiento actualizado correctamente'
-        });
         setEditId(null);
+        setShowRegistrarModal(false);
+        setTimeout(() => {
+          addNotification({
+            type: 'success',
+            title: 'Éxito',
+            message: 'Movimiento actualizado correctamente'
+          });
+        }, 300);
       } else {
         await axios.post(`${API_URL}/movimientos-inventario`, movimientoData, config);
-        addNotification({
-          type: 'success',
-          title: 'Éxito',
-          message: 'Movimiento registrado correctamente'
-        });
+        setShowRegistrarModal(false);
+        setTimeout(() => {
+          addNotification({
+            type: 'success',
+            title: 'Éxito',
+            message: 'Movimiento registrado correctamente'
+          });
+        }, 300);
       }
 
-      // Cerrar modal después de éxito
-      setShowRegistrarModal(false);
-      
       // Recargar datos
       await fetchMovimientos();
       await fetchProductos();
@@ -428,15 +431,11 @@ function InventarioPage() {
   const productoMenosStock = productos.reduce((min, p) => ((p.stock ?? p.stockActual ?? 0) < (min.stock ?? min.stockActual ?? 0) ? p : min), productos[0] || {});
   const valorTotalInventario = productos.reduce((acc, p) => acc + ((p.stock ?? p.stockActual ?? 0) * (p.precio ?? 0)), 0);
 
-  // Para gráfica de pastel: top 5 productos y "Otros"
+  // Para gráfica de barras: top 5 productos
   const sortedProductos = [...productos].sort((a, b) => (b.stock ?? b.stockActual ?? 0) - (a.stock ?? a.stockActual ?? 0));
   const top5 = sortedProductos.slice(0, 5);
-  const otrosStock = sortedProductos.slice(5).reduce((acc, p) => acc + (p.stock ?? p.stockActual ?? 0), 0);
-  const pieData = [
-    ...top5.map(p => ({ name: p.nombre, value: p.stock ?? p.stockActual ?? 0 })),
-    ...(otrosStock > 0 ? [{ name: 'Otros', value: otrosStock }] : [])
-  ];
-  const pieColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F', '#d0ed57'];
+  const barData = top5.map(p => ({ nombre: p.nombre, stock: p.stock ?? p.stockActual ?? 0, precio: p.precio ?? 0 }));
+  const barColors = ['#1976d2', '#10b981', '#fbc02d', '#e53935', '#8e24aa'];
 
   // Modal de Reposición Rápida como componente
   function ModalReposicion({ show, producto, onClose, onSubmit }) {
@@ -807,40 +806,25 @@ function InventarioPage() {
     );
   }
 
+  // Agregar función para manejar el drop de imagen
+  function handleImageDrop(e, producto) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) {
+      addNotification({ type: 'error', title: 'Archivo inválido', message: 'Solo se permiten imágenes.' });
+      return;
+    }
+    // Aquí puedes implementar la lógica para subir la imagen al backend
+    // Por ahora, solo mostramos una notificación de éxito
+    addNotification({ type: 'info', title: 'Imagen recibida', message: `Imagen para ${producto.nombre} lista para subir.` });
+    // TODO: Implementar subida real al backend y refrescar la imagen
+  }
+
   return (
     <div className="inventario-area-container">
       {/* Notificaciones */}
-      <SuccessPopover show={showSuccessPopover} message={successMessage} onClose={() => setShowSuccessPopover(false)} />
-      {/* Componente de Notificaciones */}
-      {/* Notificaciones centradas, solo cuando el modal está cerrado */}
-      {!showRegistrarModal && (
-        <div className="notifications-container">
-          {notifications.map((notification) => (
-            <div key={notification.id} className={`notification ${notification.type}`}>
-              <div className="notification-header">
-                <div className="notification-title">{notification.title}</div>
-                <button 
-                  className="notification-close" 
-                  onClick={() => removeNotification(notification.id)}
-                  aria-label="Cerrar notificación"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="notification-message">{notification.message}</div>
-              {notification.products && (
-                <div className="notification-products">
-                  {notification.products.map((product, index) => (
-                    <span key={index} className="product-tag">
-                      {product.nombre}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Eliminar cualquier renderizado de <SuccessPopover ... /> y notification-center-container del JSX principal.
+      Solo dejar la notificación-bottom-container al final del JSX. */}
 
       <div className="inventario-header-area">
         <h1 className="inventario-title">Gestión de Inventario</h1>
@@ -851,10 +835,18 @@ function InventarioPage() {
               fetchProductos();
               fetchMovimientos();
               fetchAlertaStock();
-              addNotification({
-                type: 'info',
-                title: 'Actualizado',
-                message: 'Datos de inventario actualizados'
+              // Evitar duplicados de notificación 'Actualizado'
+              setNotifications(prev => {
+                if (prev.some(n => n.title === 'Actualizado' && n.message === 'Datos de inventario actualizados')) {
+                  return prev;
+                }
+                return [{
+                  type: 'info',
+                  title: 'Actualizado',
+                  message: 'Datos de inventario actualizados',
+                  id: Date.now(),
+                  timestamp: new Date()
+                }, ...prev.slice(0, 4)];
               });
             }}
           >
@@ -863,64 +855,69 @@ function InventarioPage() {
         </div>
       </div>
 
-      {/* Tarjetas Resumen de Inventario */}
-      <div className="inventario-kpi-cards">
-        <div className="kpi-card kpi-total-productos" key="kpi-total-productos">
+      {/* Tarjetas Resumen de Inventario - KPIs */}
+      <div className="inventario-kpi-cards kpi-modern-grid">
+        <div className="kpi-card kpi-total-productos kpi-small" key="kpi-total-productos">
           <div className="kpi-title">Total de productos</div>
           <div className="kpi-value">{productos.length}</div>
           <div className="kpi-extra">{agotados.length} agotados</div>
         </div>
-        <div className="kpi-card kpi-stock-bajo" key="kpi-stock-bajo">
+        <div className="kpi-card kpi-stock-bajo kpi-small" key="kpi-stock-bajo">
           <div className="kpi-title">Stock bajo</div>
           <div className="kpi-value">{alertaStock.length}</div>
           <div className="kpi-extra">Mínimo: {productoMenosStock?.nombre || '-'} ({productoMenosStock?.stock ?? productoMenosStock?.stockActual ?? '-'})</div>
         </div>
-        <div className="kpi-card kpi-mas-stock" key="kpi-mas-stock">
+        <div className="kpi-card kpi-mas-stock kpi-small" key="kpi-mas-stock">
           <div className="kpi-title">Producto con más stock</div>
           <div className="kpi-value">{productoMasStock?.nombre || '-'}</div>
           <div className="kpi-extra">{productoMasStock?.stock ?? productoMasStock?.stockActual ?? '-'}</div>
         </div>
-        <div className="kpi-card kpi-stock-total" key="kpi-stock-total">
+        <div className="kpi-card kpi-stock-total kpi-small" key="kpi-stock-total">
           <div className="kpi-title">Stock total</div>
           <div className="kpi-value">{totalStock}</div>
           <div className="kpi-extra">Valor total: ${valorTotalInventario.toLocaleString('es-CO', {minimumFractionDigits: 0})}</div>
         </div>
-      </div>
-
-      {/* Gráfica de pastel (stock por producto) */}
-      <div className="inventario-pie-area">
-        <h2 className="inventario-pie-title"><i className="fas fa-chart-pie"></i> Distribución de Stock (Top 5)</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-              {pieData.map((entry, idx) => (
-                <Cell key={`cell-${idx}`} fill={pieColors[idx % pieColors.length]} />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value, name) => [`${value} unidades`, name]} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Barras de progreso por producto */}
-      <div className="inventario-progress-area">
-        <h2 className="inventario-progress-title"><i className="fas fa-tasks"></i> Stock por Producto</h2>
-        <div className="progress-list">
-          {productos.map((p, idx) => {
-            const stock = p.stock ?? p.stockActual ?? 0;
-            const max = Math.max(...productos.map(x => x.stock ?? x.stockActual ?? 0), 1);
-            const percent = max > 0 ? Math.round((stock / max) * 100) : 0;
-            return (
-              <div className="progress-item" key={p.id}>
-                <div className="progress-label">{p.nombre} <span className="progress-value">{stock} u.</span></div>
-                <div className="progress-bar-bg">
-                  <div className="progress-bar-fill" style={{ width: percent + '%', background: pieColors[idx % pieColors.length] }}></div>
-                </div>
-              </div>
-            );
-          })}
+        {/* NUEVAS TARJETAS KPI */}
+        <div className="kpi-card kpi-agotados kpi-small" key="kpi-agotados">
+          <div className="kpi-title">Productos agotados</div>
+          <div className="kpi-value">{agotados.length}</div>
+          <div className="kpi-extra">{agotados.length > 0 ? agotados.map(p => p.nombre).slice(0,2).join(', ') + (agotados.length > 2 ? '...' : '') : 'Ninguno'}</div>
         </div>
+        <div className="kpi-card kpi-prom-stock kpi-small" key="kpi-prom-stock">
+          <div className="kpi-title">Promedio de stock</div>
+          <div className="kpi-value">{productos.length > 0 ? Math.round(totalStock / productos.length) : 0}</div>
+          <div className="kpi-extra">por producto</div>
+        </div>
+        <div className="kpi-card kpi-critico kpi-small" key="kpi-critico">
+          <div className="kpi-title">Stock crítico</div>
+          <div className="kpi-value">{productos.filter(p => (p.stock ?? p.stockActual ?? 0) <= 5).length}</div>
+          <div className="kpi-extra">≤ 5 unidades</div>
+        </div>
+        <div className="kpi-card kpi-prom-valor kpi-small" key="kpi-prom-valor">
+          <div className="kpi-title">Valor promedio</div>
+          <div className="kpi-value">${productos.length > 0 ? Math.round(valorTotalInventario / productos.length).toLocaleString('es-CO', {minimumFractionDigits: 0}) : 0}</div>
+          <div className="kpi-extra">por producto</div>
+        </div>
+      </div>
+
+      {/* Gráfica de barras para Top 5 productos con más stock */}
+      <div className="chart-card" style={{ marginBottom: 32 }}>
+        <h2 style={{ marginBottom: 16 }}>Top 5 productos con más stock</h2>
+        <ResponsiveContainer width="100%" height={320}>
+          <BarChart data={barData} margin={{ top: 20, right: 30, left: 10, bottom: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="nombre" angle={-20} textAnchor="end" interval={0} style={{ fontSize: 13 }} />
+            <YAxis allowDecimals={false} label={{ value: 'Unidades', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }} />
+            <Tooltip formatter={(value, name) => [`${value} unidades`, 'Stock']} />
+            <Legend />
+            <Bar dataKey="stock" fill="#1976d2">
+              {barData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+              ))}
+              <LabelList dataKey="stock" position="top" style={{ fontWeight: 600, fontSize: 14 }} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Tabla de productos con colores por estado de stock */}
@@ -948,7 +945,22 @@ function InventarioPage() {
                 else if (stock <= (p.stockMinimo || 10)) { estado = 'Bajo'; color = '#ffc107'; }
                 return (
                   <tr key={p.id} style={{ background: stock === 0 ? '#ffeaea' : stock <= (p.stockMinimo || 10) ? '#fffbe6' : 'white' }}>
-                    <td><img src={p.imagenUrl || '/imagenes/foto01 mujer.png'} alt={p.nombre} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /></td>
+                    <td>
+                      <div
+                        className="product-image-dropzone"
+                        style={{ width: 60, height: 60, border: '2px dashed #ccc', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', position: 'relative' }}
+                        onDragOver={e => e.preventDefault()}
+                        onDrop={e => handleImageDrop(e, p)}
+                        title="Arrastra una imagen aquí para actualizar"
+                      >
+                        <img
+                          src={p.imagenUrl || '/imagenes/foto01 mujer.png'}
+                          alt={p.nombre}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                        />
+                        <span style={{ position: 'absolute', bottom: 2, right: 4, fontSize: 12, color: '#888', background: '#fff8', borderRadius: 4, padding: '0 4px' }}>Editar</span>
+                      </div>
+                    </td>
                     <td>{p.nombre}</td>
                     <td><b>{stock}</b></td>
                     <td>${p.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
@@ -956,10 +968,10 @@ function InventarioPage() {
                     <td><span style={{ color, fontWeight: 600 }}>{estado}</span></td>
                     <td>
                       <button className="btn-restock" title="Reponer" onClick={() => handleQuickRestock(p)}>
-                        <i className="fas fa-plus"></i>
+                        <i className="fas fa-plus"></i> Reponer
                       </button>
                       <button className="btn-history" title="Historial" onClick={(e) => handleShowHistorial(p, e)}>
-                        <i className="fas fa-history"></i>
+                        <i className="fas fa-history"></i> Historial
                       </button>
                     </td>
                   </tr>
@@ -1035,10 +1047,9 @@ function InventarioPage() {
             Registrar Movimiento
           </button>
         </div>
-        {/* Notificación justo debajo del botón, solo cuando el modal está cerrado */}
-        {!showRegistrarModal && notifications.length > 0 && (
-          <div className="notification-inline-container">
-            <div className={`notification notification-inline ${notifications[0].type}`}>
+        {notifications.length > 0 && (
+          <div className="notification-bottom-container">
+            <div className={`notification notification-bottom ${notifications[0].type}`} style={{ position: 'fixed', left: '50%', bottom: '120px', transform: 'translateX(-50%)', zIndex: 9999, minWidth: 320, maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
               <div className="notification-header">
                 <div className="notification-title">{notifications[0].title}</div>
                 <button 
@@ -1088,34 +1099,6 @@ function InventarioPage() {
         editId={editId}
         productos={productos}
       />
-
-      {/* Notificación centrada, moderna y llamativa, solo la más reciente */}
-      {!showRegistrarModal && notifications.length > 0 && (
-        <div className="notification-center-container">
-          <div className={`notification notification-center ${notifications[0].type}`}>
-            <div className="notification-header">
-              <div className="notification-title">{notifications[0].title}</div>
-              <button 
-                className="notification-close" 
-                onClick={() => removeNotification(notifications[0].id)}
-                aria-label="Cerrar notificación"
-              >
-                ×
-              </button>
-            </div>
-            <div className="notification-message">{notifications[0].message}</div>
-            {notifications[0].products && (
-              <div className="notification-products">
-                {notifications[0].products.map((product, index) => (
-                  <span key={index} className="product-tag">
-                    {product.nombre}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
     </div>
   );
