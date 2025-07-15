@@ -3,6 +3,7 @@ import axios from 'axios';
 import '../styles/InventarioPage.css';
 import ReactDOM from 'react-dom';
 import { Treemap, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts';
+import { useNotifications } from '../components/NotificationProvider';
 
 const API_URL = 'http://localhost:8081/api';
 
@@ -27,7 +28,6 @@ function InventarioPage() {
   const [productos, setProductos] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
   const [alertaStock, setAlertaStock] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [stockThreshold, setStockThreshold] = useState(10);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, useCenter: false });
   const popoverRef = useRef(null);
@@ -39,6 +39,8 @@ function InventarioPage() {
 
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+  const { notifications, removeNotification, addNotification } = useNotifications();
 
   useEffect(() => {
     fetchProductos();
@@ -72,19 +74,6 @@ function InventarioPage() {
     } catch (err) {
       console.error('Error checking stock alerts:', err);
     }
-  };
-
-  const addNotification = React.useCallback((notification) => {
-    const newNotification = {
-      ...notification,
-      id: Date.now(),
-      timestamp: new Date()
-    };
-    setNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // Mantener solo las últimas 5
-  }, []);
-
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   const fetchProductos = React.useCallback(async () => {
@@ -180,7 +169,7 @@ function InventarioPage() {
       if (editId) {
         await axios.put(`${API_URL}/movimientos-inventario/${editId}`, movimientoData, config);
         setEditId(null);
-        setShowRegistrarModal(false);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
           addNotification({
             type: 'success',
@@ -190,7 +179,7 @@ function InventarioPage() {
         }, 300);
       } else {
         await axios.post(`${API_URL}/movimientos-inventario`, movimientoData, config);
-        setShowRegistrarModal(false);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
           addNotification({
             type: 'success',
@@ -218,7 +207,7 @@ function InventarioPage() {
       submitButton.innerHTML = originalText;
       submitButton.disabled = false;
     }
-  }, [editId, config, addNotification, setShowRegistrarModal, fetchMovimientos, fetchProductos, fetchAlertaStock, productos]);
+  }, [editId, config, addNotification, setForm, fetchMovimientos, fetchProductos, fetchAlertaStock, productos]);
 
   const handleEdit = (mov) => {
     setEditForm({
@@ -233,7 +222,8 @@ function InventarioPage() {
       stockPosterior: mov.stockPosterior
     });
     setEditFeedback('');
-    setShowEditModal(true);
+    setEditId(mov.id); // Set editId to the current mov.id
+    setForm({ productoId: mov.producto.id, cantidad: mov.cantidad, tipo: mov.tipo, motivo: mov.motivo });
   };
 
   const handleEditChange = (e) => {
@@ -259,13 +249,9 @@ function InventarioPage() {
         motivo: editForm.motivo
       }, config);
       setEditFeedback('¡Actualizado correctamente!');
-      addNotification({
-        type: 'success',
-        title: 'Éxito',
-        message: 'Movimiento actualizado correctamente'
-      });
       setTimeout(() => {
-        setShowEditModal(false);
+        setEditId(null);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         fetchMovimientos();
       }, 1000);
     } catch (err) {
@@ -283,15 +269,10 @@ function InventarioPage() {
     try {
       await axios.delete(`${API_URL}/movimientos-inventario/${id}`, config);
       setDeleteFeedback('¡Eliminado correctamente!');
-      addNotification({
-        type: 'success',
-        title: 'Éxito',
-        message: 'Movimiento eliminado correctamente'
-      });
+      setTimeout(() => setDeleteFeedback(''), 2000);
       fetchMovimientos();
       fetchProductos();
       fetchAlertaStock();
-      setTimeout(() => setDeleteFeedback(''), 2000);
     } catch (err) {
       setDeleteFeedback('Error al eliminar el movimiento.');
       addNotification({
@@ -836,18 +817,18 @@ function InventarioPage() {
               fetchMovimientos();
               fetchAlertaStock();
               // Evitar duplicados de notificación 'Actualizado'
-              setNotifications(prev => {
-                if (prev.some(n => n.title === 'Actualizado' && n.message === 'Datos de inventario actualizados')) {
-                  return prev;
-                }
-                return [{
-                  type: 'info',
-                  title: 'Actualizado',
-                  message: 'Datos de inventario actualizados',
-                  id: Date.now(),
-                  timestamp: new Date()
-                }, ...prev.slice(0, 4)];
-              });
+              // setNotifications(prev => {
+              //   if (prev.some(n => n.title === 'Actualizado' && n.message === 'Datos de inventario actualizados')) {
+              //     return prev;
+              //   }
+              //   return [{
+              //     type: 'info',
+              //     title: 'Actualizado',
+              //     message: 'Datos de inventario actualizados',
+              //     id: Date.now(),
+              //     timestamp: new Date()
+              //   }, ...prev.slice(0, 4)];
+              // });
             }}
           >
             <i className="fas fa-sync-alt"></i> Actualizar
@@ -1047,31 +1028,24 @@ function InventarioPage() {
             Registrar Movimiento
           </button>
         </div>
-        {notifications.length > 0 && (
-          <div className="notification-bottom-container">
-            <div className={`notification notification-bottom ${notifications[0].type}`} style={{ position: 'fixed', left: '50%', bottom: '120px', transform: 'translateX(-50%)', zIndex: 9999, minWidth: 320, maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-              <div className="notification-header">
-                <div className="notification-title">{notifications[0].title}</div>
-                <button 
-                  className="notification-close" 
-                  onClick={() => removeNotification(notifications[0].id)}
-                  aria-label="Cerrar notificación"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="notification-message">{notifications[0].message}</div>
-              {notifications[0].products && (
-                <div className="notification-products">
-                  {notifications[0].products.map((product, index) => (
-                    <span key={index} className="product-tag">
-                      {product.nombre}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+        {notifications.length > 0 && notifications[0].type === 'error' && (
+          <div className="alert-movimiento error" style={{ margin: '18px auto 0 auto', maxWidth: 400, padding: '12px 18px', borderRadius: '8px', background: '#ffeaea', color: '#b71c1c', borderLeft: '5px solid #e53935', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', fontWeight: 500, fontSize: 17, textAlign: 'center' }}>
+            <i className="fas fa-times-circle" style={{ fontSize: 22 }}></i>
+            <span style={{ fontWeight: 'bold', marginRight: 6 }}>{notifications[0].title || notifications[0].titulo}:</span>
+            <span>{notifications[0].message || notifications[0].mensaje}</span>
+            <button className="alert-close" onClick={() => removeNotification(notifications[0].id)} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 22, marginTop: 8, cursor: 'pointer' }}>×</button>
           </div>
+        )}
+        {notifications.length > 0 && notifications[0].type === 'success' && ReactDOM.createPortal(
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(30,30,30,0.18)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '36px 48px', minWidth: 320, maxWidth: '90vw', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <i className="fas fa-check-circle" style={{ color: '#10b981', fontSize: 48, marginBottom: 12 }}></i>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#197d4b', marginBottom: 8 }}>{notifications[0].title || notifications[0].titulo}</div>
+              <div style={{ fontSize: 17, color: '#197d4b', marginBottom: 18 }}>{notifications[0].message || notifications[0].mensaje}</div>
+              <button className="btn-primary" style={{ minWidth: 120, fontSize: 17 }} onClick={() => removeNotification(notifications[0].id)}>Cerrar</button>
+            </div>
+          </div>,
+          document.body
         )}
       </div>
       
@@ -1099,6 +1073,80 @@ function InventarioPage() {
         editId={editId}
         productos={productos}
       />
+
+      {/* Formulario de registro de movimiento siempre visible */}
+      <div className="movimientos-card">
+        {/* Formulario de registro de movimiento siempre visible */}
+        <form onSubmit={handleSubmit} style={{ margin: '24px 0', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-end' }}>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <label>Producto</label>
+            <select name="productoId" value={form.productoId} onChange={handleChange} required style={{ width: '100%' }}>
+              <option value="">Seleccione...</option>
+              {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          </div>
+          <div style={{ minWidth: 120 }}>
+            <label>Cantidad</label>
+            <input type="number" name="cantidad" value={form.cantidad} onChange={handleChange} min={1} required style={{ width: '100%' }} />
+          </div>
+          <div style={{ minWidth: 140 }}>
+            <label>Tipo</label>
+            <select name="tipo" value={form.tipo} onChange={handleChange} required style={{ width: '100%' }}>
+              <option value="ENTRADA">ENTRADA</option>
+              <option value="SALIDA">SALIDA</option>
+            </select>
+          </div>
+          <div style={{ flex: 2, minWidth: 200 }}>
+            <label>Motivo</label>
+            <input type="text" name="motivo" value={form.motivo} onChange={handleChange} required style={{ width: '100%' }} />
+          </div>
+          <button type="submit" className="btn-primary" style={{ minWidth: 140, height: 40 }}>
+            {editId ? 'Actualizar Movimiento' : 'Registrar Movimiento'}
+          </button>
+          {editId && (
+            <button type="button" className="btn-secondary" style={{ minWidth: 100, height: 40 }} onClick={() => { setEditId(null); setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' }); }}>
+              Cancelar Edición
+            </button>
+          )}
+        </form>
+        {/* Tabla de movimientos recientes */}
+        <div style={{ margin: '16px 0 0 0' }}>
+          <h3 style={{ marginBottom: 8 }}>Movimientos recientes</h3>
+          <table className="tabla-movimientos" style={{ width: '100%', fontSize: 15 }}>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {movimientos.slice(0, 10).map(mov => (
+                <tr key={mov.id}>
+                  <td>{mov.fecha ? mov.fecha.replace('T', ' ').substring(0, 19) : '-'}</td>
+                  <td>{mov.producto?.nombre || '-'}</td>
+                  <td>{mov.tipo}</td>
+                  <td>{mov.cantidad}</td>
+                  <td>{mov.motivo}</td>
+                  <td>{mov.usuario?.nombre || '-'}</td>
+                  <td>
+                    <button className="btn-secondary" style={{ marginRight: 6 }} onClick={() => handleEdit(mov)}>
+                      Editar
+                    </button>
+                    <button className="btn-danger" onClick={() => handleDelete(mov.id)}>
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
     </div>
   );

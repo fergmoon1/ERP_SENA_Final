@@ -1854,3 +1854,132 @@ body, html {
 .notification-bottom.info { border-left-color: #1976d2; }
 .notification-bottom.warning { border-left-color: #fbc02d; }
 .notification-bottom.error { border-left-color: #e53935; } 
+
+.movimientos-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  padding: 32px 28px 28px 28px;
+  margin: 24px 0 0 0;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.movimientos-card form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-end;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+.movimientos-card label {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #1976d2;
+}
+.movimientos-card input,
+.movimientos-card select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 15px;
+  width: 100%;
+  background: #f9fafb;
+  margin-bottom: 0;
+}
+.movimientos-card button {
+  margin-top: 0;
+}
+.tabla-movimientos {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafc;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.tabla-movimientos th, .tabla-movimientos td {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 15px;
+}
+.tabla-movimientos th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #1976d2;
+}
+.tabla-movimientos tr:nth-child(even) {
+  background: #f9fafb;
+}
+.tabla-movimientos tr:hover {
+  background: #e3f2fd;
+}
+.tabla-movimientos td {
+  border-bottom: 1px solid #e5e7eb;
+}
+@media (max-width: 700px) {
+  .movimientos-card {
+    padding: 16px 4px;
+    max-width: 99vw;
+  }
+  .tabla-movimientos th, .tabla-movimientos td {
+    font-size: 13px;
+    padding: 7px 4px;
+  }
+} 
+
+/* Unificar botones de acción en tablas de productos y movimientos */
+.tabla-productos .btn-restock,
+.tabla-productos .btn-history,
+.tabla-productos .btn-secondary,
+.tabla-productos .btn-danger,
+.tabla-movimientos .btn-secondary,
+.tabla-movimientos .btn-danger {
+  min-width: 90px;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 15px;
+  border-radius: 7px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.tabla-productos .btn-restock,
+.tabla-movimientos .btn-secondary {
+  background: #10b981;
+  color: #fff;
+  border: none;
+}
+.tabla-productos .btn-history {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+}
+.tabla-productos .btn-restock:hover,
+.tabla-movimientos .btn-secondary:hover {
+  background: #059669;
+}
+.tabla-productos .btn-history:hover {
+  background: #1565c0;
+}
+.tabla-productos .btn-danger,
+.tabla-movimientos .btn-danger {
+  background: #e53935;
+  color: #fff;
+  border: none;
+}
+.tabla-productos .btn-danger:hover,
+.tabla-movimientos .btn-danger:hover {
+  background: #b71c1c;
+} 
