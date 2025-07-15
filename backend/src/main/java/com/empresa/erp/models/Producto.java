@@ -12,6 +12,7 @@ public class Producto {
     private String descripcion;
     private Double precio;
     private Integer stock;
+    private String imagenUrl;
 
     // Getters y Setters
     public Long getId() { return id; }
@@ -28,4 +29,7 @@ public class Producto {
 
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
+
+    public String getImagenUrl() { return imagenUrl; }
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 }

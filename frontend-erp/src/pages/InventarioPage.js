@@ -3,6 +3,7 @@ import axios from 'axios';
 import '../styles/InventarioPage.css';
 import ReactDOM from 'react-dom';
 import { Treemap, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts';
+import { useNotifications } from '../components/NotificationProvider';
 
 const API_URL = 'http://localhost:8081/api';
 
@@ -27,7 +28,6 @@ function InventarioPage() {
   const [productos, setProductos] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
   const [alertaStock, setAlertaStock] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [stockThreshold, setStockThreshold] = useState(10);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, useCenter: false });
   const popoverRef = useRef(null);
@@ -39,6 +39,8 @@ function InventarioPage() {
 
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+  const { notifications, removeNotification, addNotification } = useNotifications();
 
   useEffect(() => {
     fetchProductos();
@@ -72,19 +74,6 @@ function InventarioPage() {
     } catch (err) {
       console.error('Error checking stock alerts:', err);
     }
-  };
-
-  const addNotification = React.useCallback((notification) => {
-    const newNotification = {
-      ...notification,
-      id: Date.now(),
-      timestamp: new Date()
-    };
-    setNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // Mantener solo las últimas 5
-  }, []);
-
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   const fetchProductos = React.useCallback(async () => {
@@ -180,7 +169,7 @@ function InventarioPage() {
       if (editId) {
         await axios.put(`${API_URL}/movimientos-inventario/${editId}`, movimientoData, config);
         setEditId(null);
-        setShowRegistrarModal(false);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
           addNotification({
             type: 'success',
@@ -190,7 +179,7 @@ function InventarioPage() {
         }, 300);
       } else {
         await axios.post(`${API_URL}/movimientos-inventario`, movimientoData, config);
-        setShowRegistrarModal(false);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
           addNotification({
             type: 'success',
@@ -218,22 +207,19 @@ function InventarioPage() {
       submitButton.innerHTML = originalText;
       submitButton.disabled = false;
     }
-  }, [editId, config, addNotification, setShowRegistrarModal, fetchMovimientos, fetchProductos, fetchAlertaStock, productos]);
+  }, [editId, config, addNotification, setForm, fetchMovimientos, fetchProductos, fetchAlertaStock, productos]);
 
+  // Corregir la función handleEdit para que funcione con el formulario siempre visible:
   const handleEdit = (mov) => {
-    setEditForm({
-      id: mov.id,
+    setEditId(mov.id);
+    setForm({
       productoId: mov.producto.id,
       cantidad: mov.cantidad,
       tipo: mov.tipo,
-      motivo: mov.motivo,
-      fecha: mov.fecha?.replace('T', ' ').substring(0, 19) || '',
-      usuario: mov.usuario?.nombre || '-',
-      stockAnterior: mov.stockAnterior,
-      stockPosterior: mov.stockPosterior
+      motivo: mov.motivo
     });
-    setEditFeedback('');
-    setShowEditModal(true);
+    // Hacer scroll al formulario para que el usuario vea que se cargaron los datos
+    document.querySelector('.movimientos-card')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleEditChange = (e) => {
@@ -259,13 +245,9 @@ function InventarioPage() {
         motivo: editForm.motivo
       }, config);
       setEditFeedback('¡Actualizado correctamente!');
-      addNotification({
-        type: 'success',
-        title: 'Éxito',
-        message: 'Movimiento actualizado correctamente'
-      });
       setTimeout(() => {
-        setShowEditModal(false);
+        setEditId(null);
+        setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         fetchMovimientos();
       }, 1000);
     } catch (err) {
@@ -278,11 +260,15 @@ function InventarioPage() {
     }
   };
 
+  // Agregar modal de confirmación para eliminar movimientos:
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Seguro que desea eliminar este movimiento?')) return;
+    const movimiento = movimientos.find(m => m.id === id);
+    const confirmMessage = `¿Está seguro que desea eliminar el movimiento de ${movimiento?.producto?.nombre || 'este producto'}?`;
+    
+    if (!window.confirm(confirmMessage)) return;
+    
     try {
       await axios.delete(`${API_URL}/movimientos-inventario/${id}`, config);
-      setDeleteFeedback('¡Eliminado correctamente!');
       addNotification({
         type: 'success',
         title: 'Éxito',
@@ -291,15 +277,12 @@ function InventarioPage() {
       fetchMovimientos();
       fetchProductos();
       fetchAlertaStock();
-      setTimeout(() => setDeleteFeedback(''), 2000);
     } catch (err) {
-      setDeleteFeedback('Error al eliminar el movimiento.');
       addNotification({
         type: 'error',
         title: 'Error',
         message: 'Error al eliminar el movimiento'
       });
-      setTimeout(() => setDeleteFeedback(''), 2000);
     }
   };
 
@@ -806,18 +789,92 @@ function InventarioPage() {
     );
   }
 
-  // Agregar función para manejar el drop de imagen
-  function handleImageDrop(e, producto) {
+  // Función para manejar el drop de imagen
+  async function handleImageDrop(e, producto) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
+    
     if (!file || !file.type.startsWith('image/')) {
-      addNotification({ type: 'error', title: 'Archivo inválido', message: 'Solo se permiten imágenes.' });
+      addNotification({ 
+        type: 'error', 
+        title: 'Archivo inválido', 
+        message: 'Solo se permiten archivos de imagen (JPG, PNG, GIF, etc.).' 
+      });
       return;
     }
-    // Aquí puedes implementar la lógica para subir la imagen al backend
-    // Por ahora, solo mostramos una notificación de éxito
-    addNotification({ type: 'info', title: 'Imagen recibida', message: `Imagen para ${producto.nombre} lista para subir.` });
-    // TODO: Implementar subida real al backend y refrescar la imagen
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      addNotification({ 
+        type: 'error', 
+        title: 'Archivo demasiado grande', 
+        message: 'El archivo debe ser menor a 5MB.' 
+      });
+      return;
+    }
+
+    try {
+      // Mostrar indicador de carga
+      addNotification({ 
+        type: 'info', 
+        title: 'Subiendo imagen...', 
+        message: `Subiendo imagen para ${producto.nombre}...` 
+      });
+
+      // Crear FormData
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Subir imagen al backend
+      const response = await axios.post(
+        `${API_URL}/productos/${producto.id}/upload-image`, 
+        formData, 
+        {
+          ...config,
+          headers: {
+            ...config.headers,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      // Mostrar notificación de éxito
+      addNotification({ 
+        type: 'success', 
+        title: 'Imagen subida correctamente', 
+        message: `La imagen de ${producto.nombre} se ha subido exitosamente.` 
+      });
+
+      // Recargar productos para mostrar la nueva imagen
+      await fetchProductos();
+
+    } catch (error) {
+      console.error('Error al subir imagen:', error);
+      const errorMessage = error.response?.data || 'Error al subir la imagen';
+      addNotification({ 
+        type: 'error', 
+        title: 'Error al subir imagen', 
+        message: errorMessage 
+      });
+    }
+  }
+
+  // Función para manejar el click en el área de imagen
+  function handleImageClick(e, producto) {
+    e.preventDefault();
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Simular drag & drop
+        const dropEvent = new Event('drop', { bubbles: true });
+        dropEvent.dataTransfer = { files: [file] };
+        await handleImageDrop(dropEvent, producto);
+      }
+    };
+    input.click();
   }
 
   return (
@@ -836,18 +893,18 @@ function InventarioPage() {
               fetchMovimientos();
               fetchAlertaStock();
               // Evitar duplicados de notificación 'Actualizado'
-              setNotifications(prev => {
-                if (prev.some(n => n.title === 'Actualizado' && n.message === 'Datos de inventario actualizados')) {
-                  return prev;
-                }
-                return [{
-                  type: 'info',
-                  title: 'Actualizado',
-                  message: 'Datos de inventario actualizados',
-                  id: Date.now(),
-                  timestamp: new Date()
-                }, ...prev.slice(0, 4)];
-              });
+              // setNotifications(prev => {
+              //   if (prev.some(n => n.title === 'Actualizado' && n.message === 'Datos de inventario actualizados')) {
+              //     return prev;
+              //   }
+              //   return [{
+              //     type: 'info',
+              //     title: 'Actualizado',
+              //     message: 'Datos de inventario actualizados',
+              //     id: Date.now(),
+              //     timestamp: new Date()
+              //   }, ...prev.slice(0, 4)];
+              // });
             }}
           >
             <i className="fas fa-sync-alt"></i> Actualizar
@@ -881,7 +938,11 @@ function InventarioPage() {
         <div className="kpi-card kpi-agotados kpi-small" key="kpi-agotados">
           <div className="kpi-title">Productos agotados</div>
           <div className="kpi-value">{agotados.length}</div>
-          <div className="kpi-extra">{agotados.length > 0 ? agotados.map(p => p.nombre).slice(0,2).join(', ') + (agotados.length > 2 ? '...' : '') : 'Ninguno'}</div>
+          <div className="kpi-extra">{agotados.length > 0 ? agotados.slice(0,2).map((p, index) => (
+            <span key={p.id || index}>
+              {p.nombre}{index < Math.min(agotados.length, 2) - 1 ? ', ' : ''}
+            </span>
+          )).concat(agotados.length > 2 ? [<span key="more">...</span>] : []) : 'Ninguno'}</div>
         </div>
         <div className="kpi-card kpi-prom-stock kpi-small" key="kpi-prom-stock">
           <div className="kpi-title">Promedio de stock</div>
@@ -948,17 +1009,69 @@ function InventarioPage() {
                     <td>
                       <div
                         className="product-image-dropzone"
-                        style={{ width: 60, height: 60, border: '2px dashed #ccc', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', position: 'relative' }}
-                        onDragOver={e => e.preventDefault()}
-                        onDrop={e => handleImageDrop(e, p)}
-                        title="Arrastra una imagen aquí para actualizar"
+                        style={{ 
+                          width: 60, 
+                          height: 60, 
+                          border: '2px dashed #ccc', 
+                          borderRadius: 8, 
+                          overflow: 'hidden', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          background: '#fafafa', 
+                          position: 'relative',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onDragOver={e => {
+                          e.preventDefault();
+                          e.currentTarget.style.borderColor = '#007bff';
+                          e.currentTarget.style.background = '#e3f2fd';
+                        }}
+                        onDragLeave={e => {
+                          e.currentTarget.style.borderColor = '#ccc';
+                          e.currentTarget.style.background = '#fafafa';
+                        }}
+                        onDrop={e => {
+                          e.currentTarget.style.borderColor = '#ccc';
+                          e.currentTarget.style.background = '#fafafa';
+                          handleImageDrop(e, p);
+                        }}
+                        onClick={e => handleImageClick(e, p)}
+                        title="Click o arrastra una imagen aquí para actualizar"
                       >
                         <img
-                          src={p.imagenUrl || '/imagenes/foto01 mujer.png'}
+                          src={p.imagenUrl ? `${API_URL}${p.imagenUrl}` : '/imagenes/foto01 mujer.png'}
                           alt={p.nombre}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                          style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover', 
+                            borderRadius: 8,
+                            transition: 'transform 0.2s ease'
+                          }}
+                          onError={(e) => {
+                            e.target.src = '/imagenes/foto01 mujer.png';
+                          }}
                         />
-                        <span style={{ position: 'absolute', bottom: 2, right: 4, fontSize: 12, color: '#888', background: '#fff8', borderRadius: 4, padding: '0 4px' }}>Editar</span>
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: 0, 
+                          left: 0, 
+                          right: 0, 
+                          bottom: 0, 
+                          background: 'rgba(0,0,0,0.1)', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.2s ease'
+                        }}
+                        onMouseEnter={e => e.target.style.opacity = 1}
+                        onMouseLeave={e => e.target.style.opacity = 0}
+                        >
+                          <i className="fas fa-camera" style={{ color: '#fff', fontSize: 16 }}></i>
+                        </div>
                       </div>
                     </td>
                     <td>{p.nombre}</td>
@@ -1047,31 +1160,24 @@ function InventarioPage() {
             Registrar Movimiento
           </button>
         </div>
-        {notifications.length > 0 && (
-          <div className="notification-bottom-container">
-            <div className={`notification notification-bottom ${notifications[0].type}`} style={{ position: 'fixed', left: '50%', bottom: '120px', transform: 'translateX(-50%)', zIndex: 9999, minWidth: 320, maxWidth: '90vw', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-              <div className="notification-header">
-                <div className="notification-title">{notifications[0].title}</div>
-                <button 
-                  className="notification-close" 
-                  onClick={() => removeNotification(notifications[0].id)}
-                  aria-label="Cerrar notificación"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="notification-message">{notifications[0].message}</div>
-              {notifications[0].products && (
-                <div className="notification-products">
-                  {notifications[0].products.map((product, index) => (
-                    <span key={index} className="product-tag">
-                      {product.nombre}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+        {notifications.length > 0 && notifications[0].type === 'error' && (
+          <div className="alert-movimiento error" style={{ margin: '18px auto 0 auto', maxWidth: 400, padding: '12px 18px', borderRadius: '8px', background: '#ffeaea', color: '#b71c1c', borderLeft: '5px solid #e53935', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', fontWeight: 500, fontSize: 17, textAlign: 'center' }}>
+            <i className="fas fa-times-circle" style={{ fontSize: 22 }}></i>
+            <span style={{ fontWeight: 'bold', marginRight: 6 }}>{notifications[0].title || notifications[0].titulo}:</span>
+            <span>{notifications[0].message || notifications[0].mensaje}</span>
+            <button className="alert-close" onClick={() => removeNotification(notifications[0].id)} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 22, marginTop: 8, cursor: 'pointer' }}>×</button>
           </div>
+        )}
+        {notifications.length > 0 && notifications[0].type === 'success' && ReactDOM.createPortal(
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(30,30,30,0.18)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '36px 48px', minWidth: 320, maxWidth: '90vw', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <i className="fas fa-check-circle" style={{ color: '#10b981', fontSize: 48, marginBottom: 12 }}></i>
+              <div style={{ fontWeight: 700, fontSize: 22, color: '#197d4b', marginBottom: 8 }}>{notifications[0].title || notifications[0].titulo}</div>
+              <div style={{ fontSize: 17, color: '#197d4b', marginBottom: 18 }}>{notifications[0].message || notifications[0].mensaje}</div>
+              <button className="btn-primary" style={{ minWidth: 120, fontSize: 17 }} onClick={() => removeNotification(notifications[0].id)}>Cerrar</button>
+            </div>
+          </div>,
+          document.body
         )}
       </div>
       
@@ -1099,6 +1205,137 @@ function InventarioPage() {
         editId={editId}
         productos={productos}
       />
+
+      {/* Formulario de registro de movimiento siempre visible */}
+      <div className="inventario-tabla-area">
+        <h2 className="inventario-tabla-title"><i className="fas fa-edit"></i> Registro de Movimientos</h2>
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 120px 140px 1fr auto', 
+          gap: '16px', 
+          alignItems: 'end',
+          padding: '20px',
+          background: '#f8f9fa',
+          borderRadius: '8px',
+          marginBottom: '16px'
+        }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Producto</label>
+            <select name="productoId" value={form.productoId} onChange={handleChange} required style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '6px', 
+              fontSize: '15px',
+              background: '#fff'
+            }}>
+              <option value="">Seleccione...</option>
+              {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Cantidad</label>
+            <input type="number" name="cantidad" value={form.cantidad} onChange={handleChange} min={1} required style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '6px', 
+              fontSize: '15px',
+              background: '#fff'
+            }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Tipo</label>
+            <select name="tipo" value={form.tipo} onChange={handleChange} required style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '6px', 
+              fontSize: '15px',
+              background: '#fff'
+            }}>
+              <option value="ENTRADA">ENTRADA</option>
+              <option value="SALIDA">SALIDA</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Motivo</label>
+            <textarea name="motivo" value={form.motivo} onChange={handleChange} required style={{ 
+              width: '100%', 
+              padding: '10px 12px', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '6px', 
+              fontSize: '15px',
+              background: '#fff',
+              minHeight: '60px',
+              resize: 'vertical',
+              fontFamily: 'inherit'
+            }} placeholder="Describa el motivo del movimiento..." />
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
+            <button type="submit" className="btn-primary" style={{ 
+              minWidth: '140px', 
+              height: '40px',
+              padding: '0 16px',
+              fontSize: '15px',
+              fontWeight: '600'
+            }}>
+              {editId ? 'Actualizar Movimiento' : 'Registrar Movimiento'}
+            </button>
+            {editId && (
+              <button type="button" className="btn-secondary" style={{ 
+                minWidth: '100px', 
+                height: '40px',
+                padding: '0 16px',
+                fontSize: '15px',
+                fontWeight: '600'
+              }} onClick={() => { setEditId(null); setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' }); }}>
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* Tabla de movimientos recientes */}
+      <div className="inventario-tabla-area">
+        <h2 className="inventario-tabla-title"><i className="fas fa-table"></i> Tabla de Movimientos</h2>
+        <div className="tabla-movimientos-scroll">
+          <table className="tabla-movimientos" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {movimientos.slice(0, 10).map(mov => (
+                <tr key={mov.id}>
+                  <td>{mov.fecha ? mov.fecha.replace('T', ' ').substring(0, 19) : '-'}</td>
+                  <td>{mov.producto?.nombre || '-'}</td>
+                  <td>{mov.tipo}</td>
+                  <td>{mov.cantidad}</td>
+                  <td>{mov.motivo}</td>
+                  <td>{mov.usuario?.nombre || '-'}</td>
+                  <td>
+                    <button className="btn-secondary" style={{ marginRight: 6 }} onClick={() => handleEdit(mov)}>
+                      Editar
+                    </button>
+                    <button className="btn-danger" onClick={() => handleDelete(mov.id)}>
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
     </div>
   );

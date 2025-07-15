@@ -69,6 +69,35 @@ public class FileUploadController {
         }
     }
     
+    @GetMapping("/productos/{filename:.+}")
+    public ResponseEntity<Resource> getProductImage(@PathVariable String filename) {
+        try {
+            // Decodificar el nombre del archivo si viene codificado
+            String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
+            
+            Path filePath = Paths.get("uploads/productos").resolve(decodedFilename);
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                // Determinar el tipo MIME basado en la extensión del archivo
+                String contentType = determineContentType(decodedFilename);
+                
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource);
+            } else {
+                // Log para debugging
+                System.out.println("Archivo no encontrado: " + decodedFilename);
+                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IOException e) {
+            System.out.println("Error accediendo al archivo: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
