@@ -57,7 +57,7 @@ function App() {
               path="/productos"
               element={
                 <ProtectedRoute>
-                  <Layout><ProductosPage /></Layout>
+                  <Layout title="Productos" subtitle="Gestión de Productos"><ProductosPage /></Layout>
                 </ProtectedRoute>
               }
             />

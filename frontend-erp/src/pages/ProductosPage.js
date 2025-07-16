@@ -178,8 +178,8 @@ function ProductosPage() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Imagen del Producto</th>
               <th>Nombre</th>
-              <th>Descripción</th>
               <th>Precio</th>
               <th>Stock</th>
               <th>Acciones</th>
@@ -255,8 +255,7 @@ function ProductosPage() {
                   </div>
                 </td>
                 <td style={{ fontSize: '13px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '8px 4px' }}>{prod.nombre}</td>
-                <td>{prod.descripcion}</td>
-                <td>{prod.precio}</td>
+                <td>${prod.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
                 <td>{prod.stock}</td>
                 <td className="acciones">
                   <button className="btn-editar" onClick={() => handleEdit(prod)}>Editar</button>
