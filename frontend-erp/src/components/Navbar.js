@@ -86,25 +86,27 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
           <p>{subtitle}</p>
         </div>
 
+        {/* Fecha y hora como elemento independiente */}
+        <div className="hora-modern">
+          <div className="fecha-modern">
+            <i className="fa-regular fa-calendar"></i> {formatDate(currentTime)}
+          </div>
+          <div className="tiempo-modern">{formatTime(currentTime)}</div>
+        </div>
+
         <div className="spacer"></div>
 
+        {/* Solo el avatar y datos del usuario */}
         <div className="perfil">
           <div className="perfil-texto">
-            <div className="avatar-circle">
-              <Avatar 
-                src={user.avatar}
-                alt="Usuario"
-                size={40}
-              />
-            </div>
-            <strong>{user.nombre || "Usuario"}</strong>
+            <Avatar 
+              src={user.avatar}
+              alt="Usuario"
+              size={52}
+              className=""
+            />
+            <strong>{`${user.nombre ? user.nombre : ''}${user.apellido ? ' ' + user.apellido : ''}`.trim() || 'Usuario'}</strong>
             <span>{user.rol || "Rol"}</span>
-          </div>
-          <div className="hora-modern">
-            <div className="fecha-modern">
-              <i className="fa-regular fa-calendar"></i> {formatDate(currentTime)}
-            </div>
-            <div className="tiempo-modern">{formatTime(currentTime)}</div>
           </div>
         </div>
 

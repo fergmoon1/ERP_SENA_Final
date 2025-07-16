@@ -84,17 +84,28 @@ public class FileUploadController {
                 
                 return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET")
+                    .header("Access-Control-Allow-Headers", "*")
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
             } else {
                 // Log para debugging
                 System.out.println("Archivo no encontrado: " + decodedFilename);
                 System.out.println("Ruta completa: " + filePath.toAbsolutePath());
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
             }
         } catch (IOException e) {
             System.out.println("Error accediendo al archivo: " + e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
         }
     }
 
@@ -113,6 +124,9 @@ public class FileUploadController {
                 
                 return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET")
+                    .header("Access-Control-Allow-Headers", "*")
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
             } else {
@@ -125,11 +139,19 @@ public class FileUploadController {
                 } catch (IOException e) {
                     System.out.println("Error listando archivos: " + e.getMessage());
                 }
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
             }
         } catch (IOException e) {
             System.out.println("Error accediendo al archivo: " + e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
         }
     }
     

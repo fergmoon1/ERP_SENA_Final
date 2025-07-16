@@ -7,6 +7,24 @@ import { useNotifications } from '../components/NotificationProvider';
 
 const API_URL = 'http://localhost:8081/api';
 
+// Función helper para manejar URLs de imágenes
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  
+  // Si ya es una URL completa
+  if (imageUrl.startsWith('http')) {
+    return imageUrl;
+  }
+  
+  // Si empieza con /api/, construir URL completa
+  if (imageUrl.startsWith('/api/')) {
+    return `http://localhost:8081${imageUrl}`;
+  }
+  
+  // Si es una ruta relativa, agregar API_URL
+  return `${API_URL}${imageUrl}`;
+};
+
 function InventarioPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -171,24 +189,24 @@ function InventarioPage() {
         setEditId(null);
         setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
-          addNotification({
-            type: 'success',
-            title: 'Éxito',
-            message: 'Movimiento actualizado correctamente'
-          });
+        addNotification({
+          type: 'success',
+          title: 'Éxito',
+          message: 'Movimiento actualizado correctamente'
+        });
         }, 300);
       } else {
         await axios.post(`${API_URL}/movimientos-inventario`, movimientoData, config);
         setForm({ productoId: '', cantidad: '', tipo: 'ENTRADA', motivo: '' });
         setTimeout(() => {
-          addNotification({
-            type: 'success',
-            title: 'Éxito',
-            message: 'Movimiento registrado correctamente'
-          });
+        addNotification({
+          type: 'success',
+          title: 'Éxito',
+          message: 'Movimiento registrado correctamente'
+        });
         }, 300);
       }
-
+      
       // Recargar datos
       await fetchMovimientos();
       await fetchProductos();
@@ -943,23 +961,23 @@ function InventarioPage() {
               {p.nombre}{index < Math.min(agotados.length, 2) - 1 ? ', ' : ''}
             </span>
           )).concat(agotados.length > 2 ? [<span key="more">...</span>] : []) : 'Ninguno'}</div>
-        </div>
+      </div>
         <div className="kpi-card kpi-prom-stock kpi-small" key="kpi-prom-stock">
           <div className="kpi-title">Promedio de stock</div>
           <div className="kpi-value">{productos.length > 0 ? Math.round(totalStock / productos.length) : 0}</div>
           <div className="kpi-extra">por producto</div>
-        </div>
+      </div>
         <div className="kpi-card kpi-critico kpi-small" key="kpi-critico">
           <div className="kpi-title">Stock crítico</div>
           <div className="kpi-value">{productos.filter(p => (p.stock ?? p.stockActual ?? 0) <= 5).length}</div>
           <div className="kpi-extra">≤ 5 unidades</div>
-        </div>
+                </div>
         <div className="kpi-card kpi-prom-valor kpi-small" key="kpi-prom-valor">
           <div className="kpi-title">Valor promedio</div>
           <div className="kpi-value">${productos.length > 0 ? Math.round(valorTotalInventario / productos.length).toLocaleString('es-CO', {minimumFractionDigits: 0}) : 0}</div>
           <div className="kpi-extra">por producto</div>
+              </div>
         </div>
-      </div>
 
       {/* Gráfica de barras para Top 5 productos con más stock */}
       <div className="chart-card" style={{ marginBottom: 32 }}>
@@ -1040,41 +1058,53 @@ function InventarioPage() {
                         onClick={e => handleImageClick(e, p)}
                         title="Click o arrastra una imagen aquí para actualizar"
                       >
-                        <img
-                          src={p.imagenUrl ? `${API_URL}${p.imagenUrl}` : '/imagenes/foto01 mujer.png'}
-                          alt={p.nombre}
-                          style={{ 
-                            width: '100%', 
-                            height: '100%', 
-                            objectFit: 'cover', 
-                            borderRadius: 8,
-                            transition: 'transform 0.2s ease'
-                          }}
-                          onError={(e) => {
-                            e.target.src = '/imagenes/foto01 mujer.png';
-                          }}
-                        />
-                        <div style={{ 
-                          position: 'absolute', 
-                          top: 0, 
-                          left: 0, 
-                          right: 0, 
-                          bottom: 0, 
-                          background: 'rgba(0,0,0,0.1)', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          opacity: 0,
-                          transition: 'opacity 0.2s ease'
+                                            {p.imagenUrl ? (
+                      <img
+                        src={getImageUrl(p.imagenUrl)}
+                        alt={p.nombre}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 8,
+                          transition: 'transform 0.2s ease'
                         }}
-                        onMouseEnter={e => e.target.style.opacity = 1}
-                        onMouseLeave={e => e.target.style.opacity = 0}
+                        onError={e => {
+                          // Silenciar el error y mostrar el overlay de cámara
+                          e.target.style.display = 'none';
+                          const overlay = e.target.parentNode.querySelector('.camera-overlay');
+                          if (overlay) overlay.style.display = 'flex';
+                        }}
+                        onLoad={e => {
+                          // Ocultar el overlay cuando la imagen carga correctamente
+                          const overlay = e.target.parentNode.querySelector('.camera-overlay');
+                          if (overlay) overlay.style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                        <div 
+                          className="camera-overlay"
+                          style={{ 
+                            position: 'absolute', 
+                            top: 0, 
+                            left: 0, 
+                            right: 0, 
+                            bottom: 0, 
+                            background: p.imagenUrl ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.05)', 
+                            display: p.imagenUrl ? 'none' : 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            opacity: 0,
+                            transition: 'opacity 0.2s ease'
+                          }}
+                          onMouseEnter={e => e.target.style.opacity = 1}
+                          onMouseLeave={e => e.target.style.opacity = 0}
                         >
-                          <i className="fas fa-camera" style={{ color: '#fff', fontSize: 16 }}></i>
+                          <i className="fas fa-camera" style={{ color: '#000', fontSize: 16 }}></i>
                         </div>
                       </div>
                     </td>
-                    <td>{p.nombre}</td>
+                    <td style={{ fontSize: '13px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '8px 4px' }}>{p.nombre}</td>
                     <td><b>{stock}</b></td>
                     <td>${p.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
                     <td>${((stock) * (p.precio ?? 0)).toLocaleString('es-CO', {minimumFractionDigits: 0})}</td>
@@ -1110,8 +1140,8 @@ function InventarioPage() {
           <div className="alert-warning">
             <p><strong>{alertaStock.length}</strong> producto(s) con stock bajo:</p>
             <div className="stock-alerts-grid">
-              {alertaStock.map((prod) => (
-                <div key={prod.id} className="stock-alert-card">
+              {alertaStock.map((prod, idx) => (
+                <div key={prod.id || idx} className="stock-alert-card">
                   <div className="stock-alert-header">
                     <h3>{prod.nombre}</h3>
                     <span className={`stock-badge ${prod.stockActual <= 5 ? 'critical' : 'warning'}`}>
@@ -1166,8 +1196,8 @@ function InventarioPage() {
             <span style={{ fontWeight: 'bold', marginRight: 6 }}>{notifications[0].title || notifications[0].titulo}:</span>
             <span>{notifications[0].message || notifications[0].mensaje}</span>
             <button className="alert-close" onClick={() => removeNotification(notifications[0].id)} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 22, marginTop: 8, cursor: 'pointer' }}>×</button>
-          </div>
-        )}
+                </div>
+              )}
         {notifications.length > 0 && notifications[0].type === 'success' && ReactDOM.createPortal(
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(30,30,30,0.18)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', padding: '36px 48px', minWidth: 320, maxWidth: '90vw', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1232,7 +1262,7 @@ function InventarioPage() {
               <option value="">Seleccione...</option>
               {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
-          </div>
+            </div>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Cantidad</label>
             <input type="number" name="cantidad" value={form.cantidad} onChange={handleChange} min={1} required style={{ 
@@ -1243,7 +1273,7 @@ function InventarioPage() {
               fontSize: '15px',
               background: '#fff'
             }} />
-          </div>
+              </div>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1976d2' }}>Tipo</label>
             <select name="tipo" value={form.tipo} onChange={handleChange} required style={{ 
@@ -1271,7 +1301,7 @@ function InventarioPage() {
               resize: 'vertical',
               fontFamily: 'inherit'
             }} placeholder="Describa el motivo del movimiento..." />
-          </div>
+        </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
             <button type="submit" className="btn-primary" style={{ 
               minWidth: '140px', 

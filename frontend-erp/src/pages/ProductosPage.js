@@ -5,6 +5,24 @@ import ReactDOM from 'react-dom';
 
 const API_URL = 'http://localhost:8081/api';
 
+// Función helper para manejar URLs de imágenes
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  
+  // Si ya es una URL completa
+  if (imageUrl.startsWith('http')) {
+    return imageUrl;
+  }
+  
+  // Si empieza con /api/, construir URL completa
+  if (imageUrl.startsWith('/api/')) {
+    return `http://localhost:8081${imageUrl}`;
+  }
+  
+  // Si es una ruta relativa, agregar API_URL
+  return `${API_URL}${imageUrl}`;
+};
+
 function ModalMensaje({ show, onClose, titulo, mensaje, children }) {
   if (!show) return null;
   return ReactDOM.createPortal(
@@ -171,7 +189,72 @@ function ProductosPage() {
             {productos.map((prod) => (
               <tr key={prod.id}>
                 <td>{prod.id}</td>
-                <td>{prod.nombre}</td>
+                <td>
+                  <div
+                    className="product-image-dropzone"
+                    style={{ 
+                      width: 60, 
+                      height: 60, 
+                      border: '2px dashed #ccc', 
+                      borderRadius: 8, 
+                      overflow: 'hidden', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      background: '#fafafa', 
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    title="Click para subir imagen"
+                  >
+                    {prod.imagenUrl ? (
+                      <img
+                        src={getImageUrl(prod.imagenUrl)}
+                        alt={prod.nombre}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 8,
+                          transition: 'transform 0.2s ease'
+                        }}
+                        onError={e => {
+                          // Silenciar el error y mostrar el overlay de cámara
+                          e.target.style.display = 'none';
+                          const overlay = e.target.parentNode.querySelector('.camera-overlay');
+                          if (overlay) overlay.style.display = 'flex';
+                        }}
+                        onLoad={e => {
+                          // Ocultar el overlay cuando la imagen carga correctamente
+                          const overlay = e.target.parentNode.querySelector('.camera-overlay');
+                          if (overlay) overlay.style.display = 'none';
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="camera-overlay"
+                      style={{ 
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
+                        right: 0, 
+                        bottom: 0, 
+                        background: prod.imagenUrl ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.05)', 
+                        display: prod.imagenUrl ? 'none' : 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease'
+                      }}
+                      onMouseEnter={e => e.target.style.opacity = 1}
+                      onMouseLeave={e => e.target.style.opacity = 0}
+                    >
+                      <i className="fas fa-camera" style={{ color: '#000', fontSize: 16 }}></i>
+                    </div>
+                  </div>
+                </td>
+                <td style={{ fontSize: '13px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '8px 4px' }}>{prod.nombre}</td>
                 <td>{prod.descripcion}</td>
                 <td>{prod.precio}</td>
                 <td>{prod.stock}</td>
@@ -209,7 +292,7 @@ function ProductosPage() {
                 else if (stock <= (p.stockMinimo || 10)) { estado = 'Bajo'; color = '#ffc107'; }
                 return (
                   <tr key={p.id} style={{ background: stock === 0 ? '#ffeaea' : stock <= (p.stockMinimo || 10) ? '#fffbe6' : 'white' }}>
-                    <td><img src={p.imagenUrl || '/imagenes/foto01 mujer.png'} alt={p.nombre} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /></td>
+                    <td><img src={getImageUrl(p.imagenUrl) || '/imagenes/foto01 mujer.png'} alt={p.nombre} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} /></td>
                     <td>{p.nombre}</td>
                     <td><b>{stock}</b></td>
                     <td>${p.precio?.toLocaleString('es-CO', {minimumFractionDigits: 0}) ?? '-'}</td>
