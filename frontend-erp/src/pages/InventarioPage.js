@@ -90,7 +90,14 @@ function InventarioPage() {
         });
       }
     } catch (err) {
-      console.error('Error checking stock alerts:', err);
+      // Silenciar errores de permisos o red para evitar spam en consola
+      if (err.response && err.response.status === 403) {
+        console.log('Usuario no tiene permisos para ver reportes de stock');
+      } else if (err.response && err.response.status === 401) {
+        console.log('Token de autenticación inválido');
+      } else if (err.name !== 'NetworkError') {
+        console.error('Error checking stock alerts:', err);
+      }
     }
   };
 

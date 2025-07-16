@@ -164,7 +164,8 @@ export const NotificationProvider = ({ children }) => {
 
         const response = await fetch('http://localhost:8081/api/reportes/stock-bajo', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
@@ -175,9 +176,18 @@ export const NotificationProvider = ({ children }) => {
               addStockAlert(product);
             }
           });
+        } else if (response.status === 403) {
+          // Usuario no tiene permisos para ver reportes
+          console.log('Usuario no tiene permisos para ver reportes de stock');
+        } else if (response.status === 401) {
+          // Token expirado o inválido
+          console.log('Token de autenticación inválido');
         }
       } catch (error) {
-        console.error('Error checking stock alerts:', error);
+        // Silenciar errores de red para evitar spam en consola
+        if (error.name !== 'TypeError' || !error.message.includes('NetworkError')) {
+          console.error('Error checking stock alerts:', error);
+        }
       }
     };
 
