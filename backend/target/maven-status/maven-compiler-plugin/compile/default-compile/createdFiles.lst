@@ -63,6 +63,7 @@ com\empresa\erp\controllers\UsuarioController.class
 com\empresa\erp\services\RateLimitService.class
 com\empresa\erp\models\Producto.class
 com\empresa\erp\BackendApplication.class
+com\empresa\erp\config\CorsFilter.class
 com\empresa\erp\config\RateLimitFilter.class
 com\empresa\erp\controllers\NotificacionController.class
 com\empresa\erp\controllers\ProveedorController.class

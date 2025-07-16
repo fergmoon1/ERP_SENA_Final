@@ -51,6 +51,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ProveedorRe
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\ClienteService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\NotificacionService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\CorsFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProveedorController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\VisualConfigService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Compra.java
