@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/ProductosPage.css';
+import '../styles/DashboardPage.css';
 import ReactDOM from 'react-dom';
 
 const API_URL = 'http://localhost:8081/api';
@@ -408,10 +409,9 @@ function ProductosPage() {
   };
 
   return (
-    <div className="inventario-area-container">
-      <div className="inventario-header-area">
-        <ProductosKPIs productos={productos} />
-      </div>
+    <>
+      {/* Aquí va TODO el contenido principal de la página de productos, SIN contenedor extra, solo secciones internas si es necesario */}
+      <ProductosKPIs productos={productos} />
       {/* Sección de Filtros y Búsqueda */}
       <div className="inventario-form-card" style={{ marginBottom: '16px' }}>
         <h2 className="inventario-form-title">
@@ -1140,7 +1140,7 @@ function ProductosPage() {
           </>
         )}
       </ModalMensaje>
-    </div>
+    </>
   );
 }
 

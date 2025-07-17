@@ -73,7 +73,7 @@ function App() {
               path="/clientes"
               element={
                 <ProtectedRoute>
-                  <Layout title="Clientes" subtitle="Gestión de Clientes"><ClientesPage /></Layout>
+                  <ClientesPage />
                 </ProtectedRoute>
               } 
             />

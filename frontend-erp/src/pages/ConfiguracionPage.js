@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/clientes.css';
 
 function ConfiguracionPage() {
   // Estado para los parámetros del sistema

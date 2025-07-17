@@ -1162,3 +1162,336 @@ body.dark-mode .error-message {
   background: #1e293b;
   border-color: #334155;
 } 
+
+/* Forzar layout de clientes igual a dashboard */
+.clientes-container,
+.clientes-form-section,
+.clientes-form-card,
+.clientes-table-section,
+.clientes-search-section {
+  all: unset !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  width: auto !important;
+  max-width: 100% !important;
+} 
+
+/* Estilos específicos para ClientesPage */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #64748b;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #475569;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 2px;
+}
+
+.btn-icon:hover {
+  background: #e2e8f0;
+  color: #475569;
+  transform: translateY(-1px);
+}
+
+.btn-icon.btn-danger {
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.btn-icon.btn-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* FORMULARIO CLIENTES MÁS COMPACTO, MODERNO Y PROFESIONAL */
+.client-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #e3edfa; /* Azul claro más visible */
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.07);
+  padding: 24px 18px 18px 18px;
+  border: 1.5px solid #e0e8f0;
+  margin-bottom: 0;
+}
+
+.form-section {
+  background: transparent; /* Fondo ya lo da el form principal */
+  border: none;
+  border-radius: 0;
+  padding: 0 0 8px 0;
+  margin-bottom: 8px;
+}
+
+.form-section h3 {
+  color: #1976d2;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #e0e8f0;
+  letter-spacing: 0.5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 16px; /* Menos espacio entre campos */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px; /* Menos espacio entre label y campo */
+  margin-bottom: 0;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 13px;
+  margin-bottom: 2px;
+  letter-spacing: 0.1px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1.2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff; /* Campos en blanco */
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.03);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+/* --- Imagen y fila horizontal en formulario de clientes --- */
+.form-row-horizontal {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.image-upload-container {
+  min-width: 140px;
+  max-width: 180px;
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-upload-label {
+  width: 100%;
+  cursor: pointer;
+}
+
+.image-upload-placeholder {
+  width: 140px;
+  height: 140px;
+  border: 2.5px dashed #1976d2;
+  border-radius: 16px;
+  background: #f4f8fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.07);
+  margin-bottom: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.image-upload-placeholder.has-image {
+  border-style: solid;
+  background: #e3edfa;
+}
+
+.image-upload-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.image-upload-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #1976d2;
+  font-size: 32px;
+  gap: 6px;
+  text-align: center;
+}
+
+.image-upload-icon p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.image-upload-title {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 4px rgba(255,255,255,0.7);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.form-fields {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px 16px;
+}
+
+@media (max-width: 900px) {
+  .form-row-horizontal {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .image-upload-container {
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .form-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .client-form {
+    padding: 12px 4px 8px 4px;
+    border-radius: 12px;
+  }
+  .form-section h3 {
+    font-size: 15px;
+    padding-bottom: 1px;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+} 
+
+.clientes-badge.empresa {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 700;
+  border: 1.5px solid #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+}
+
+.clientes-badge.individual {
+  background: #10b981;
+  color: #fff;
+  font-weight: 700;
+  border: 1.5px solid #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.10);
+}
+
+.centered {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.table-card th, .table-card td {
+  padding: 14px 10px;
+  font-size: 15px;
+}
+
+.table-card th {
+  background: #e3edfa;
+  color: #1976d2;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+} 

@@ -398,7 +398,7 @@ function PedidosPage() {
   const exportarExcel = () => {
     const data = filteredAndSortedPedidos.map(ped => ({
       ID: ped.id,
-      Cliente: ped.cliente?.nombre || '',
+      Cliente: ped.cliente?.nombre + (ped.cliente?.apellidos ? ' ' + ped.cliente.apellidos : '') || '',
       Fecha: ped.fecha?.substring(0, 10) || '',
       Estado: ped.estado,
       Valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
@@ -415,7 +415,7 @@ function PedidosPage() {
   const exportarCSV = () => {
     const data = filteredAndSortedPedidos.map(ped => ({
       ID: ped.id,
-      Cliente: ped.cliente?.nombre || '',
+      Cliente: ped.cliente?.nombre + (ped.cliente?.apellidos ? ' ' + ped.cliente.apellidos : '') || '',
       Fecha: ped.fecha?.substring(0, 10) || '',
       Estado: ped.estado,
       Valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
@@ -440,7 +440,7 @@ function PedidosPage() {
     ];
     const rows = filteredAndSortedPedidos.map(ped => ({
       id: ped.id,
-      cliente: ped.cliente?.nombre || '',
+      cliente: ped.cliente?.nombre + (ped.cliente?.apellidos ? ' ' + ped.cliente.apellidos : '') || '',
       fecha: ped.fecha?.substring(0, 10) || '',
       estado: ped.estado,
       valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
@@ -482,7 +482,7 @@ function PedidosPage() {
                 <select className="form-select" name="clienteId" value={form.clienteId} onChange={handleFormChange}>
                   <option value="">Seleccione un cliente</option>
                   {clientes.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                    <option key={c.id} value={c.id}>{c.nombre} {c.apellidos || ''}</option>
                   ))}
                 </select>
               </div>
@@ -565,7 +565,7 @@ function PedidosPage() {
               {showClienteSugerencias && clienteInput && clientesFiltrados.length > 0 && (
                 <ul className="autocomplete-sugerencias" onMouseLeave={() => setShowClienteSugerencias(false)}>
                   {clientesFiltrados.slice(0,8).map(c => (
-                    <li key={c.id} onClick={() => handleSelectCliente(c)}>{c.nombre}</li>
+                    <li key={c.id} onClick={() => handleSelectCliente(c)}>{c.nombre} {c.apellidos || ''}</li>
                   ))}
                 </ul>
               )}
@@ -648,7 +648,7 @@ function PedidosPage() {
             {filteredAndSortedPedidos.map((pedido, idx) => (
               <tr key={pedido.id} className={idx % 2 === 0 ? 'even' : 'odd'}>
                 <td>{pedido.id}</td>
-                <td>{pedido.cliente?.nombre || '-'}</td>
+                <td>{pedido.cliente?.nombre} {pedido.cliente?.apellidos || ''}</td>
                 <td>{pedido.fecha?.substring(0, 10) || '-'}</td>
                 <td>
                   <span className={`pedidos-badge ${pedido.estado?.toLowerCase()}`}
@@ -708,7 +708,7 @@ function PedidosPage() {
                 <select className="form-select" name="clienteId" value={form.clienteId} onChange={handleFormChange}>
                   <option value="">Seleccione un cliente</option>
                   {clientes.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                    <option key={c.id} value={c.id}>{c.nombre} {c.apellidos || ''}</option>
                   ))}
                 </select>
               </div>
@@ -799,7 +799,7 @@ function PedidosPage() {
               <button className="pedidos-modal-close" onClick={() => setModalDetalle({ show: false, pedido: null })}>&times;</button>
             </div>
             <div className="pedidos-modal-body">
-              <div className="pedidos-modal-row"><b>Cliente:</b> {modalDetalle.pedido.cliente?.nombre}</div>
+              <div className="pedidos-modal-row"><b>Cliente:</b> {modalDetalle.pedido.cliente?.nombre} {modalDetalle.pedido.cliente?.apellidos || ''}</div>
               <div className="pedidos-modal-row"><b>Fecha:</b> {modalDetalle.pedido.fecha?.substring(0, 10)}</div>
               <div className="pedidos-modal-row"><b>Estado:</b> <span className={`pedidos-badge ${modalDetalle.pedido.estado?.toLowerCase()}`}>{modalDetalle.pedido.estado}</span></div>
               <div className="pedidos-modal-row"><b>Motivo estado:</b> {modalDetalle.pedido.motivoEstado || '—'}</div>

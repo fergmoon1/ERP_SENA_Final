@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/clientes.css';
 import FileUpload from '../components/FileUpload';
 import { useNotifications } from '../components/NotificationProvider';
 import CustomModal from '../components/CustomModal';
