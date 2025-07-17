@@ -13,6 +13,7 @@ public class Cliente {
     private String telefono;
     private String direccion;
     private String tipo; // "Individual" o "Empresa"
+    private String etapa;
 
     private java.time.LocalDate fechaCreacion;
 
@@ -34,6 +35,9 @@ public class Cliente {
 
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public String getEtapa() { return etapa; }
+    public void setEtapa(String etapa) { this.etapa = etapa; }
 
     public java.time.LocalDate getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(java.time.LocalDate fechaCreacion) { this.fechaCreacion = fechaCreacion; }

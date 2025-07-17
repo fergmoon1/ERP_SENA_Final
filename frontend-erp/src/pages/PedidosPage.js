@@ -468,17 +468,14 @@ function PedidosPage() {
           </div>
         ))}
       </div>
-      {/* Botón para mostrar formulario de agregar */}
-      <div style={{marginBottom: 0, display: 'flex', justifyContent: 'flex-end'}}>
-        <button className="btn-nuevo-pedido" onClick={handleNuevoPedido}>
-          <i className="fas fa-plus"></i> Agregar Pedido
-        </button>
-      </div>
       {/* Formulario Agregar Pedido */}
       {editId === null && (
         <div className="inventario-form-card" ref={formRef}>
-          <h2 className="inventario-form-title">Agregar Pedido</h2>
-          <form onSubmit={handleSubmit}>
+          <div style={{background:'#2563eb', color:'#fff', borderRadius:'10px 10px 0 0', padding:'16px 24px', fontWeight:800, fontSize:'1.18rem', letterSpacing:'0.5px', boxShadow:'0 2px 8px rgba(37,99,235,0.10)', display:'flex', alignItems:'center', gap:10}}>
+            <i className="fas fa-plus-circle" style={{fontSize:'1.3em'}}></i>
+            Agregar Pedido
+          </div>
+          <form onSubmit={handleSubmit} style={{padding:'24px 18px 0 18px'}}>
             <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap'}}>
               <div style={{flex: 1, minWidth: 180}}>
                 <label className="form-label">Cliente</label>
