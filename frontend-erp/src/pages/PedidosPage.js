@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import ReactDOM from 'react-dom';
 import '../styles/InventarioPage.css';
+import '../styles/PedidosPage.css';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const API_URL = 'http://localhost:8081/api';
 
@@ -73,6 +78,59 @@ function PedidosPage() {
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
   const [modalMotivo, setModalMotivo] = useState({ show: false, motivo: '', estado: '' });
+  const [modalDetalle, setModalDetalle] = useState({ show: false, pedido: null });
+  const formRef = useRef(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'fecha', direction: 'desc' });
+  const [filtrosAvanzados, setFiltrosAvanzados] = useState({ productoId: '', valorMin: '', valorMax: '', fechaInicio: '', fechaFin: '' });
+  const [clienteInput, setClienteInput] = useState('');
+  const [productoInput, setProductoInput] = useState('');
+  const [showClienteSugerencias, setShowClienteSugerencias] = useState(false);
+  const [showProductoSugerencias, setShowProductoSugerencias] = useState(false);
+  const clienteInputRef = useRef();
+  const productoInputRef = useRef();
+
+  // KPIs simulados (puedes luego conectar a datos reales)
+  const kpis = [
+    { label: 'Pedidos Hoy', value: 12, icon: 'fas fa-calendar-day', color: 'primary' },
+    { label: 'Pendientes', value: 8, icon: 'fas fa-hourglass-half', color: 'warning' },
+    { label: 'Completados', value: 20, icon: 'fas fa-check-circle', color: 'success' },
+    { label: 'Cancelados', value: 2, icon: 'fas fa-times-circle', color: 'danger' },
+    { label: 'Monto Total', value: '$1,250,000', icon: 'fas fa-dollar-sign', color: 'info' },
+    { label: 'Ticket Promedio', value: '$62,500', icon: 'fas fa-receipt', color: 'secondary' },
+  ];
+
+  // Productos únicos para filtro
+  const productosUnicos = React.useMemo(() => {
+    const ids = new Set();
+    return productos.filter(p => {
+      if (ids.has(p.id)) return false;
+      ids.add(p.id);
+      return true;
+    });
+  }, [productos]);
+
+  // Sugerencias filtradas
+  const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(clienteInput.toLowerCase()));
+  const productosFiltrados = productosUnicos.filter(p => p.nombre.toLowerCase().includes(productoInput.toLowerCase()));
+
+  // Al seleccionar sugerencia
+  const handleSelectCliente = (c) => {
+    setClienteInput(c.nombre);
+    setBusqueda({ ...busqueda, clienteId: c.id });
+    setShowClienteSugerencias(false);
+  };
+  const handleSelectProducto = (p) => {
+    setProductoInput(p.nombre);
+    setFiltrosAvanzados({ ...filtrosAvanzados, productoId: p.id });
+    setShowProductoSugerencias(false);
+  };
+  // Si se borra el input, limpia el filtro
+  useEffect(() => {
+    if (clienteInput === '') setBusqueda({ ...busqueda, clienteId: '' });
+  }, [clienteInput]);
+  useEffect(() => {
+    if (productoInput === '') setFiltrosAvanzados({ ...filtrosAvanzados, productoId: '' });
+  }, [productoInput]);
 
   useEffect(() => {
     fetchClientes();
@@ -220,102 +278,304 @@ function PedidosPage() {
     fetchPedidos();
   };
 
+  const handleNuevoPedido = () => {
+    setForm({ clienteId: '', fecha: '', estado: 'pendiente', productos: [], productoId: '', cantidad: '', motivoEstado: '' });
+    setEditId(null);
+    setModal({ show: false });
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
+  // Función para ordenar los pedidos
+  const sortedPedidos = React.useMemo(() => {
+    let sortable = [...pedidos];
+    if (sortConfig.key) {
+      sortable.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        if (sortConfig.key === 'cliente') {
+          aValue = a.cliente?.nombre || '';
+          bValue = b.cliente?.nombre || '';
+        }
+        if (sortConfig.key === 'fecha') {
+          aValue = a.fecha || '';
+          bValue = b.fecha || '';
+        }
+        if (sortConfig.key === 'estado') {
+          aValue = a.estado || '';
+          bValue = b.estado || '';
+        }
+        if (sortConfig.key === 'valor') {
+          // Suma de productos * precio
+          aValue = a.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0;
+          bValue = b.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0;
+        }
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortable;
+  }, [pedidos, sortConfig]);
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  // Función para filtrar y ordenar los pedidos
+  const filteredAndSortedPedidos = React.useMemo(() => {
+    let filtered = [...pedidos];
+    // Filtro por producto
+    if (filtrosAvanzados.productoId) {
+      filtered = filtered.filter(ped => ped.detalles?.some(d => String(d.producto?.id) === String(filtrosAvanzados.productoId)));
+    }
+    // Filtro por valor
+    if (filtrosAvanzados.valorMin) {
+      filtered = filtered.filter(ped => (ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0) >= Number(filtrosAvanzados.valorMin));
+    }
+    if (filtrosAvanzados.valorMax) {
+      filtered = filtered.filter(ped => (ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0) <= Number(filtrosAvanzados.valorMax));
+    }
+    // Filtro por rango de fechas
+    if (filtrosAvanzados.fechaInicio) {
+      filtered = filtered.filter(ped => ped.fecha && ped.fecha >= filtrosAvanzados.fechaInicio);
+    }
+    if (filtrosAvanzados.fechaFin) {
+      filtered = filtered.filter(ped => ped.fecha && ped.fecha <= filtrosAvanzados.fechaFin);
+    }
+    // Filtros existentes (cliente, estado, fecha exacta)
+    if (busqueda.clienteId) {
+      filtered = filtered.filter(ped => String(ped.cliente?.id) === String(busqueda.clienteId));
+    }
+    if (busqueda.estado) {
+      filtered = filtered.filter(ped => String(ped.estado) === String(busqueda.estado));
+    }
+    if (busqueda.fecha) {
+      filtered = filtered.filter(ped => ped.fecha?.substring(0, 10) === busqueda.fecha);
+    }
+    // Ordenamiento
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        if (sortConfig.key === 'cliente') {
+          aValue = a.cliente?.nombre || '';
+          bValue = b.cliente?.nombre || '';
+        }
+        if (sortConfig.key === 'fecha') {
+          aValue = a.fecha || '';
+          bValue = b.fecha || '';
+        }
+        if (sortConfig.key === 'estado') {
+          aValue = a.estado || '';
+          bValue = b.estado || '';
+        }
+        if (sortConfig.key === 'valor') {
+          aValue = a.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0;
+          bValue = b.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0;
+        }
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return filtered;
+  }, [pedidos, busqueda, filtrosAvanzados, sortConfig]);
+
+  const handleFiltrosAvanzadosChange = (e) => {
+    setFiltrosAvanzados({ ...filtrosAvanzados, [e.target.name]: e.target.value });
+  };
+
+  // Exportar a Excel
+  const exportarExcel = () => {
+    const data = filteredAndSortedPedidos.map(ped => ({
+      ID: ped.id,
+      Cliente: ped.cliente?.nombre || '',
+      Fecha: ped.fecha?.substring(0, 10) || '',
+      Estado: ped.estado,
+      Valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
+      Productos: ped.detalles?.map(d => `${d.producto?.nombre} (x${d.cantidad})`).join('; ')
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Pedidos');
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), 'pedidos.xlsx');
+  };
+
+  // Exportar a CSV
+  const exportarCSV = () => {
+    const data = filteredAndSortedPedidos.map(ped => ({
+      ID: ped.id,
+      Cliente: ped.cliente?.nombre || '',
+      Fecha: ped.fecha?.substring(0, 10) || '',
+      Estado: ped.estado,
+      Valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
+      Productos: ped.detalles?.map(d => `${d.producto?.nombre} (x${d.cantidad})`).join('; ')
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'pedidos.csv');
+  };
+
+  // Exportar a PDF
+  const exportarPDF = () => {
+    const doc = new jsPDF();
+    const columns = [
+      { header: 'ID', dataKey: 'id' },
+      { header: 'Cliente', dataKey: 'cliente' },
+      { header: 'Fecha', dataKey: 'fecha' },
+      { header: 'Estado', dataKey: 'estado' },
+      { header: 'Valor', dataKey: 'valor' },
+      { header: 'Productos', dataKey: 'productos' }
+    ];
+    const rows = filteredAndSortedPedidos.map(ped => ({
+      id: ped.id,
+      cliente: ped.cliente?.nombre || '',
+      fecha: ped.fecha?.substring(0, 10) || '',
+      estado: ped.estado,
+      valor: ped.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0) || 0,
+      productos: ped.detalles?.map(d => `${d.producto?.nombre} (x${d.cantidad})`).join('; ')
+    }));
+    doc.autoTable({ columns, body: rows, styles: { fontSize: 8 }, headStyles: { fillColor: [59, 130, 246] } });
+    doc.save('pedidos.pdf');
+  };
+
   return (
     <div className="pedidos-area-container">
-      <div className="inventario-header-area">
+      {/* Header moderno */}
+      <div className="pedidos-header">
+        {/* Eliminado el div vacío */}
       </div>
-      {/* Formulario Agregar/Editar Pedido */}
-      <div className="inventario-form-card">
-        <h2 className="inventario-form-title">Agregar/Editar Pedido</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap'}}>
-            <div style={{flex: 1, minWidth: 180}}>
-              <label className="form-label">Cliente</label>
-              <select className="form-select" name="clienteId" value={form.clienteId} onChange={handleFormChange}>
-                <option value="">Seleccione un cliente</option>
-                {clientes.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))}
-              </select>
-            </div>
-            <div style={{flex: 1, minWidth: 140}}>
-              <label className="form-label">Fecha</label>
-              <input className="form-input" name="fecha" type="date" value={form.fecha} onChange={handleFormChange} />
-            </div>
-            <div style={{flex: 1, minWidth: 140}}>
-              <label className="form-label">Estado</label>
-              <select className="form-select" name="estado" value={form.estado} onChange={handleFormChange}>
-                <option value="pendiente">Pendiente</option>
-                <option value="enviado">Enviado</option>
-                <option value="entregado">Entregado</option>
-                <option value="completado">Completado</option>
-                <option value="cancelado">Cancelado</option>
-              </select>
-            </div>
-            <div style={{flex: 1, minWidth: 180}}>
-              <label className="form-label">Motivo del estado</label>
-              <input className="form-input" name="motivoEstado" value={form.motivoEstado} onChange={handleFormChange} maxLength={255} placeholder="Ej: Pendiente por pago, por envío, etc." />
-            </div>
+      {/* Título sobre KPIs */}
+      <h2 className="pedidos-kpi-title" style={{margin: '0 0 10px 0', fontWeight: 700, fontSize: '1.18rem', color: '#2563eb'}}>Resumen de Pedidos</h2>
+      {/* KPIs destacados */}
+      <div className="pedidos-kpi-grid">
+        {kpis.map((kpi, idx) => (
+          <div className={`pedidos-kpi-card ${kpi.color}`} key={idx}>
+            <div className="pedidos-kpi-icon"><i className={kpi.icon}></i></div>
+            <div className="pedidos-kpi-value">{kpi.value}</div>
+            <div className="pedidos-kpi-label">{kpi.label}</div>
           </div>
-          <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end'}}>
-            <div style={{flex: 1, minWidth: 180}}>
-              <label className="form-label">Productos</label>
-              <select className="form-select" name="productoId" value={form.productoId} onChange={handleFormChange}>
-                <option value="">Seleccione un producto</option>
-                {productos.map(p => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
-            </div>
-            <div style={{flex: 1, minWidth: 100}}>
-              <label className="form-label">Cantidad</label>
-              <input className="form-input" name="cantidad" type="number" min="1" value={form.cantidad} onChange={handleFormChange} />
-            </div>
-            <div style={{minWidth: 120}}>
-              <button type="button" className="btn-guardar" style={{marginTop: 8}} onClick={handleAddProducto}>Agregar Producto</button>
-            </div>
-          </div>
-          {/* Lista de productos agregados al pedido */}
-          {form.productos.length > 0 && (
-            <div style={{margin: '12px 0'}}>
-              <b style={{color: '#2563eb'}}>Productos en el pedido:</b>
-              <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none'}}>
-                {form.productos.map((p, idx) => (
-                  <li key={idx} style={{marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8}}>
-                    <span>{p.nombre} (Cantidad: {p.cantidad})</span>
-                    <button type="button" className="btn-eliminar" style={{padding: '2px 10px', fontSize: '0.95em'}} onClick={() => handleRemoveProducto(idx)}>Quitar</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div className="form-buttons-area">
-            <button className="btn-guardar" type="submit">Guardar</button>
-            <button className="btn-limpiar" type="button" onClick={handleLimpiar}>Limpiar</button>
-          </div>
-        </form>
+        ))}
       </div>
+      {/* Botón para mostrar formulario de agregar */}
+      <div style={{marginBottom: 0, display: 'flex', justifyContent: 'flex-end'}}>
+        <button className="btn-nuevo-pedido" onClick={handleNuevoPedido}>
+          <i className="fas fa-plus"></i> Agregar Pedido
+        </button>
+      </div>
+      {/* Formulario Agregar Pedido */}
+      {editId === null && (
+        <div className="inventario-form-card" ref={formRef}>
+          <h2 className="inventario-form-title">Agregar Pedido</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap'}}>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Cliente</label>
+                <select className="form-select" name="clienteId" value={form.clienteId} onChange={handleFormChange}>
+                  <option value="">Seleccione un cliente</option>
+                  {clientes.map(c => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 140}}>
+                <label className="form-label">Fecha</label>
+                <input className="form-input" name="fecha" type="date" value={form.fecha} onChange={handleFormChange} />
+              </div>
+              <div style={{flex: 1, minWidth: 140}}>
+                <label className="form-label">Estado</label>
+                <select className="form-select" name="estado" value={form.estado} onChange={handleFormChange}>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="enviado">Enviado</option>
+                  <option value="entregado">Entregado</option>
+                  <option value="completado">Completado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Motivo del estado</label>
+                <input className="form-input" name="motivoEstado" value={form.motivoEstado} onChange={handleFormChange} maxLength={255} placeholder="Ej: Pendiente por pago, por envío, etc." />
+              </div>
+            </div>
+            <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end'}}>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Productos</label>
+                <select className="form-select" name="productoId" value={form.productoId} onChange={handleFormChange}>
+                  <option value="">Seleccione un producto</option>
+                  {productos.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 100}}>
+                <label className="form-label">Cantidad</label>
+                <input className="form-input" name="cantidad" type="number" min="1" value={form.cantidad} onChange={handleFormChange} />
+              </div>
+              <div style={{minWidth: 120}}>
+                <button type="button" className="btn-guardar" style={{marginTop: 8}} onClick={handleAddProducto}>Agregar Producto</button>
+              </div>
+            </div>
+            {/* Lista de productos agregados al pedido */}
+            {form.productos.length > 0 && (
+              <div style={{margin: '12px 0'}}>
+                <b style={{color: '#2563eb'}}>Productos en el pedido:</b>
+                <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none'}}>
+                  {form.productos.map((p, idx) => (
+                    <li key={idx} style={{marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8}}>
+                      <span>{p.nombre} (Cantidad: {p.cantidad})</span>
+                      <button type="button" className="btn-eliminar" style={{padding: '2px 10px', fontSize: '0.95em'}} onClick={() => handleRemoveProducto(idx)}>Quitar</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="form-buttons-area">
+              <button className="btn-guardar" type="submit">Guardar</button>
+              <button className="btn-limpiar" type="button" onClick={handleLimpiar}>Limpiar</button>
+            </div>
+          </form>
+        </div>
+      )}
       {/* Buscar Pedidos */}
-      <div className="inventario-form-card">
-        <h2 className="inventario-form-title">Buscar Pedidos</h2>
-        <form onSubmit={handleBuscar} style={{marginBottom: 0}}>
-          <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap'}}>
-            <div style={{flex: 1, minWidth: 180}}>
-              <label className="form-label">Cliente</label>
-              <select className="form-select" name="clienteId" value={busqueda.clienteId} onChange={handleBusquedaChange}>
-                <option value="">Todos los clientes</option>
-                {clientes.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))}
-              </select>
+      <h2 className="pedidos-filtros-title">Búsqueda y Filtros Avanzados</h2>
+      <p className="pedidos-filtros-desc">Utiliza los campos para buscar pedidos por cliente, producto, estado, valor o fecha. Puedes combinar varios filtros para una búsqueda precisa.</p>
+      <div className="pedidos-filtros-modernos">
+        <form onSubmit={handleBuscar} className="pedidos-filtros-form" autoComplete="off">
+          <div className="pedidos-filtros-grid">
+            <div style={{position:'relative'}}>
+              <label>Cliente</label>
+              <input
+                type="text"
+                name="clienteInput"
+                value={clienteInput}
+                ref={clienteInputRef}
+                onChange={e => { setClienteInput(e.target.value); setShowClienteSugerencias(true); }}
+                onFocus={() => setShowClienteSugerencias(true)}
+                placeholder="Buscar cliente..."
+                autoComplete="off"
+              />
+              {showClienteSugerencias && clienteInput && clientesFiltrados.length > 0 && (
+                <ul className="autocomplete-sugerencias" onMouseLeave={() => setShowClienteSugerencias(false)}>
+                  {clientesFiltrados.slice(0,8).map(c => (
+                    <li key={c.id} onClick={() => handleSelectCliente(c)}>{c.nombre}</li>
+                  ))}
+                </ul>
+              )}
             </div>
-            <div style={{flex: 1, minWidth: 140}}>
-              <label className="form-label">Fecha</label>
-              <input className="form-input" name="fecha" type="date" value={busqueda.fecha} onChange={handleBusquedaChange} />
-            </div>
-            <div style={{flex: 1, minWidth: 140}}>
-              <label className="form-label">Estado</label>
-              <select className="form-select" name="estado" value={busqueda.estado} onChange={handleBusquedaChange}>
+            <div>
+              <label>Estado</label>
+              <select name="estado" value={busqueda.estado} onChange={handleBusquedaChange}>
                 <option value="">Todos los estados</option>
                 <option value="pendiente">Pendiente</option>
                 <option value="enviado">Enviado</option>
@@ -324,46 +584,111 @@ function PedidosPage() {
                 <option value="cancelado">Cancelado</option>
               </select>
             </div>
-          </div>
-          <div className="form-buttons-area">
-            <button className="btn-guardar" type="submit">Buscar</button>
-            <button className="btn-limpiar" type="button" onClick={handleLimpiarBusqueda}>Limpiar</button>
+            <div style={{position:'relative'}}>
+              <label>Producto</label>
+              <input
+                type="text"
+                name="productoInput"
+                value={productoInput}
+                ref={productoInputRef}
+                onChange={e => { setProductoInput(e.target.value); setShowProductoSugerencias(true); }}
+                onFocus={() => setShowProductoSugerencias(true)}
+                placeholder="Buscar producto..."
+                autoComplete="off"
+              />
+              {showProductoSugerencias && productoInput && productosFiltrados.length > 0 && (
+                <ul className="autocomplete-sugerencias" onMouseLeave={() => setShowProductoSugerencias(false)}>
+                  {productosFiltrados.slice(0,8).map(p => (
+                    <li key={p.id} onClick={() => handleSelectProducto(p)}>{p.nombre}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <label>Valor mínimo</label>
+              <input name="valorMin" type="number" min="0" value={filtrosAvanzados.valorMin} onChange={handleFiltrosAvanzadosChange} placeholder="$ Min" />
+            </div>
+            <div>
+              <label>Valor máximo</label>
+              <input name="valorMax" type="number" min="0" value={filtrosAvanzados.valorMax} onChange={handleFiltrosAvanzadosChange} placeholder="$ Max" />
+            </div>
+            <div>
+              <label>Fecha inicio</label>
+              <input name="fechaInicio" type="date" value={filtrosAvanzados.fechaInicio} onChange={handleFiltrosAvanzadosChange} />
+            </div>
+            <div>
+              <label>Fecha fin</label>
+              <input name="fechaFin" type="date" value={filtrosAvanzados.fechaFin} onChange={handleFiltrosAvanzadosChange} />
+            </div>
+            <div className="pedidos-filtros-botones">
+              <button className="btn-guardar" type="submit">Buscar</button>
+              <button className="btn-limpiar" type="button" onClick={handleLimpiarBusqueda}>Limpiar</button>
+            </div>
           </div>
         </form>
       </div>
       {/* Lista de Pedidos */}
       <div className="inventario-table-card">
         <h2 className="inventario-table-title">Lista de Pedidos</h2>
-        <table className="inventario-table">
+        <div style={{display:'flex', gap:12, margin:'18px 0 8px 0', justifyContent:'flex-end'}}>
+          <button className="btn-guardar" onClick={exportarExcel}><i className="fas fa-file-excel"></i> Exportar Excel</button>
+          <button className="btn-guardar" onClick={exportarCSV}><i className="fas fa-file-csv"></i> Exportar CSV</button>
+          <button className="btn-guardar" onClick={exportarPDF}><i className="fas fa-file-pdf"></i> Exportar PDF</button>
+        </div>
+        <table className="pedidos-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Fecha</th>
-              <th>Estado</th>
+              <th onClick={() => handleSort('id')} className={sortConfig.key === 'id' ? 'sorted' : ''}>ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+              <th onClick={() => handleSort('cliente')} className={sortConfig.key === 'cliente' ? 'sorted' : ''}>Cliente {sortConfig.key === 'cliente' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+              <th onClick={() => handleSort('fecha')} className={sortConfig.key === 'fecha' ? 'sorted' : ''}>Fecha {sortConfig.key === 'fecha' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+              <th onClick={() => handleSort('estado')} className={sortConfig.key === 'estado' ? 'sorted' : ''}>Estado {sortConfig.key === 'estado' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
               <th>Productos</th>
+              <th onClick={() => handleSort('valor')} className={sortConfig.key === 'valor' ? 'sorted' : ''}>Valor {sortConfig.key === 'valor' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {pedidos.map((pedido) => (
-              <tr key={pedido.id}>
+            {filteredAndSortedPedidos.map((pedido, idx) => (
+              <tr key={pedido.id} className={idx % 2 === 0 ? 'even' : 'odd'}>
                 <td>{pedido.id}</td>
                 <td>{pedido.cliente?.nombre || '-'}</td>
                 <td>{pedido.fecha?.substring(0, 10) || '-'}</td>
                 <td>
-                  <EstadoPedido estado={pedido.estado} motivo={pedido.motivoEstado} onClick={pedido.motivoEstado ? () => setModalMotivo({ show: true, motivo: pedido.motivoEstado, estado: pedido.estado }) : undefined} />
+                  <span className={`pedidos-badge ${pedido.estado?.toLowerCase()}`}
+                        title={pedido.motivoEstado || ''}
+                        onClick={() => setModalDetalle({ show: true, pedido })}
+                        style={{cursor: 'pointer'}}>
+                    <i className={
+                      pedido.estado?.toLowerCase() === 'pendiente' ? 'fas fa-hourglass-half' :
+                      pedido.estado?.toLowerCase() === 'enviado' ? 'fas fa-truck' :
+                      pedido.estado?.toLowerCase() === 'entregado' ? 'fas fa-box-open' :
+                      pedido.estado?.toLowerCase() === 'completado' ? 'fas fa-check-circle' :
+                      pedido.estado?.toLowerCase() === 'cancelado' ? 'fas fa-times-circle' :
+                      'fas fa-question-circle'
+                    } style={{marginRight: 6}}></i>
+                    {pedido.estado ? pedido.estado.toUpperCase() : ''}
+                  </span>
                 </td>
                 <td>
-                  <ul style={{margin: 0, padding: 0, listStyle: 'none'}}>
+                  <ul className="pedidos-productos-list">
                     {pedido.detalles?.map((d, idx) => (
-                      <li key={idx}>{d.producto?.nombre} (Cantidad: {d.cantidad})</li>
+                      <li key={idx}>{d.producto?.nombre} <span className="pedidos-prod-cant">x{d.cantidad}</span></li>
                     ))}
                   </ul>
                 </td>
-                <td className="acciones">
-                  <button className="btn-editar" onClick={() => handleEdit(pedido)}>Editar</button>
-                  <button className="btn-eliminar" onClick={() => handleDelete(pedido.id)}>Eliminar</button>
+                <td>
+                  $ {pedido.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0).toLocaleString()}
+                </td>
+                <td className="pedidos-acciones">
+                  <button className="btn-editar" title="Editar" onClick={() => handleEdit(pedido)}>
+                    <i className="fas fa-edit"></i>
+                  </button>
+                  <button className="btn-eliminar" title="Eliminar" onClick={() => handleDelete(pedido.id)}>
+                    <i className="fas fa-trash"></i>
+                  </button>
+                  <button className="btn-detalle" title="Ver detalles" onClick={() => setModalDetalle({ show: true, pedido })}>
+                    <i className="fas fa-eye"></i>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -375,6 +700,79 @@ function PedidosPage() {
           <button className="btn-limpiar" disabled={pagina >= totalPaginas} onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}>Siguiente</button>
         </div>
       </div>
+      {/* Formulario Editar Pedido */}
+      {editId !== null && (
+        <div className="inventario-form-card" style={{marginTop: 32}}>
+          <h2 className="inventario-form-title">Editar Pedido #{editId}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap'}}>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Cliente</label>
+                <select className="form-select" name="clienteId" value={form.clienteId} onChange={handleFormChange}>
+                  <option value="">Seleccione un cliente</option>
+                  {clientes.map(c => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 140}}>
+                <label className="form-label">Fecha</label>
+                <input className="form-input" name="fecha" type="date" value={form.fecha} onChange={handleFormChange} />
+              </div>
+              <div style={{flex: 1, minWidth: 140}}>
+                <label className="form-label">Estado</label>
+                <select className="form-select" name="estado" value={form.estado} onChange={handleFormChange}>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="enviado">Enviado</option>
+                  <option value="entregado">Entregado</option>
+                  <option value="completado">Completado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Motivo del estado</label>
+                <input className="form-input" name="motivoEstado" value={form.motivoEstado} onChange={handleFormChange} maxLength={255} placeholder="Ej: Pendiente por pago, por envío, etc." />
+              </div>
+            </div>
+            <div className="form-group" style={{display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end'}}>
+              <div style={{flex: 1, minWidth: 180}}>
+                <label className="form-label">Productos</label>
+                <select className="form-select" name="productoId" value={form.productoId} onChange={handleFormChange}>
+                  <option value="">Seleccione un producto</option>
+                  {productos.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{flex: 1, minWidth: 100}}>
+                <label className="form-label">Cantidad</label>
+                <input className="form-input" name="cantidad" type="number" min="1" value={form.cantidad} onChange={handleFormChange} />
+              </div>
+              <div style={{minWidth: 120}}>
+                <button type="button" className="btn-guardar" style={{marginTop: 8}} onClick={handleAddProducto}>Agregar Producto</button>
+              </div>
+            </div>
+            {/* Lista de productos agregados al pedido */}
+            {form.productos.length > 0 && (
+              <div style={{margin: '12px 0'}}>
+                <b style={{color: '#2563eb'}}>Productos en el pedido:</b>
+                <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none'}}>
+                  {form.productos.map((p, idx) => (
+                    <li key={idx} style={{marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8}}>
+                      <span>{p.nombre} (Cantidad: {p.cantidad})</span>
+                      <button type="button" className="btn-eliminar" style={{padding: '2px 10px', fontSize: '0.95em'}} onClick={() => handleRemoveProducto(idx)}>Quitar</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="form-buttons-area">
+              <button className="btn-guardar" type="submit">Guardar Cambios</button>
+              <button className="btn-limpiar" type="button" onClick={handleLimpiar}>Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+      )}
       <ModalMensaje
         show={modal.show}
         titulo={modal.titulo}
@@ -395,6 +793,35 @@ function PedidosPage() {
         mensaje={modalMotivo.motivo}
         onClose={() => setModalMotivo({ show: false, motivo: '', estado: '' })}
       />
+      {/* Modal de detalles de pedido */}
+      {modalDetalle.show && modalDetalle.pedido && ReactDOM.createPortal(
+        <div className="pedidos-modal-overlay" onClick={() => setModalDetalle({ show: false, pedido: null })}>
+          <div className="pedidos-modal" onClick={e => e.stopPropagation()}>
+            <div className="pedidos-modal-header">
+              <h2>Detalle del Pedido #{modalDetalle.pedido.id}</h2>
+              <button className="pedidos-modal-close" onClick={() => setModalDetalle({ show: false, pedido: null })}>&times;</button>
+            </div>
+            <div className="pedidos-modal-body">
+              <div className="pedidos-modal-row"><b>Cliente:</b> {modalDetalle.pedido.cliente?.nombre}</div>
+              <div className="pedidos-modal-row"><b>Fecha:</b> {modalDetalle.pedido.fecha?.substring(0, 10)}</div>
+              <div className="pedidos-modal-row"><b>Estado:</b> <span className={`pedidos-badge ${modalDetalle.pedido.estado?.toLowerCase()}`}>{modalDetalle.pedido.estado}</span></div>
+              <div className="pedidos-modal-row"><b>Motivo estado:</b> {modalDetalle.pedido.motivoEstado || '—'}</div>
+              <div className="pedidos-modal-row"><b>Productos:</b>
+                <ul className="pedidos-modal-prod-list">
+                  {modalDetalle.pedido.detalles?.map((d, idx) => (
+                    <li key={idx}>{d.producto?.nombre} <span className="pedidos-prod-cant">x{d.cantidad}</span> <span style={{color:'#64748b', fontSize:'0.97em'}}>($ {d.producto?.precio?.toLocaleString?.() || '—'})</span></li>
+                  ))}
+                </ul>
+              </div>
+              <div className="pedidos-modal-row"><b>Monto total:</b> $ {modalDetalle.pedido.detalles?.reduce((acc, d) => acc + (d.cantidad * (d.producto?.precio || 0)), 0).toLocaleString()}</div>
+            </div>
+            <div className="pedidos-modal-footer">
+              <button className="btn-guardar" onClick={() => setModalDetalle({ show: false, pedido: null })}>Cerrar</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

@@ -65,7 +65,7 @@ function App() {
               path="/pedidos"
               element={
                 <ProtectedRoute>
-                  <Layout><PedidosPage /></Layout>
+                  <Layout title="Pedidos" subtitle="Gestión de Pedidos"><PedidosPage /></Layout>
                 </ProtectedRoute>
               }
             />
