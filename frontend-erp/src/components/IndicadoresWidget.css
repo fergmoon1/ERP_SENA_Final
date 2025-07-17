@@ -33,7 +33,7 @@
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
   transition: box-shadow 0.2s, border-color 0.2s;
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible;
 }
 .indicador-card:hover {
   box-shadow: 0 4px 16px rgba(25, 118, 210, 0.13);
