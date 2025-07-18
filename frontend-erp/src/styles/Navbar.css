@@ -42,6 +42,36 @@
     grid-column: 1;
 }
 
+.dashboard-texto h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+    color: #333;
+}
+
+.dashboard-texto p {
+    font-size: 13px;
+    margin: 2px 0 0 0;
+    color: #666;
+    line-height: 1.1;
+}
+
+.dashboard-texto h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+    color: #333;
+}
+
+.dashboard-texto p {
+    font-size: 13px;
+    margin: 2px 0 0 0;
+    color: #666;
+    line-height: 1.1;
+}
+
 .spacer {
     grid-column: 3;
 }

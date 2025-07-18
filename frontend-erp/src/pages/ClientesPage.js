@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Layout from '../components/Layout';
 import ImageUpload from '../components/ImageUpload';
 import '../styles/DashboardPage.css';
+import '../styles/ClientesPage.css';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
@@ -200,13 +201,136 @@ function ClientesPage() {
     return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
   }).length;
   const activos = clientes.filter(c => c.activo !== false).length;
+  
+  // Métricas adicionales profesionales
+  const clientesConEmail = clientes.filter(c => c.correo && c.correo.trim()).length;
+  const clientesConTelefono = clientes.filter(c => c.telefono && c.telefono.trim()).length;
+  const clientesConDireccion = clientes.filter(c => 
+    (c.direccion && c.direccion.trim()) || 
+    (c.direccionFiscal && c.direccionFiscal.trim()) ||
+    (c.direccionCorrespondencia && c.direccionCorrespondencia.trim()) ||
+    (c.direccionEntrega && c.direccionEntrega.trim())
+  ).length;
+  const clientesConImagen = clientes.filter(c => c.imagen && c.imagen.trim()).length;
+  const clientesSinNIT = clientes.filter(c => !c.nit || !c.nit.trim()).length;
+  const clientesRecientes = clientes.filter(c => {
+    if (!c.fechaCreacion) return false;
+    const fecha = new Date(c.fechaCreacion);
+    const ahora = new Date();
+    const diffTime = Math.abs(ahora - fecha);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 7;
+  }).length;
+  const porcentajeCompletitud = totalClientes > 0 ? Math.round((clientesConEmail + clientesConTelefono + clientesConDireccion) / (totalClientes * 3) * 100) : 0;
+  
+  // Métricas adicionales más relevantes
+  const clientesConWeb = clientes.filter(c => c.web && c.web.trim()).length;
+  const clientesConCargo = clientes.filter(c => c.cargo && c.cargo.trim()).length;
+  const clientesConObservaciones = clientes.filter(c => c.observaciones && c.observaciones.trim()).length;
+  const clientesCompletos = clientes.filter(c => 
+    c.correo && c.correo.trim() && 
+    c.telefono && c.telefono.trim() && 
+    c.nit && c.nit.trim() &&
+    (c.direccion && c.direccion.trim() || c.direccionFiscal && c.direccionFiscal.trim())
+  ).length;
 
   const kpis = [
-    { label: 'Total Clientes', value: totalClientes, icon: 'fas fa-users', color: 'blue' },
-    { label: 'Nuevos este mes', value: nuevosMes, icon: 'fas fa-user-plus', color: 'green' },
-    { label: 'Empresas', value: empresas, icon: 'fas fa-building', color: 'purple' },
-    { label: 'Individuales', value: individuales, icon: 'fas fa-user', color: 'cyan' },
-    { label: 'Activos', value: activos, icon: 'fas fa-user-check', color: 'green' },
+    { 
+      label: 'Total', 
+      value: totalClientes, 
+      icon: 'fas fa-users', 
+      color: 'blue',
+      subtitle: 'Clientes',
+      trend: null
+    },
+    { 
+      label: 'Nuevos', 
+      value: nuevosMes, 
+      icon: 'fas fa-user-plus', 
+      color: 'green',
+      subtitle: 'Este mes',
+      trend: nuevosMes > 0 ? 'positive' : 'neutral'
+    },
+    { 
+      label: 'Empresas', 
+      value: empresas, 
+      icon: 'fas fa-building', 
+      color: 'purple',
+      subtitle: `${totalClientes > 0 ? Math.round((empresas/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Individuales', 
+      value: individuales, 
+      icon: 'fas fa-user', 
+      color: 'cyan',
+      subtitle: `${totalClientes > 0 ? Math.round((individuales/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Completos', 
+      value: clientesCompletos, 
+      icon: 'fas fa-check-circle', 
+      color: 'green',
+      subtitle: `${totalClientes > 0 ? Math.round((clientesCompletos/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Con Email', 
+      value: clientesConEmail, 
+      icon: 'fas fa-envelope', 
+      color: 'orange',
+      subtitle: `${totalClientes > 0 ? Math.round((clientesConEmail/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Con Teléfono', 
+      value: clientesConTelefono, 
+      icon: 'fas fa-phone', 
+      color: 'teal',
+      subtitle: `${totalClientes > 0 ? Math.round((clientesConTelefono/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Con Dirección', 
+      value: clientesConDireccion, 
+      icon: 'fas fa-map-marker-alt', 
+      color: 'indigo',
+      subtitle: `${totalClientes > 0 ? Math.round((clientesConDireccion/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Con Foto', 
+      value: clientesConImagen, 
+      icon: 'fas fa-camera', 
+      color: 'pink',
+      subtitle: `${totalClientes > 0 ? Math.round((clientesConImagen/totalClientes)*100) : 0}%`,
+      trend: null
+    },
+    { 
+      label: 'Sin NIT', 
+      value: clientesSinNIT, 
+      icon: 'fas fa-exclamation-triangle', 
+      color: 'red',
+      subtitle: 'Pendientes',
+      trend: clientesSinNIT > 0 ? 'negative' : 'positive'
+    },
+    { 
+      label: 'Recientes', 
+      value: clientesRecientes, 
+      icon: 'fas fa-clock', 
+      color: 'lime',
+      subtitle: '7 días',
+      trend: clientesRecientes > 0 ? 'positive' : 'neutral'
+    },
+    { 
+      label: 'Completitud', 
+      value: `${porcentajeCompletitud}%`, 
+      icon: 'fas fa-chart-pie', 
+      color: 'brown',
+      subtitle: 'Datos',
+      trend: porcentajeCompletitud >= 80 ? 'positive' : porcentajeCompletitud >= 60 ? 'neutral' : 'negative'
+    }
   ];
 
   useEffect(() => {
@@ -487,7 +611,7 @@ function ClientesPage() {
   });
 
   return (
-    <Layout>
+    <Layout title="Gestión de Clientes" subtitle="Administración de clientes y contactos">
       <div className="dashboard-container">
         <div className="dashboard-header">
           <h1><i className="fas fa-users"></i> Gestión de Clientes</h1>
@@ -507,6 +631,14 @@ function ClientesPage() {
                 <div className="stat-content">
                   <div className="stat-main-value">{kpi.value}</div>
                   <div className="stat-label">{kpi.label}</div>
+                  <div className="stat-subtitle">{kpi.subtitle}</div>
+                  {kpi.trend && (
+                    <div className={`stat-trend ${kpi.trend}`}>
+                      {kpi.trend === 'positive' && <i className="fas fa-arrow-up"></i>}
+                      {kpi.trend === 'negative' && <i className="fas fa-arrow-down"></i>}
+                      {kpi.trend === 'neutral' && <i className="fas fa-minus"></i>}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

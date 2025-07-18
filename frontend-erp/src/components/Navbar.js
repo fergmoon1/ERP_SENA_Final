@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import Avatar from './Avatar';
 
-const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) => {
+const Navbar = ({ title, subtitle }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
@@ -11,6 +11,10 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
   const [zoom, setZoom] = useState(1);
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
   const navigate = useNavigate();
+
+  // Debug: mostrar el título que se recibe
+  console.log('Navbar recibió title:', title);
+  console.log('Navbar recibió subtitle:', subtitle);
 
   // Actualiza el usuario si cambia en localStorage (por edición de perfil)
   useEffect(() => {
@@ -82,8 +86,8 @@ const Navbar = ({ title = "Dashboard", subtitle = "Actualizaciones y Pagos" }) =
 
       <div className={`topbar-content ${isMenuOpen ? 'active' : ''}`}>
         <div className="dashboard-texto">
-          <h1>{title}</h1>
-          <p>{subtitle}</p>
+          <h1>{title || "ERP SENA"}</h1>
+          <p>{subtitle || "Sistema de Gestión Empresarial"}</p>
         </div>
 
         {/* Fecha y hora como elemento independiente */}
