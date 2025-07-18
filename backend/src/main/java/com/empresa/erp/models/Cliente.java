@@ -15,6 +15,7 @@ public class Cliente {
     private String tipo; // "Individual" o "Empresa"
     private String etapa;
     private String apellidos;
+    private String imagen; // Campo para la imagen del cliente
 
     private java.time.LocalDate fechaCreacion;
 
@@ -42,6 +43,9 @@ public class Cliente {
 
     public String getApellidos() { return apellidos; }
     public void setApellidos(String apellidos) { this.apellidos = apellidos; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 
     public java.time.LocalDate getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(java.time.LocalDate fechaCreacion) { this.fechaCreacion = fechaCreacion; }

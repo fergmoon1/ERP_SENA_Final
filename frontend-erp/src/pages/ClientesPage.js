@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Layout from '../components/Layout';
+import ImageUpload from '../components/ImageUpload';
 import '../styles/DashboardPage.css';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -78,35 +79,64 @@ function ModalEditarCliente({ show, form, onChange, onSubmit, onCancel, error })
   if (!show) return null;
   return ReactDOM.createPortal(
     <div className="modal-overlay" style={{zIndex: 3000}}>
-      <div className="modal-content modal-center">
+      <div className="modal-content modal-center" style={{maxWidth: '600px', width: '90%'}}>
         <div className="modal-header">
           <h3>Editar Cliente</h3>
           <button className="modal-close-btn" onClick={onCancel} title="Cerrar">&times;</button>
         </div>
         <form onSubmit={onSubmit} className="modal-form">
-          <div className="form-group">
-            <label>Nombre del Cliente</label>
-            <input name="nombre" value={form.nombre} onChange={onChange} required placeholder="Ingrese el nombre del cliente" />
+          <div style={{display: 'flex', gap: '20px', alignItems: 'flex-start'}}>
+            {/* Columna de imagen */}
+            <div style={{flex: '0 0 150px'}}>
+              <label>Foto del Cliente</label>
+              <ImageUpload
+                onImageUpload={(filename, url) => {
+                  onChange({
+                    target: {
+                      name: 'imagen',
+                      value: filename
+                    }
+                  });
+                }}
+                currentImage={form.imagen}
+                type="cliente"
+                placeholder="Cambiar imagen"
+                className="modal-image-upload"
+              />
+            </div>
+            
+            {/* Columna de campos */}
+            <div style={{flex: '1'}}>
+              <div className="form-group">
+                <label>Nombre del Cliente</label>
+                <input name="nombre" value={form.nombre} onChange={onChange} required placeholder="Ingrese el nombre del cliente" />
+              </div>
+              <div className="form-group">
+                <label>Apellidos</label>
+                <input name="apellidos" value={form.apellidos} onChange={onChange} placeholder="Ingrese los apellidos" />
+              </div>
+              <div className="form-group">
+                <label>Correo Electrónico</label>
+                <input name="correo" type="email" value={form.correo} onChange={onChange} required placeholder="Ingrese el correo electrónico" />
+              </div>
+              <div className="form-group">
+                <label>Teléfono</label>
+                <input name="telefono" value={form.telefono} onChange={onChange} required placeholder="Ingrese el contacto" />
+              </div>
+              <div className="form-group">
+                <label>Dirección</label>
+                <input name="direccion" value={form.direccion} onChange={onChange} placeholder="Ingrese la dirección" />
+              </div>
+              <div className="form-group">
+                <label>Tipo</label>
+                <select name="tipo" value={form.tipo} onChange={onChange}>
+                  <option value="Individual">Individual</option>
+                  <option value="Empresa">Empresa</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div className="form-group">
-            <label>Correo Electrónico</label>
-            <input name="correo" type="email" value={form.correo} onChange={onChange} required placeholder="Ingrese el correo electrónico" />
-          </div>
-          <div className="form-group">
-            <label>Teléfono</label>
-            <input name="telefono" value={form.telefono} onChange={onChange} required placeholder="Ingrese el contacto" />
-          </div>
-          <div className="form-group">
-            <label>Dirección</label>
-            <input name="direccion" value={form.direccion} onChange={onChange} placeholder="Ingrese la dirección" />
-          </div>
-          <div className="form-group">
-            <label>Tipo</label>
-            <select name="tipo" value={form.tipo} onChange={onChange}>
-              <option value="Individual">Individual</option>
-              <option value="Empresa">Empresa</option>
-            </select>
-          </div>
+          
           <div className="form-buttons">
             <button type="submit" className="btn-primary">Actualizar</button>
             <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
@@ -461,17 +491,6 @@ function ClientesPage() {
       <div className="dashboard-container">
         <div className="dashboard-header">
           <h1><i className="fas fa-users"></i> Gestión de Clientes</h1>
-          <div className="header-actions">
-            <button className="btn-secondary" onClick={exportarExcel}>
-              <i className="fas fa-file-excel"></i> Excel
-            </button>
-            <button className="btn-secondary" onClick={exportarCSV}>
-              <i className="fas fa-file-csv"></i> CSV
-            </button>
-            <button className="btn-secondary" onClick={exportarPDF}>
-              <i className="fas fa-file-pdf"></i> PDF
-            </button>
-          </div>
         </div>
 
         {/* KPIs */}
@@ -499,27 +518,19 @@ function ClientesPage() {
           <h2 className="section-title"><i className="fas fa-user-plus"></i> {editId ? 'Editar Cliente' : 'Nuevo Cliente'}</h2>
           <form onSubmit={handleSubmit} className="client-form">
             <div className="form-row-horizontal">
-              <div className="form-group image-upload-container">
-                <label htmlFor="imagen" className="image-upload-label">
-                  <div className={`image-upload-placeholder ${form.imagenPreview ? 'has-image' : ''}`}>
-                    <span className="image-upload-title">Foto del cliente</span>
-                    {form.imagenPreview ? (
-                      <img src={form.imagenPreview} alt="Preview" />
-                    ) : (
-                      <div className="image-upload-icon">
-                        <i className="fas fa-cloud-upload-alt"></i>
-                        <p>Arrastra y suelta una imagen aquí o haz clic para seleccionar</p>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    id="imagen"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    style={{ display: 'none' }}
-                  />
-                </label>
+              <div className="form-group">
+                <label>Foto del Cliente</label>
+                <ImageUpload
+                  onImageUpload={(filename, url) => {
+                    setForm({
+                      ...form,
+                      imagen: filename
+                    });
+                  }}
+                  currentImage={form.imagen}
+                  type="cliente"
+                  placeholder="Arrastra una imagen aquí o haz clic para seleccionar"
+                />
               </div>
               <div className="form-fields">
                 <div className="form-group">
@@ -683,10 +694,25 @@ function ClientesPage() {
         {/* Tabla de Clientes */}
         <div className="dashboard-content table-card">
           <h2 className="section-title"><i className="fas fa-list"></i> Lista de Clientes</h2>
+          
+          {/* Botones de exportar movidos aquí */}
+          <div className="header-actions" style={{ marginBottom: '20px', justifyContent: 'flex-end' }}>
+            <button className="btn-secondary" onClick={exportarExcel}>
+              <i className="fas fa-file-excel"></i> Excel
+            </button>
+            <button className="btn-secondary" onClick={exportarCSV}>
+              <i className="fas fa-file-csv"></i> CSV
+            </button>
+            <button className="btn-secondary" onClick={exportarPDF}>
+              <i className="fas fa-file-pdf"></i> PDF
+            </button>
+          </div>
+          
           <div className="table-container">
             <table>
               <thead>
                 <tr>
+                  <th className="centered">Foto</th>
                   <th className="centered">Nombre</th>
                   <th className="centered">Email</th>
                   <th className="centered">Teléfono</th>
@@ -698,6 +724,24 @@ function ClientesPage() {
               <tbody>
                 {clientesFiltrados.map(cliente => (
                   <tr key={cliente.id}>
+                    <td className="centered">
+                      <div className="client-image-container">
+                        {cliente.imagen ? (
+                          <img 
+                            src={`http://localhost:8081/api/files/clientes/${cliente.imagen}`}
+                            alt={`Foto de ${cliente.nombre}`}
+                            className="client-image"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className="client-image-placeholder" style={{display: cliente.imagen ? 'none' : 'flex'}}>
+                          <i className="fas fa-user"></i>
+                        </div>
+                      </div>
+                    </td>
                     <td className="centered">{[cliente.nombre, cliente.apellidos].filter(x => x && x.trim()).join(' ')}</td>
                     <td className="centered">{cliente.correo}</td>
                     <td className="centered">{cliente.telefono}</td>
