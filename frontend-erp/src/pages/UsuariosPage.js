@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FileUpload from '../components/FileUpload';
 import { useNotifications } from '../components/NotificationProvider';
 import CustomModal from '../components/CustomModal';
-import { FaEdit, FaTrash, FaPlus, FaEye, FaKey, FaUserPlus, FaSearch, FaArrowRight, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaEye, FaKey, FaUserPlus, FaSearch, FaArrowRight, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle } from 'react-icons/fa';
 import '../styles/usuarios.css';
 
 const API_URL = 'http://localhost:8081/api/usuarios';
@@ -52,6 +52,17 @@ function UsuariosPage() {
   const [searchInput, setSearchInput] = useState(search);
   const [usuarioDetalle, setUsuarioDetalle] = useState(null);
   const [showDetalleModal, setShowDetalleModal] = useState(false);
+  // Estado para imagen temporal antes de crear o editar usuario
+  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+  const [pendingAvatarPreview, setPendingAvatarPreview] = useState(null);
+  // 1. Estados para los modales de confirmación y resultado
+  const [deleteModal, setDeleteModal] = useState({ show: false, userId: null });
+  const [resultModal, setResultModal] = useState({ show: false, success: true, message: '' });
+  // 1. Estado para la posición de anclaje
+  const [anchorPosition, setAnchorPosition] = useState(null);
+  const [anchorY, setAnchorY] = useState(null);
+  const formRef = useRef(null);
+  const [formTop, setFormTop] = useState(null);
 
   useEffect(() => {
     fetchUsuarios();
@@ -63,6 +74,21 @@ function UsuariosPage() {
       } catch {}
     }
   }, []);
+
+  useEffect(() => {
+    if (showForm && anchorY !== null && formRef.current) {
+      const formHeight = formRef.current.offsetHeight;
+      let top = anchorY;
+      // Centra el punto de invocación en el centro del formulario
+      top = top - formHeight / 2;
+      // Ajusta para que no se desborde
+      if (top < 16) top = 16;
+      if (top + formHeight > window.innerHeight - 16) top = window.innerHeight - formHeight - 16;
+      setFormTop(top);
+    } else {
+      setFormTop(null);
+    }
+  }, [showForm, anchorY]);
 
   const fetchUsuarios = async () => {
     try {
@@ -103,15 +129,10 @@ function UsuariosPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleAvatarUpload = (avatarUrl) => {
-    setForm({ ...form, avatar: avatarUrl });
-    if (avatarUrl) {
-      addNotification({
-        type: 'success',
-        title: 'Avatar',
-        message: 'Imagen de avatar subida con éxito.'
-      });
-    }
+  // handleAvatarUpload para edición: solo guarda preview y archivo, no sube
+  const handleAvatarUpload = (avatarUrl, url, file) => {
+    setPendingAvatarFile(file);
+    setPendingAvatarPreview(url);
   };
 
   // Función para validar contraseña según la política
@@ -197,114 +218,106 @@ function UsuariosPage() {
     }
   };
 
+  // handleSubmit: en edición, si hay nueva imagen, primero la sube y luego actualiza usuario
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-    
-    // Validar contraseña antes de enviar
     if (form.password && !validatePassword(form.password)) {
       setError('La contraseña no cumple con los requisitos de seguridad.');
       return;
     }
-    
     try {
       const token = localStorage.getItem('jwt');
+      let avatarFilename = form.avatar;
+      // Subir la imagen solo si hay nueva
+      if (pendingAvatarFile) {
+        const formData = new FormData();
+        formData.append('file', pendingAvatarFile);
+        const uploadRes = await fetch(`http://localhost:8081/api/files/upload/usuario${editId ? `?id=${editId}` : ''}`, {
+          method: 'POST',
+          headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+          body: formData
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          avatarFilename = uploadData.filename;
+        }
+      }
+      // Crear o actualizar usuario
       const res = await fetch(editId ? `${API_URL}/${editId}` : API_URL, {
         method: editId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, avatar: avatarFilename })
       });
-
       if (res.ok) {
-        const data = await res.json();
-        setForm({
-          nombre: '',
-          correo: '',
-          password: '',
-          rol: 'Usuario',
-          avatar: '',
-        });
+        setForm({ nombre: '', correo: '', password: '', rol: 'Usuario', avatar: '' });
         setEditId(null);
-        setShowPassword(false);
+        setPendingAvatarFile(null);
+        setPendingAvatarPreview(null);
+        setShowForm(false);
         fetchUsuarios();
-        
-        // Mostrar modal de éxito
-        setSuccessMessage(editId ? 'Usuario actualizado con éxito.' : 'Usuario creado con éxito.');
+        setSuccessMessage(editId ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.');
         setShowSuccessModal(true);
-        
-        // Mostrar notificación
-        addNotification({
-          type: 'success',
-          title: 'Éxito',
-          message: editId ? 'Usuario editado correctamente.' : 'Usuario creado correctamente.'
-        });
-        
-        // Actualizar lista
-        fetchUsuarios();
       } else {
-        const errorData = await res.text();
-        let errorMessage = 'Error al guardar el usuario.';
-        
-        try {
-          const errorJson = JSON.parse(errorData);
-          errorMessage = errorJson.message || errorJson.error || errorMessage;
-        } catch {
-          // Si no es JSON, usar el texto directo
-          if (errorData.includes('política de seguridad')) {
-            errorMessage = 'La contraseña no cumple con la política de seguridad establecida.';
-          } else if (errorData.includes('correo')) {
-            errorMessage = 'El correo electrónico ya está en uso.';
-          } else {
-            errorMessage = errorData || errorMessage;
-          }
-        }
-        
-        setError(errorMessage);
-        addNotification({
-          type: 'error',
-          title: 'Error',
-          message: errorMessage
-        });
+        const errorText = await res.text();
+        setError(errorText || 'Error al guardar el usuario.');
       }
     } catch (err) {
-      setError('Error de conexión. Inténtalo de nuevo.');
-      addNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'Error de conexión. Inténtalo de nuevo.'
-      });
+      setError('Error de red al guardar el usuario.');
     }
   };
 
   // Función para editar usuario
-  const handleEdit = (usuario) => {
+  const handleEdit = (usuario, event) => {
+    setAnchorY(event?.clientY || null);
+    setEditId(usuario.id);
     setForm({
       nombre: usuario.nombre || '',
       correo: usuario.correo || '',
-      password: '', // No mostrar la contraseña actual
+      password: '',
       rol: usuario.rol || 'Usuario',
       avatar: usuario.avatar || '',
-      activo: usuario.activo !== undefined ? usuario.activo : true
     });
-    setEditId(usuario.id);
+    setPendingAvatarFile(null);
+    setPendingAvatarPreview(null);
     setShowForm(true);
     setError('');
     setShowPassword(false);
   };
 
-  const handleDelete = async id => {
-    if (!window.confirm('¿Seguro que deseas eliminar este usuario?')) return;
-    const token = localStorage.getItem('jwt');
-    await fetch(`${API_URL}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : ''
+  // 2. Nueva función para abrir el modal de confirmación
+  const openDeleteModal = (userId, event) => {
+    setAnchorY(event?.clientY || null);
+    const rect = event.target.getBoundingClientRect();
+    setAnchorPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height + window.scrollY });
+    setDeleteModal({ show: true, userId });
+  };
+
+  // 3. Nueva función para eliminar usuario con feedback visual
+  const confirmDelete = async () => {
+    const id = deleteModal.userId;
+    setDeleteModal({ show: false, userId: null });
+    try {
+      const token = localStorage.getItem('jwt');
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      });
+      if (res.ok) {
+        setResultModal({ show: true, success: true, message: 'Usuario eliminado correctamente.' });
+        fetchUsuarios();
+      } else {
+        const errorText = await res.text();
+        setResultModal({ show: true, success: false, message: errorText || 'Error al eliminar el usuario.' });
       }
-    });
-    fetchUsuarios();
+    } catch (err) {
+      setResultModal({ show: true, success: false, message: 'Error de red al eliminar el usuario.' });
+    }
   };
 
   const handleView = (usuario) => {
@@ -410,6 +423,17 @@ function UsuariosPage() {
   }
 
   // Panel superior y tabla adaptados al HTML de referencia
+  useEffect(() => {
+    if (showForm) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showForm]);
+
   return (
     <div className="usuarios-html-bg" style={{ minHeight: '100vh', background: '#f3f4f6', padding: '32px 0' }}>
       <div className="usuarios-html-main" style={{ maxWidth: 1450, margin: '0 auto', background: '#fff', borderRadius: 12, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: '24px 0 32px 0', border: '1.5px solid #d1d5db' }}>
@@ -533,7 +557,11 @@ function UsuariosPage() {
                     <td style={{ border: '1px solid #d1d5db', textAlign: 'center', verticalAlign: 'middle', padding: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                         {usuario.avatar ? (
-                          <img src={usuario.avatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }} />
+                          <img 
+                            src={usuario.avatar.startsWith('http') ? usuario.avatar : `http://localhost:8081/api/files/usuarios/${usuario.avatar}`}
+                            alt="avatar" 
+                            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d1d5db', background: '#fff', display: 'block', margin: '0 auto' }} 
+                          />
                         ) : (
                           <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fff', border: '2px solid #d1d5db', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 10, fontWeight: 600 }}>
                             sube tu foto
@@ -591,7 +619,7 @@ function UsuariosPage() {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                         <button
                           type="button"
-                          onClick={() => handleEdit(usuario)}
+                          onClick={e => handleEdit(usuario, e)}
                           style={{ 
                             background: '#009ec7', 
                             color: '#fff', 
@@ -613,7 +641,7 @@ function UsuariosPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDelete(usuario.id)}
+                          onClick={e => openDeleteModal(usuario.id, e)}
                           style={{ 
                             background: '#dc2626', 
                             color: '#fff', 
@@ -734,121 +762,82 @@ function UsuariosPage() {
       </div>
       {/* Formulario Agregar/Editar */}
       {showForm && (
-        <div className="form-overlay">
-          <div className="form-container" style={{ position: 'relative' }}>
-            {/* Botón de cierre (X) */}
-            <button onClick={() => setShowForm(false)} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer', zIndex: 2 }} aria-label="Cerrar formulario">×</button>
-            <h2 style={{ fontSize: '1.35em', fontWeight: 700, color: '#009ec7', textAlign: 'center', marginBottom: 18 }}>
+        <div className="form-overlay" style={{
+          position: 'fixed',
+          top: formTop !== null ? formTop : '50%',
+          left: '50%',
+          transform: formTop !== null ? 'translateX(-50%)' : 'translate(-50%, -50%)',
+          width: 520,
+          minWidth: 320,
+          maxWidth: '95vw',
+          background: 'transparent',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          padding: 0,
+          margin: 0
+        }}>
+          <div ref={formRef} className="form-container" style={{ position: 'relative', width: '100%', borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.10)', background: '#fff', padding: 28 }}>
+            <button onClick={() => { setShowForm(false); setAnchorY(null); setAnchorPosition(null); }} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer', zIndex: 2 }} aria-label="Cerrar formulario">×</button>
+            <h2 style={{ fontSize: '1.25em', fontWeight: 700, color: '#009ec7', textAlign: 'center', marginBottom: 16 }}>
               {isEditMode ? 'Editar Usuario' : 'Crear Usuario'}
             </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Nombre:</label>
-                <input
-                  type="text"
-                  value={form.nombre}
-                  onChange={e => setForm({...form, nombre: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Correo:</label>
-                <input
-                  type="email"
-                  value={form.correo}
-                  onChange={e => setForm({...form, correo: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Contraseña:</label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={handlePasswordChange}
-                  placeholder={isEditMode ? "(Opcional) Cambiar contraseña" : "Ingrese una contraseña"}
-                  className={getPasswordFieldClass()}
-                  style={{ paddingRight: '50px' }}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
-                </button>
-              </div>
-              {form.password && (
-                <div className="password-errors">
-                  <small>Requisitos de Seguridad</small>
-                  <ul>
-                    <li className={`error-item ${isRequirementMet('length') ? 'valid' : ''}`}>
-                      Mínimo {passwordPolicy.minLength} caracteres de longitud
-                    </li>
-                    <li className={`error-item ${isRequirementMet('upper') ? 'valid' : ''}`}>
-                      Al menos una letra mayúscula (A-Z)
-                    </li>
-                    <li className={`error-item ${isRequirementMet('lower') ? 'valid' : ''}`}>
-                      Al menos una letra minúscula (a-z)
-                    </li>
-                    <li className={`error-item ${isRequirementMet('number') ? 'valid' : ''}`}>
-                      Al menos un número (0-9)
-                    </li>
-                    <li className={`error-item ${isRequirementMet('symbol') ? 'valid' : ''}`}>
-                      Al menos un carácter especial (!@#$%^&*)
-                    </li>
-                  </ul>
-                  <div style={{ 
-                    marginTop: '8px', 
-                    fontSize: '11px', 
-                    color: '#6c757d',
-                    textAlign: 'center',
-                    paddingTop: '8px',
-                    borderTop: '1px solid #dee2e6'
-                  }}>
-                    {passwordErrors.length === 0 ? 
-                      '✅ Contraseña segura' : 
-                      `${passwordErrors.length} requisito${passwordErrors.length !== 1 ? 's' : ''} pendiente${passwordErrors.length !== 1 ? 's' : ''}`
-                    }
-                  </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 18, alignItems: 'flex-start' }}>
+              {/* Columna izquierda: Foto */}
+              <div style={{ flex: '0 0 110px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', background: 'none', borderRadius: 10, padding: 0 }}>
+                <div style={{ width: 110, height: 110, marginBottom: 6, position: 'relative' }}>
+                  {pendingAvatarPreview ? (
+                    <>
+                      <img src={pendingAvatarPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10, border: '2px solid #e2e8f0' }} />
+                      <button type="button" onClick={() => { setPendingAvatarFile(null); setPendingAvatarPreview(null); }} style={{ position: 'absolute', top: 2, right: 2, background: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer', color: '#dc2626', fontWeight: 700, fontSize: 15, lineHeight: '20px', padding: 0 }}>×</button>
+                    </>
+                  ) : (
+                    <FileUpload onFileUpload={handleAvatarUpload} currentAvatar={form.avatar} userId={editId} />
+                  )}
                 </div>
-              )}
-              <div className="form-group">
-                <label>Rol:</label>
-                <select
-                  value={form.rol}
-                  onChange={e => setForm({...form, rol: e.target.value})}
-                >
-                  <option value="USER">Usuario</option>
-                  <option value="SUPERVISOR">Supervisor</option>
-                  <option value="ADMIN">Administrador</option>
-                </select>
+                <span style={{ fontWeight: 500, color: '#555', fontSize: 13, marginTop: 2 }}>Foto</span>
               </div>
-              <div className="form-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={form.activo}
-                    onChange={e => setForm({...form, activo: e.target.checked})}
-                  />
-                  Activo
-                </label>
-              </div>
-              <div className="form-group">
-                <label>Avatar:</label>
-                <FileUpload onFileUpload={handleAvatarUpload} currentAvatar={form.avatar} userId={editId} />
-              </div>
-              {error && <div className="error-message">{error}</div>}
-              <div className="form-buttons">
-                <button type="submit" className="btn btn-primary">
-                  {isEditMode ? 'Actualizar' : 'Crear'}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={handleLimpiar}>
-                  Limpiar
-                </button>
-                <button type="button" className="btn btn-cancel" onClick={() => setShowForm(false)}>
-                  Cancelar
-                </button>
+              {/* Columna derecha: Datos */}
+              <div style={{ flex: 1 }}>
+                <div className="form-group">
+                  <label>Nombre:</label>
+                  <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Correo:</label>
+                  <input type="email" value={form.correo} onChange={e => setForm({...form, correo: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Contraseña:</label>
+                  <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={handlePasswordChange} placeholder={isEditMode ? "(Opcional) Cambiar contraseña" : "Ingrese una contraseña"} className={getPasswordFieldClass()} style={{ paddingRight: '50px' }} />
+                  <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>{showPassword ? '👁️' : '👁️‍🗨️'}</button>
+                </div>
+                {form.password && (
+                  <div className="password-errors">
+                    <small>Requisitos de Seguridad</small>
+                    <ul>
+                      <li className={`error-item ${isRequirementMet('length') ? 'valid' : ''}`}>Mínimo {passwordPolicy.minLength} caracteres de longitud</li>
+                      <li className={`error-item ${isRequirementMet('upper') ? 'valid' : ''}`}>Al menos una letra mayúscula (A-Z)</li>
+                      <li className={`error-item ${isRequirementMet('lower') ? 'valid' : ''}`}>Al menos una letra minúscula (a-z)</li>
+                      <li className={`error-item ${isRequirementMet('number') ? 'valid' : ''}`}>Al menos un número (0-9)</li>
+                      <li className={`error-item ${isRequirementMet('symbol') ? 'valid' : ''}`}>Al menos un símbolo especial</li>
+                    </ul>
+                  </div>
+                )}
+                <div className="form-group">
+                  <label>Rol:</label>
+                  <select value={form.rol} onChange={e => setForm({...form, rol: e.target.value})}>
+                    <option value="Admin">Admin</option>
+                    <option value="Usuario">Usuario</option>
+                    <option value="Supervisor">Supervisor</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                  <button type="submit" className="btn-primary">{isEditMode ? 'Actualizar' : 'Crear'}</button>
+                  <button type="button" className="btn-secondary" onClick={() => { handleCancel(); setShowForm(false); setAnchorY(null); setAnchorPosition(null); }}>Cancelar</button>
+                </div>
+                {error && <div className="error-message" style={{ marginTop: 10, marginBottom: 0, color: '#dc2626', background: '#fff0f0', border: '1px solid #fca5a5', borderRadius: 8, padding: '8px 12px', textAlign: 'center', maxWidth: 340, marginLeft: 'auto', marginRight: 'auto', fontSize: 14, fontWeight: 500, boxSizing: 'border-box', overflowWrap: 'break-word' }}>{error}</div>}
               </div>
             </form>
           </div>
@@ -869,11 +858,18 @@ function UsuariosPage() {
       {showDetalleModal && usuarioDetalle && (
         <CustomModal show={showDetalleModal} onClose={() => setShowDetalleModal(false)} title="Detalles del usuario">
           <div style={{ 
+            background: '#eaf1fb',
+            border: '2.5px solid #2563eb55',
+            borderRadius: '18px',
+            boxShadow: '0 8px 32px 0 rgba(37,99,235,0.18), 0 1.5px 6px rgba(37,99,235,0.10)',
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center', 
             gap: '24px',
-            padding: '20px 0'
+            padding: '32px 24px',
+            margin: '0 auto',
+            maxWidth: 420,
+            width: '100%'
           }}>
             {/* Avatar grande */}
             <div style={{
@@ -890,7 +886,7 @@ function UsuariosPage() {
             }}>
               {usuarioDetalle.avatar ? (
                 <img 
-                  src={usuarioDetalle.avatar} 
+                  src={usuarioDetalle.avatar.startsWith('http') ? usuarioDetalle.avatar : `http://localhost:8081/api/files/usuarios/${usuarioDetalle.avatar}`}
                   alt={`Avatar de ${usuarioDetalle.nombre}`}
                   style={{
                     width: '100%',
@@ -1124,6 +1120,31 @@ function UsuariosPage() {
           </div>
         </CustomModal>
       )}
+      {/* Modal de confirmación de eliminación */}
+      <CustomModal
+        show={deleteModal.show}
+        onClose={() => { setDeleteModal({ show: false, userId: null }); setAnchorY(null); setAnchorPosition(null); }}
+        title="Confirmar eliminación"
+        icon={<FaExclamationTriangle style={{ color: '#f59e0b' }} />}
+        actions={[
+          <button key="cancel" className="button" onClick={() => { setDeleteModal({ show: false, userId: null }); setAnchorY(null); setAnchorPosition(null); }}>Cancelar</button>,
+          <button key="delete" className="button positive" style={{ background: '#dc2626', color: '#fff', border: 'none' }} onClick={confirmDelete}>Eliminar</button>
+        ]}
+      >
+        ¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.
+      </CustomModal>
+      {/* Modal de resultado de la eliminación */}
+      <CustomModal
+        show={resultModal.show}
+        onClose={() => { setResultModal({ show: false, success: true, message: '' }); setAnchorY(null); setAnchorPosition(null); }}
+        title={resultModal.success ? '¡Éxito!' : 'Error'}
+        icon={resultModal.success ? <FaCheckCircle style={{ color: '#22c55e' }} /> : <FaTimesCircle style={{ color: '#dc2626' }} />}
+        actions={[
+          <button key="ok" className="button positive" onClick={() => { setResultModal({ show: false, success: true, message: '' }); setAnchorY(null); setAnchorPosition(null); }}>OK</button>
+        ]}
+      >
+        {resultModal.message}
+      </CustomModal>
     </div>
   );
 }

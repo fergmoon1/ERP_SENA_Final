@@ -18,20 +18,17 @@ const Avatar = ({ src, alt, size = 40, className = '' }) => {
     if (imageError) {
       return '/imagenes/foto01 mujer.png';
     }
-    
     if (!src) {
       return '/imagenes/foto01 mujer.png';
     }
-    
     if (src.startsWith('http')) {
       return src;
     }
-    
-    if (src.startsWith('/api/files/')) {
+    if (src.startsWith('/api/files/usuarios/')) {
       return `http://localhost:8081${src}`;
     }
-    
-    return `/imagenes/${src}`;
+    // Si es solo el nombre del archivo
+    return `http://localhost:8081/api/files/usuarios/${src}`;
   };
 
   return (

@@ -4,9 +4,9 @@ import Avatar from './Avatar';
 
 const FileUpload = ({ onFileUpload, currentAvatar, userId, disabled = false }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
+  const [preview, setPreview] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -21,7 +21,6 @@ const FileUpload = ({ onFileUpload, currentAvatar, userId, disabled = false }) =
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFile(files[0]);
@@ -35,83 +34,67 @@ const FileUpload = ({ onFileUpload, currentAvatar, userId, disabled = false }) =
     }
   };
 
-  const handleFile = async (file) => {
-    // Validar tipo de archivo
+  // Solo preview y pasar archivo y url al padre
+  const handleFile = (file) => {
     if (!file.type.startsWith('image/')) {
       setError('Solo se permiten archivos de imagen');
       return;
     }
-    // Validar tamaño (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('El archivo es demasiado grande. Máximo 5MB');
       return;
     }
     setError('');
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const token = localStorage.getItem('jwt');
-      if (!userId) {
-        setError('No se puede subir el avatar sin ID de usuario');
-        setUploading(false);
-        return;
-      }
-      const response = await fetch(`http://localhost:8081/api/usuarios/${userId}/avatar`, {
-        method: 'POST',
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
-        body: formData
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
-      const result = await response.json();
-      onFileUpload(result.url);
-    } catch (err) {
-      setError(err.message || 'Error al subir el archivo');
-    } finally {
-      setUploading(false);
-    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreview(e.target.result);
+      onFileUpload(null, e.target.result, file); // url preview, file
+    };
+    reader.readAsDataURL(file);
   };
 
   const removeAvatar = () => {
-    onFileUpload('');
+    setPreview(null);
+    onFileUpload('', null, null);
   };
 
   return (
     <div className="file-upload-container">
-      {currentAvatar ? (
-        <div className="avatar-preview">
+      {(preview || currentAvatar) ? (
+        <div className="avatar-preview" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Avatar 
-            src={currentAvatar}
+            src={preview || currentAvatar}
             alt="Avatar actual"
             size={80}
           />
-          <div className="avatar-actions">
+          <div className="avatar-actions" style={{ display: 'flex', gap: 12, marginTop: 10, justifyContent: 'center' }}>
             <button 
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || uploading}
+              disabled={disabled}
               className="upload-btn"
+              style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', minWidth: 0, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, cursor: 'pointer', padding: '0 10px', gap: 5 }}
+              title="Cambiar foto"
             >
-              {uploading ? 'Subiendo...' : 'Cambiar'}
+              <i className="fas fa-edit" style={{ fontSize: 14, marginRight: 4 }}></i>
+              <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: 0.1 }}>Editar</span>
             </button>
             <button 
               type="button"
               onClick={removeAvatar}
-              disabled={disabled || uploading}
+              disabled={disabled}
               className="remove-btn"
+              style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', minWidth: 0, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, cursor: 'pointer', padding: '0 10px', gap: 5 }}
+              title="Eliminar foto"
             >
-              Eliminar
+              <i className="fas fa-trash" style={{ fontSize: 14, marginRight: 4 }}></i>
+              <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: 0.1 }}>Eliminar</span>
             </button>
           </div>
         </div>
       ) : (
         <div
-          className={`upload-area ${isDragging ? 'dragging' : ''} ${uploading ? 'uploading' : ''}`}
+          className={`upload-area ${isDragging ? 'dragging' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -131,23 +114,21 @@ const FileUpload = ({ onFileUpload, currentAvatar, userId, disabled = false }) =
             <i className="fas fa-cloud-upload-alt"></i>
           </div>
           <div style={{ fontSize: '16px', color: '#374151', marginBottom: '4px' }}>
-            {uploading ? 'Subiendo archivo...' : 'Arrastra una imagen aquí o haz clic'}
+            {'Arrastra una imagen aquí o haz clic'}
           </div>
           <div style={{ fontSize: '14px', color: '#6b7280' }}>
             PNG, JPG, GIF hasta 5MB
           </div>
         </div>
       )}
-      
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
         style={{ display: 'none' }}
-        disabled={disabled || uploading}
+        disabled={disabled}
       />
-      
       {error && (
         <div className="error-message">
           {error}
