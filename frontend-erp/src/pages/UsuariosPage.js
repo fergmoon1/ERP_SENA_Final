@@ -301,16 +301,16 @@ function UsuariosPage() {
     const id = deleteModal.userId;
     setDeleteModal({ show: false, userId: null });
     try {
-      const token = localStorage.getItem('jwt');
+    const token = localStorage.getItem('jwt');
       const res = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : ''
-        }
-      });
+      method: 'DELETE',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
       if (res.ok) {
         setResultModal({ show: true, success: true, message: 'Usuario eliminado correctamente.' });
-        fetchUsuarios();
+    fetchUsuarios();
       } else {
         const errorText = await res.text();
         setResultModal({ show: true, success: false, message: errorText || 'Error al eliminar el usuario.' });
