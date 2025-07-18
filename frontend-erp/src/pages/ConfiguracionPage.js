@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import '../styles/ConfiguracionPage.css';
 
 function ConfiguracionPage() {
   // Estado para los parámetros del sistema
@@ -6,7 +8,34 @@ function ConfiguracionPage() {
     stockBajo: 10,
     diasRetencion: 30,
     moneda: 'USD',
-    iva: 19
+    iva: 19,
+    monedaSecundaria: 'EUR',
+    unidadMedida: 'unidades',
+    formatoFecha: 'dd/MM/yyyy',
+    formatoHora: '24h',
+    idioma: 'español',
+    maxStock: 1000,
+    diasAnticipacion: 7,
+    numeroFacturaInicial: 1001,
+    prefijoFacturas: 'FAC-',
+    terminosPago: 30,
+    horarioLaboral: '8:00-18:00',
+    zonaHoraria: 'America/Bogota',
+    // Ventas
+    comisionVendedores: 5,
+    descuentoAutomatico: 0,
+    politicaDevolucion: 30,
+    minimoCompra: 0,
+    // Clientes
+    categoriaCliente: 'estandar',
+    nivelServicio: 'basico',
+    politicaCredito: 30,
+    programaFidelizacion: 'puntos',
+    // Logística
+    proveedorPredeterminado: '',
+    tiempoEntrega: 3,
+    costoEnvio: 0,
+    almacenPrincipal: 'central'
   });
   const [historial, setHistorial] = useState([]); // Aquí se cargaría el historial real
   const [error, setError] = useState('');
@@ -14,6 +43,9 @@ function ConfiguracionPage() {
   const [usuarios, setUsuarios] = useState([]);
   const [userError, setUserError] = useState('');
   const [userSuccess, setUserSuccess] = useState('');
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [imageErrors, setImageErrors] = useState(new Set());
+  const [activeAvatarId, setActiveAvatarId] = useState(null);
   // Estado para roles y permisos (simulado)
   const [rolesPermisos, setRolesPermisos] = useState([]);
   const [rolesMsg, setRolesMsg] = useState('');
@@ -100,6 +132,12 @@ function ConfiguracionPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [expandDirection, setExpandDirection] = useState('down'); // 'down' o 'up'
+  const [expandCoords, setExpandCoords] = useState({ top: 0, left: 0 });
+
+  const avatarRefs = useRef({});
+
+  const [pendingAvatarId, setPendingAvatarId] = useState(null);
 
   const handleChange = e => {
     setParams({ ...params, [e.target.name]: e.target.value });
@@ -117,7 +155,37 @@ function ConfiguracionPage() {
     fetchRolesPermisos();
     fetchPasswordPolicy();
     fetchVisualConfig();
+    
+    // Actualizar automáticamente las imágenes cada 30 segundos
+    const imageUpdateInterval = setInterval(() => {
+      // Solo actualizar si no está cargando y hay usuarios
+      if (!loadingUsers && usuarios.length > 0) {
+        // Limpiar errores de imagen para forzar recarga
+        setImageErrors(new Set());
+      }
+    }, 30000); // 30 segundos
+    
+    return () => {
+      clearInterval(imageUpdateInterval);
+    };
   }, []);
+
+  // Cerrar ampliación al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeAvatarId && !event.target.closest('.user-avatar') && !event.target.closest('.expanded-image-container')) {
+        setActiveAvatarId(null);
+      }
+    };
+
+    if (activeAvatarId) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [activeAvatarId]);
 
   useEffect(() => {
     if (userError || userSuccess) {
@@ -130,6 +198,8 @@ function ConfiguracionPage() {
   }, [userError, userSuccess]);
 
   const fetchUsuarios = async () => {
+    setLoadingUsers(true);
+    setUserError('');
     try {
       const token = localStorage.getItem('jwt');
       const res = await fetch('http://localhost:8081/api/usuarios', {
@@ -158,9 +228,13 @@ function ConfiguracionPage() {
         return;
       }
       setUsuarios(data);
+      // Limpiar errores de imagen al recargar usuarios
+      setImageErrors(new Set());
     } catch (err) {
       setUserError('Error de red al obtener los usuarios.');
       setUsuarios([]);
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
@@ -644,62 +718,382 @@ function ConfiguracionPage() {
     }
   }, [visualMsg]);
 
+  const handleImageError = (userId) => {
+    setImageErrors(prev => new Set(prev).add(userId));
+  };
+
+  const handleImageLoad = (userId) => {
+    setImageErrors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(userId);
+      return newSet;
+    });
+  };
+
+  const handleImageClick = (usuario) => {
+    if (usuario.avatar && !imageErrors.has(usuario.id)) {
+      if (activeAvatarId === usuario.id) {
+        setActiveAvatarId(null);
+        setPendingAvatarId(null);
+      } else {
+        setPendingAvatarId(usuario.id);
+        // Log de depuración
+        setTimeout(() => {
+          const avatarElem = avatarRefs.current[usuario.id];
+          if (avatarElem) {
+            const rect = avatarElem.getBoundingClientRect();
+            const scrollY = window.scrollY || window.pageYOffset;
+            const scrollX = window.scrollX || window.pageXOffset;
+            console.log('DEBUG AVATAR:', {
+              id: usuario.id,
+              nombre: usuario.nombre,
+              rect,
+              scrollY,
+              scrollX,
+              top: rect.top + scrollY + (rect.height / 2) - 90,
+              left: rect.right + scrollX + 12
+            });
+          }
+        }, 0);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (pendingAvatarId !== null) {
+      const avatarElem = avatarRefs.current[pendingAvatarId];
+      if (avatarElem) {
+        const rect = avatarElem.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset;
+        const scrollX = window.scrollX || window.pageXOffset;
+        const AMPLIACION_WIDTH = 200;
+        const AMPLIACION_HEIGHT = 180;
+        const AVATAR_MARGIN = 12;
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+        let top = rect.top + scrollY + (rect.height / 2) - (AMPLIACION_HEIGHT / 2);
+        if (top < 8) top = 8;
+        if (top + AMPLIACION_HEIGHT > scrollY + windowHeight - 8) top = scrollY + windowHeight - AMPLIACION_HEIGHT - 8;
+        let left = rect.right + scrollX + AVATAR_MARGIN;
+        let direction = 'right';
+        if (left + AMPLIACION_WIDTH > scrollX + windowWidth - 8) {
+          left = rect.left + scrollX - AMPLIACION_WIDTH - AVATAR_MARGIN;
+          direction = 'left';
+        }
+        setExpandDirection(direction);
+        setExpandCoords({ top, left });
+        setActiveAvatarId(pendingAvatarId);
+        setPendingAvatarId(null);
+      }
+    }
+  }, [pendingAvatarId]);
+
   return (
-    <div className="clientes-container">
+    <div className="configuracion-container">
       {/* Parámetros del sistema */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#2563eb', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px' }}>
-          <i className="fas fa-cogs" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-cogs"></i>
           Parámetros del Sistema
         </div>
-        <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Umbral de Stock Bajo</label>
-              <input type="number" name="stockBajo" value={params.stockBajo} onChange={handleChange} className="w-full p-2 border rounded" />
-              <p className="text-gray-500 text-sm mt-1">Número mínimo de unidades para alertas de stock bajo.</p>
+        <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
+          <div className="configuracion-reticula-container">
+            <div className="configuracion-reticula">
+              {/* Sección Inventario */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo inventario">
+                  <i className="fas fa-boxes"></i>
+                  Inventario
             </div>
-            <div className="form-group">
-              <label>Días de Retención de Movimientos</label>
-              <input type="number" name="diasRetencion" value={params.diasRetencion} onChange={handleChange} className="w-full p-2 border rounded" />
-              <p className="text-gray-500 text-sm mt-1">Días que se guardan los movimientos de inventario.</p>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Stock Bajo</label>
+                    <input type="number" name="stockBajo" value={params.stockBajo} onChange={handleChange} />
+                    <p>Mínimo para alertas</p>
             </div>
-            <div className="form-group">
-              <label>Moneda Predeterminada</label>
-              <input type="text" name="moneda" value={params.moneda} onChange={handleChange} className="w-full p-2 border rounded" />
-              <p className="text-gray-500 text-sm mt-1">Moneda para mostrar precios.</p>
+                  <div className="configuracion-reticula-campo">
+                    <label>Stock Máximo</label>
+                    <input type="number" name="maxStock" value={params.maxStock} onChange={handleChange} />
+                    <p>Máximo para alertas</p>
             </div>
-            <div className="form-group">
-              <label>Tasa de IVA (%)</label>
-              <input type="number" name="iva" value={params.iva} onChange={handleChange} className="w-full p-2 border rounded" />
-              <p className="text-gray-500 text-sm mt-1">Porcentaje de IVA para aplicar a los pedidos.</p>
+                  <div className="configuracion-reticula-campo">
+                    <label>Días Retención</label>
+                    <input type="number" name="diasRetencion" value={params.diasRetencion} onChange={handleChange} />
+                    <p>Movimientos guardados</p>
+            </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Días Anticipación</label>
+                    <input type="number" name="diasAnticipacion" value={params.diasAnticipacion} onChange={handleChange} />
+                    <p>Para reabastecimiento</p>
+          </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Unidad Medida</label>
+                    <select name="unidadMedida" value={params.unidadMedida} onChange={handleChange}>
+                      <option value="unidades">Unidades</option>
+                      <option value="kg">Kilogramos</option>
+                      <option value="litros">Litros</option>
+                      <option value="metros">Metros</option>
+                      <option value="piezas">Piezas</option>
+                      <option value="cajas">Cajas</option>
+                    </select>
+                    <p>Predeterminada</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Moneda */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo moneda">
+                  <i className="fas fa-coins"></i>
+                  Moneda
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Moneda Principal</label>
+                    <input type="text" name="moneda" value={params.moneda} onChange={handleChange} />
+                    <p>Para precios</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Moneda Secundaria</label>
+                    <input type="text" name="monedaSecundaria" value={params.monedaSecundaria} onChange={handleChange} />
+                    <p>Para reportes</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Tasa IVA (%)</label>
+                    <input type="number" name="iva" value={params.iva} onChange={handleChange} />
+                    <p>Para pedidos</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Formato */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo formato">
+                  <i className="fas fa-calendar-alt"></i>
+                  Formato
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Formato Fecha</label>
+                    <select name="formatoFecha" value={params.formatoFecha} onChange={handleChange}>
+                      <option value="dd/MM/yyyy">dd/MM/yyyy</option>
+                      <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+                      <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+                      <option value="dd-MM-yyyy">dd-MM-yyyy</option>
+                    </select>
+                    <p>Para mostrar</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Formato Hora</label>
+                    <select name="formatoHora" value={params.formatoHora} onChange={handleChange}>
+                      <option value="24h">24 horas</option>
+                      <option value="12h">12 horas</option>
+                    </select>
+                    <p>Para mostrar</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Idioma Sistema</label>
+                    <select name="idioma" value={params.idioma} onChange={handleChange}>
+                      <option value="español">Español</option>
+                      <option value="inglés">Inglés</option>
+                      <option value="portugués">Portugués</option>
+                    </select>
+                    <p>Interfaz</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Facturación */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo facturacion">
+                  <i className="fas fa-file-invoice"></i>
+                  Facturación
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Número Inicial</label>
+                    <input type="number" name="numeroFacturaInicial" value={params.numeroFacturaInicial} onChange={handleChange} />
+                    <p>Secuencia facturas</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Prefijo Facturas</label>
+                    <input type="text" name="prefijoFacturas" value={params.prefijoFacturas} onChange={handleChange} />
+                    <p>Para numeración</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Términos Pago (días)</label>
+                    <input type="number" name="terminosPago" value={params.terminosPago} onChange={handleChange} />
+                    <p>Plazo facturas</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Empresa */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo empresa">
+                  <i className="fas fa-building"></i>
+                  Empresa
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Horario Laboral</label>
+                    <input type="text" name="horarioLaboral" value={params.horarioLaboral} onChange={handleChange} />
+                    <p>Ej: 8:00-18:00</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Zona Horaria</label>
+                    <select name="zonaHoraria" value={params.zonaHoraria} onChange={handleChange}>
+                      <option value="America/Bogota">Colombia (Bogotá)</option>
+                      <option value="America/Mexico_City">México</option>
+                      <option value="America/New_York">Estados Unidos (Este)</option>
+                      <option value="America/Los_Angeles">Estados Unidos (Oeste)</option>
+                      <option value="Europe/Madrid">España</option>
+                      <option value="UTC">UTC</option>
+                    </select>
+                    <p>De la empresa</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Ventas */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo ventas">
+                  <i className="fas fa-chart-line"></i>
+                  Ventas
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Comisión Vendedores (%)</label>
+                    <input type="number" name="comisionVendedores" value={params.comisionVendedores} onChange={handleChange} />
+                    <p>Porcentaje por venta</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Descuento Automático (%)</label>
+                    <input type="number" name="descuentoAutomatico" value={params.descuentoAutomatico} onChange={handleChange} />
+                    <p>Descuento por defecto</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Política Devolución (días)</label>
+                    <input type="number" name="politicaDevolucion" value={params.politicaDevolucion} onChange={handleChange} />
+                    <p>Plazo para devoluciones</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Mínimo de Compra</label>
+                    <input type="number" name="minimoCompra" value={params.minimoCompra} onChange={handleChange} />
+                    <p>Monto mínimo requerido</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Clientes */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo clientes">
+                  <i className="fas fa-users"></i>
+                  Clientes
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Categoría Cliente</label>
+                    <select name="categoriaCliente" value={params.categoriaCliente} onChange={handleChange}>
+                      <option value="estandar">Estándar</option>
+                      <option value="premium">Premium</option>
+                      <option value="vip">VIP</option>
+                      <option value="corporativo">Corporativo</option>
+                    </select>
+                    <p>Predeterminada</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Nivel de Servicio</label>
+                    <select name="nivelServicio" value={params.nivelServicio} onChange={handleChange}>
+                      <option value="basico">Básico</option>
+                      <option value="estandar">Estándar</option>
+                      <option value="premium">Premium</option>
+                      <option value="express">Express</option>
+                    </select>
+                    <p>Calidad de atención</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Política Crédito (días)</label>
+                    <input type="number" name="politicaCredito" value={params.politicaCredito} onChange={handleChange} />
+                    <p>Plazo de pago</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Programa Fidelización</label>
+                    <select name="programaFidelizacion" value={params.programaFidelizacion} onChange={handleChange}>
+                      <option value="puntos">Puntos</option>
+                      <option value="descuentos">Descuentos</option>
+                      <option value="niveles">Niveles</option>
+                      <option value="ninguno">Ninguno</option>
+                    </select>
+                    <p>Tipo de programa</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección Logística */}
+              <div className="configuracion-reticula-seccion">
+                <div className="configuracion-reticula-titulo logistica">
+                  <i className="fas fa-truck"></i>
+                  Logística
+                </div>
+                <div className="configuracion-reticula-campos">
+                  <div className="configuracion-reticula-campo">
+                    <label>Proveedor Predeterminado</label>
+                    <input type="text" name="proveedorPredeterminado" value={params.proveedorPredeterminado} onChange={handleChange} />
+                    <p>Proveedor por defecto</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Tiempo Entrega (días)</label>
+                    <input type="number" name="tiempoEntrega" value={params.tiempoEntrega} onChange={handleChange} />
+                    <p>Plazo estándar</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Costo Envío</label>
+                    <input type="number" name="costoEnvio" value={params.costoEnvio} onChange={handleChange} />
+                    <p>Costo por defecto</p>
+                  </div>
+                  <div className="configuracion-reticula-campo">
+                    <label>Almacén Principal</label>
+                    <select name="almacenPrincipal" value={params.almacenPrincipal} onChange={handleChange}>
+                      <option value="central">Central</option>
+                      <option value="norte">Norte</option>
+                      <option value="sur">Sur</option>
+                      <option value="este">Este</option>
+                      <option value="oeste">Oeste</option>
+                    </select>
+                    <p>Almacén por defecto</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <button type="submit" className="configuracion-btn">
+              <i className="fas fa-save"></i>Guardar
             </button>
           </div>
-          {success && <div style={{ color: 'green', marginTop: '10px' }}>{success}</div>}
-          {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
+          {success && <div className="alert-success"><i className="fas fa-check-circle"></i>{success}</div>}
+          {error && <div className="alert-error"><i className="fas fa-exclamation-circle"></i>{error}</div>}
         </form>
       </div>
 
+      {/* Historial de cambios y Roles y Permisos en 2 columnas */}
+      <div className="configuracion-two-columns">
       {/* Historial de cambios */}
-      <div className="clientes-table-section">
-        <div style={{ background: '#374151', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px' }}>
-          <i className="fas fa-history" style={{ marginRight: '10px' }}></i>
+        <div className="configuracion-compact-section">
+          <div className="configuracion-section-title" style={{background:'#374151'}}>
+            <i className="fas fa-history"></i>
           Historial de Cambios
         </div>
-        <div style={{ padding: '24px' }}>
-          <table className="w-full table-auto">
+          <div style={{ padding: '16px' }}>
+            <table className="configuracion-table">
             <thead>
-              <tr style={{ background: '#e5e7eb' }}>
-                <th className="px-4 py-2">Clave</th>
-                <th className="px-4 py-2">Valor Anterior</th>
-                <th className="px-4 py-2">Valor Nuevo</th>
-                <th className="px-4 py-2">Usuario</th>
-                <th className="px-4 py-2">Fecha</th>
+                <tr>
+                  <th>Clave</th>
+                  <th>Valor Anterior</th>
+                  <th>Valor Nuevo</th>
+                  <th>Usuario</th>
+                  <th>Fecha</th>
               </tr>
             </thead>
             <tbody>
@@ -708,67 +1102,220 @@ function ConfiguracionPage() {
               ) : (
                 historial.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="px-4 py-2">{item.clave}</td>
-                    <td className="px-4 py-2">{item.valorAnterior}</td>
-                    <td className="px-4 py-2">{item.valorNuevo}</td>
-                    <td className="px-4 py-2">{item.usuario}</td>
-                    <td className="px-4 py-2">{item.fecha}</td>
+                      <td>{item.clave}</td>
+                      <td>{item.valorAnterior}</td>
+                      <td>{item.valorNuevo}</td>
+                      <td>{item.usuario}</td>
+                      <td>{item.fecha}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+          </div>
+        </div>
+
+        {/* Tabla editable de roles y permisos */}
+        <div className="configuracion-compact-section">
+          <div className="configuracion-section-title">
+            <i className="fas fa-user-shield"></i>
+            Roles y Permisos
+          </div>
+          <div style={{ padding: '16px' }}>
+            <table className="configuracion-table">
+              <thead>
+                <tr>
+                  <th>Rol</th>
+                  <th>Ver</th>
+                  <th>Crear</th>
+                  <th>Editar</th>
+                  <th>Eliminar</th>
+                  <th>Aprobar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rolesPermisos.map((rolPerm, idx) => (
+                  <tr key={rolPerm.rol}>
+                    <td style={{ fontWeight: '600' }}>{rolPerm.rol}</td>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" checked={rolPerm.ver} onChange={() => handlePermisoChange(idx, 'ver')} /></td>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" checked={rolPerm.crear} onChange={() => handlePermisoChange(idx, 'crear')} /></td>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" checked={rolPerm.editar} onChange={() => handlePermisoChange(idx, 'editar')} /></td>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" checked={rolPerm.eliminar} onChange={() => handlePermisoChange(idx, 'eliminar')} /></td>
+                    <td style={{ textAlign: 'center' }}><input type="checkbox" checked={rolPerm.aprobar} onChange={() => handlePermisoChange(idx, 'aprobar')} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ padding: '0 16px 16px 16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={handleGuardarRoles} className="configuracion-btn">
+              <i className="fas fa-save"></i>Guardar cambios
+            </button>
+          </div>
+          {rolesMsg && (
+            <div className={rolesMsgType === 'success' ? 'alert-success' : 'alert-error'} style={{ marginLeft: '16px', marginTop: '0px' }}>
+              <i className={`fas ${rolesMsgType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`}></i>
+              {rolesMsg}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Gestión de usuarios y roles */}
-      <div className="clientes-table-section">
-        <div style={{ background: '#2563eb', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px' }}>
-          <i className="fas fa-users-cog" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-users-cog"></i>
           Gestión de Usuarios y Roles
         </div>
-        <div style={{ padding: '24px' }}>
-          {userError && <div style={{ background: '#ffeaea', color: '#d32f2f', border: '1px solid #f44336', borderRadius: '6px', padding: '10px 18px', marginBottom: '10px', fontWeight: 500, fontSize: '15px', display: 'inline-block' }}>{userError}</div>}
-          {userSuccess && !userError && <div style={{ background: '#e7fbe7', color: '#388e3c', border: '1px solid #4caf50', borderRadius: '6px', padding: '10px 18px', marginBottom: '10px', fontWeight: 500, fontSize: '15px', display: 'inline-block' }}>{userSuccess}</div>}
-          <table className="w-full table-auto">
+        <div style={{ padding: '20px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '16px' 
+          }}>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''} encontrado{usuarios.length !== 1 ? 's' : ''}
+            </div>
+            <button 
+              onClick={fetchUsuarios}
+              disabled={loadingUsers}
+              className="configuracion-btn"
+              style={{ 
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                color: 'white',
+                padding: '8px 16px',
+                fontSize: '12px'
+              }}
+            >
+              <i className={`fas ${loadingUsers ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`} style={{ marginRight: '6px' }}></i>
+              {loadingUsers ? 'Actualizando...' : 'Actualizar'}
+            </button>
+          </div>
+          
+          {userError && <div className="alert-error"><i className="fas fa-exclamation-circle"></i>{userError}</div>}
+          {userSuccess && !userError && <div className="alert-success"><i className="fas fa-check-circle"></i>{userSuccess}</div>}
+          
+          {loadingUsers ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px', 
+              color: '#6b7280',
+              fontSize: '16px'
+            }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '24px', marginBottom: '16px', display: 'block' }}></i>
+              Cargando usuarios...
+            </div>
+          ) : (
+            <table className="configuracion-table">
             <thead>
-              <tr style={{ background: '#e5e7eb' }}>
-                <th className="px-4 py-2">ID</th>
-                <th className="px-4 py-2">Nombre</th>
-                <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Rol</th>
-                <th className="px-4 py-2">Activo</th>
-                <th className="px-4 py-2">Acciones</th>
+                <tr>
+                  <th style={{ textAlign: 'center', width: '60px' }}>ID</th>
+                  <th style={{ textAlign: 'center', width: '80px' }}>Foto</th>
+                  <th style={{ textAlign: 'center', width: '200px' }}>Nombre</th>
+                  <th style={{ textAlign: 'center', width: '250px' }}>Email</th>
+                  <th style={{ textAlign: 'center', width: '120px' }}>Rol</th>
+                  <th style={{ textAlign: 'center', width: '80px' }}>Activo</th>
+                  <th style={{ textAlign: 'center', width: '180px' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {usuarios.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>No hay usuarios para mostrar.</td></tr>
+                  <tr><td colSpan="7" style={{ textAlign: 'center', color: '#888', padding: '20px' }}>No hay usuarios para mostrar.</td></tr>
               ) : (
                 usuarios.map(usuario => (
                   <tr key={usuario.id}>
-                    <td>{usuario.id}</td>
-                    <td>{usuario.nombre ?? ''}</td>
-                    <td>{usuario.correo ?? ''}</td>
-                    <td>
-                      <select value={usuario.rol ?? ''} onChange={e => handleRoleChange(usuario.id, e.target.value)}>
+                      <td style={{ textAlign: 'center', fontWeight: '600', color: '#374151' }}>{usuario.id}</td>
+                      <td style={{ textAlign: 'center', padding: '8px', position: 'relative' }}>
+                        <div 
+                          className="user-avatar"
+                          ref={el => avatarRefs.current[usuario.id] = el}
+                          onClick={() => handleImageClick(usuario)}
+                          style={{
+                            cursor: usuario.avatar && !imageErrors.has(usuario.id) ? 'pointer' : 'default',
+                            border: activeAvatarId === usuario.id ? '3px solid #667eea' : '2px solid #e2e8f0',
+                            boxShadow: activeAvatarId === usuario.id ? '0 0 0 4px rgba(102, 126, 234, 0.2)' : 'none',
+                            transform: activeAvatarId === usuario.id ? 'scale(1.1)' : 'scale(1)',
+                            zIndex: activeAvatarId === usuario.id ? 10000 : 'auto',
+                            position: activeAvatarId === usuario.id ? 'relative' : 'static'
+                          }}
+                        >
+                          {usuario.avatar && !imageErrors.has(usuario.id) ? (
+                            <img 
+                              src={`http://localhost:8081/api/files/usuarios/${usuario.avatar}`}
+                              alt={`${usuario.nombre || 'Usuario'}`}
+                              onError={() => handleImageError(usuario.id)}
+                              onLoad={() => handleImageLoad(usuario.id)}
+                            />
+                          ) : null}
+                          <div className="user-avatar-fallback" style={{
+                            display: usuario.avatar && !imageErrors.has(usuario.id) ? 'none' : 'flex'
+                          }}>
+                            {loadingUsers ? (
+                              <i className="fas fa-spinner fa-spin" style={{ fontSize: '16px' }}></i>
+                            ) : (
+                              usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'U'
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'left', padding: '12px 8px' }}>
+                        <div style={{ fontWeight: '500', color: '#1f2937' }}>{usuario.nombre ?? 'Sin nombre'}</div>
+                      </td>
+                      <td style={{ textAlign: 'left', padding: '12px 8px' }}>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>{usuario.correo ?? 'Sin email'}</div>
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '8px' }}>
+                        <select 
+                          value={usuario.rol ?? ''} 
+                          onChange={e => handleRoleChange(usuario.id, e.target.value)} 
+                          className="configuracion-select"
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #d1d5db',
+                            fontSize: '13px',
+                            minWidth: '100px'
+                          }}
+                        >
                         <option value="Admin">Admin</option>
                         <option value="Usuario">Usuario</option>
                         <option value="Supervisor">Supervisor</option>
                       </select>
                     </td>
-                    <td>
-                      <input type="checkbox" checked={!!usuario.activo} onChange={() => handleToggleActivo(usuario.id, usuario.activo)} />
+                      <td style={{ textAlign: 'center', padding: '8px' }}>
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '24px',
+                          height: '24px'
+                        }}>
+                          <input 
+                            type="checkbox" 
+                            checked={!!usuario.activo} 
+                            onChange={() => handleToggleActivo(usuario.id, usuario.activo)}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                        </div>
                     </td>
-                    <td className="acciones">
+                      <td style={{ textAlign: 'center', padding: '8px' }}>
                       <button
-                        className="edit-btn"
-                        style={{ background: usuario.activo ? '#ffa726' : '#e0e0e0', color: usuario.activo ? 'white' : '#888', cursor: usuario.activo ? 'pointer' : 'not-allowed', fontWeight: 600, border: 'none', borderRadius: '4px', padding: '7px 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          className="configuracion-btn"
+                          style={{ 
+                            background: usuario.activo ? 'linear-gradient(135deg, #ffa726 0%, #ff9800 100%)' : '#e0e0e0', 
+                            color: usuario.activo ? 'white' : '#888'
+                          }}
                         onClick={() => handleForcePassword(usuario.id, usuario.activo, usuario.nombre)}
                         disabled={!usuario.activo}
                         title={!usuario.activo ? 'Activa el usuario para cambiar la contraseña' : 'Forzar cambio de contraseña'}
                       >
-                        <i className="fa fa-key"></i> Forzar contraseña
+                          <i className="fa fa-key"></i>
+                          Contraseña
                       </button>
                     </td>
                   </tr>
@@ -776,113 +1323,78 @@ function ConfiguracionPage() {
               )}
             </tbody>
           </table>
+          )}
         </div>
-      </div>
-
-      {/* Tabla editable de roles y permisos */}
-      <div className="clientes-table-section">
-        <div style={{ background: '#2563eb', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-user-shield" style={{ marginRight: '10px' }}></i>
-          Gestión de Roles y Permisos
-        </div>
-        <div style={{ padding: '24px' }}>
-          <table className="w-full table-auto">
-            <thead>
-              <tr style={{ background: '#e5e7eb' }}>
-                <th className="px-4 py-2">Rol</th>
-                <th className="px-4 py-2">Ver</th>
-                <th className="px-4 py-2">Crear</th>
-                <th className="px-4 py-2">Editar</th>
-                <th className="px-4 py-2">Eliminar</th>
-                <th className="px-4 py-2">Aprobar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rolesPermisos.map((rolPerm, idx) => (
-                <tr key={rolPerm.rol}>
-                  <td className="px-4 py-2 font-semibold">{rolPerm.rol}</td>
-                  <td className="px-4 py-2 text-center"><input type="checkbox" checked={rolPerm.ver} onChange={() => handlePermisoChange(idx, 'ver')} /></td>
-                  <td className="px-4 py-2 text-center"><input type="checkbox" checked={rolPerm.crear} onChange={() => handlePermisoChange(idx, 'crear')} /></td>
-                  <td className="px-4 py-2 text-center"><input type="checkbox" checked={rolPerm.editar} onChange={() => handlePermisoChange(idx, 'editar')} /></td>
-                  <td className="px-4 py-2 text-center"><input type="checkbox" checked={rolPerm.eliminar} onChange={() => handlePermisoChange(idx, 'eliminar')} /></td>
-                  <td className="px-4 py-2 text-center"><input type="checkbox" checked={rolPerm.aprobar} onChange={() => handlePermisoChange(idx, 'aprobar')} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div style={{ padding: '0 24px 24px 24px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={handleGuardarRoles} className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-            <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar cambios
-          </button>
-        </div>
-        {rolesMsg && (
-          <div style={{
-            background: rolesMsgType === 'success' ? '#e7fbe7' : '#ffeaea',
-            color: rolesMsgType === 'success' ? '#388e3c' : '#d32f2f',
-            border: `1px solid ${rolesMsgType === 'success' ? '#4caf50' : '#f44336'}`,
-            borderRadius: '6px',
-            padding: '10px 18px',
-            marginBottom: '10px',
-            fontWeight: 500,
-            fontSize: '15px',
-            display: 'inline-block',
-            marginLeft: '24px',
-            marginTop: '0px'
-          }}>
-            {rolesMsg}
-          </div>
-        )}
       </div>
 
       {/* Políticas de contraseña */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#2563eb', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-key" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section" style={{padding:'0 0 18px 0', marginBottom: 0}}>
+        <div className="configuracion-section-title" style={{
+          display: 'flex', alignItems: 'center', gap: 8, background: '#2563eb',
+          color: '#fff', borderRadius: '10px 10px 0 0', fontWeight: 700, fontSize: 16, padding: '10px 16px', minHeight: 0
+        }}>
+          <i className="fas fa-key"></i>
           Políticas de Contraseña
         </div>
-        <form onSubmit={handleGuardarPolicy} style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Longitud mínima</label>
-              <input type="number" name="minLength" min="4" max="32" value={passwordPolicy.minLength} onChange={handlePolicyChange} className="w-full p-2 border rounded" />
+        <form onSubmit={handleGuardarPolicy} style={{
+          background: '#fff', borderRadius: '0 0 10px 10px', boxShadow: '0 1px 4px rgba(37,99,235,0.06)',
+          padding: '18px 18px 10px 18px', display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0
+        }}>
+          <div style={{display:'flex',gap:24,flexWrap:'wrap',alignItems:'flex-end',marginBottom:4}}>
+            <div style={{display:'flex',flexDirection:'column',minWidth:120}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginBottom:2}}>Longitud mínima</label>
+              <input type="number" name="minLength" min="4" max="32" value={passwordPolicy.minLength} onChange={handlePolicyChange}
+                style={{width: 70, padding: '6px 8px', border: '1.5px solid #d1d5db', borderRadius: 6, fontSize: 13}} />
             </div>
-            <div className="form-group">
-              <label>Caducidad (días)</label>
-              <input type="number" name="expireDays" min="0" max="365" value={passwordPolicy.expireDays} onChange={handlePolicyChange} className="w-full p-2 border rounded" />
-              <p className="text-gray-500 text-sm mt-1">0 = nunca caduca</p>
-            </div>
-            <div className="form-group">
-              <label><input type="checkbox" name="requireUpper" checked={passwordPolicy.requireUpper} onChange={handlePolicyChange} /> Requiere mayúsculas</label>
-            </div>
-            <div className="form-group">
-              <label><input type="checkbox" name="requireLower" checked={passwordPolicy.requireLower} onChange={handlePolicyChange} /> Requiere minúsculas</label>
-            </div>
-            <div className="form-group">
-              <label><input type="checkbox" name="requireNumber" checked={passwordPolicy.requireNumber} onChange={handlePolicyChange} /> Requiere números</label>
-            </div>
-            <div className="form-group">
-              <label><input type="checkbox" name="requireSymbol" checked={passwordPolicy.requireSymbol} onChange={handlePolicyChange} /> Requiere símbolos</label>
+            <div style={{display:'flex',flexDirection:'column',minWidth:120}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginBottom:2}}>Caducidad (días)</label>
+              <input type="number" name="expireDays" min="0" max="365" value={passwordPolicy.expireDays} onChange={handlePolicyChange}
+                style={{width: 70, padding: '6px 8px', border: '1.5px solid #d1d5db', borderRadius: 6, fontSize: 13}} />
+              <span style={{color:'#6b7280', fontSize:11, marginTop:2}}>0 = nunca caduca</span>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar políticas
+          <div style={{display:'flex',gap:18,alignItems:'center',flexWrap:'wrap',marginBottom:4}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginRight:2}}>Mayúsculas (A-Z)</label>
+              <label className="switch" title="Mayúsculas">
+                <input type="checkbox" name="requireUpper" checked={passwordPolicy.requireUpper} onChange={handlePolicyChange} />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginRight:2}}>Minúsculas (a-z)</label>
+              <label className="switch" title="Minúsculas">
+                <input type="checkbox" name="requireLower" checked={passwordPolicy.requireLower} onChange={handlePolicyChange} />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginRight:2}}>Números (0-9)</label>
+              <label className="switch" title="Números">
+                <input type="checkbox" name="requireNumber" checked={passwordPolicy.requireNumber} onChange={handlePolicyChange} />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <label style={{fontWeight:600,color:'#374151',fontSize:13,marginRight:2}}>Símbolos (#@!)</label>
+              <label className="switch" title="Símbolos">
+                <input type="checkbox" name="requireSymbol" checked={passwordPolicy.requireSymbol} onChange={handlePolicyChange} />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <button type="submit" className="configuracion-btn" style={{
+              background:'#2563eb', color:'#fff', fontWeight:700, padding:'8px 18px', fontSize:'13px', borderRadius:'7px',
+              boxShadow:'0 1px 4px rgba(37,99,235,0.08)', display:'flex', alignItems:'center', gap:'6px', marginLeft:'auto'
+            }}>
+              <i className="fas fa-save"></i>Guardar
             </button>
           </div>
           {policyMsg && (
             <div style={{
               background: policyMsgType === 'success' ? '#e7fbe7' : '#ffeaea',
               color: policyMsgType === 'success' ? '#388e3c' : '#d32f2f',
-              border: `1px solid ${policyMsgType === 'success' ? '#4caf50' : '#f44336'}`,
-              borderRadius: '6px',
-              padding: '10px 18px',
-              marginBottom: '10px',
-              fontWeight: 500,
-              fontSize: '15px',
-              display: 'inline-block',
-              marginLeft: '0px',
-              marginTop: '16px'
+              border: `1.5px solid ${policyMsgType === 'success' ? '#4caf50' : '#f44336'}`,
+              borderRadius: '7px', padding: '7px 14px', fontWeight: 500, fontSize: '13px', marginTop: 6, maxWidth: 320
             }}>
               {policyMsg}
             </div>
@@ -891,9 +1403,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Personalización Visual */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#2563eb', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-paint-brush" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-paint-brush"></i>
           Personalización Visual
         </div>
         
@@ -1171,9 +1683,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Configuración de Empresa */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#059669', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-building" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-building"></i>
           Configuración de Empresa
         </div>
         <form style={{ padding: '24px' }}>
@@ -1259,9 +1771,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Configuración de Seguridad */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#dc2626', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-shield-alt" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-shield-alt"></i>
           Configuración de Seguridad
         </div>
         <form style={{ padding: '24px' }}>
@@ -1327,9 +1839,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Configuración de Notificaciones */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#7c3aed', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-bell" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-bell"></i>
           Configuración de Notificaciones
         </div>
         <form style={{ padding: '24px' }}>
@@ -1412,9 +1924,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Configuración de Reportes */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#ea580c', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-chart-bar" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-chart-bar"></i>
           Configuración de Reportes
         </div>
         <form style={{ padding: '24px' }}>
@@ -1459,9 +1971,9 @@ function ConfiguracionPage() {
       </div>
 
       {/* Configuración de Backup */}
-      <div className="clientes-form-section">
-        <div style={{ background: '#0891b2', color: 'white', fontWeight: 600, padding: '16px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', fontSize: '18px', marginTop: '32px' }}>
-          <i className="fas fa-database" style={{ marginRight: '10px' }}></i>
+      <div className="configuracion-section">
+        <div className="configuracion-section-title">
+          <i className="fas fa-database"></i>
           Configuración de Backup
         </div>
         <form style={{ padding: '24px' }}>
@@ -1797,6 +2309,83 @@ function ConfiguracionPage() {
           </div>
         </div>
       )}
+
+      {/* Ampliación global, fuera de la tabla */}
+      {activeAvatarId && expandCoords && ReactDOM.createPortal(
+        <div 
+          className="expanded-image-container"
+          style={{
+            position: 'fixed',
+            top: expandCoords.top,
+            left: expandCoords.left,
+            background: 'white',
+            borderRadius: '8px',
+            padding: '12px',
+            width: '200px',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+            border: '2px solid #e2e8f0',
+            zIndex: 9999,
+            animation: 'slideIn 0.3s ease-out'
+          }}
+        >
+          {/* Flecha que apunta al avatar */}
+          <div style={{
+            position: 'absolute',
+            left: expandDirection === 'left' ? 'auto' : '-8px',
+            right: expandDirection === 'left' ? '-8px' : 'auto',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 0,
+            height: 0,
+            borderTop: '8px solid transparent',
+            borderBottom: '8px solid transparent',
+            borderRight: expandDirection === 'left' ? 'none' : '8px solid white',
+            borderLeft: expandDirection === 'left' ? '8px solid white' : 'none',
+          }}></div>
+          {/* Imagen ampliada y datos */}
+          {(() => {
+            const usuario = usuarios.find(u => u.id === activeAvatarId);
+            if (!usuario) return null;
+            return <>
+              <div style={{
+                width: '100%',
+                height: '150px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                marginBottom: '8px'
+              }}>
+                <img
+                  src={`http://localhost:8081/api/files/usuarios/${usuario.avatar}`}
+                  alt={usuario.nombre || 'Usuario'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  color: '#1f2937',
+                  marginBottom: '2px'
+                }}>
+                  {usuario.nombre || 'Sin nombre'}
+                </div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#6b7280'
+                }}>
+                  {usuario.correo || 'Sin email'}
+                </div>
+              </div>
+            </>;
+          })()}
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 }
