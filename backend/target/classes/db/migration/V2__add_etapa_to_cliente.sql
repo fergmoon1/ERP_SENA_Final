@@ -1,0 +1,1 @@
+ALTER TABLE cliente ADD COLUMN etapa VARCHAR(32) DEFAULT 'nuevo'; 
