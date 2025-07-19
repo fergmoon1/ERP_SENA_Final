@@ -2070,15 +2070,7 @@ function ConfiguracionPage() {
             </div>
                 <div className="empresa-field">
                   <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-globe"></i>Sitio web</label>
-                  <input
-                    type="url"
-                    name="sitioWeb"
-                    value={visualConfig.sitioWeb}
-                    onChange={handleVisualChange}
-                    placeholder="https://www.empresa.com"
-                    title="Incluye el prefijo https:// para URLs válidas"
-                    autoComplete="url"
-                  />
+                  <input type="url" name="sitioWeb" value={visualConfig.sitioWeb} onChange={handleVisualChange} placeholder="https://www.empresa.com" className="empresa-input" />
                 </div>
                 <div className="empresa-field">
                   <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-clock"></i>Horario laboral</label>
@@ -2776,7 +2768,6 @@ function ConfiguracionPage() {
       {/* Renderiza los modales */}
       <VerEmpresaModal show={showVerModal} empresa={empresaActual} onClose={() => setShowVerModal(false)} onEdit={() => { setShowVerModal(false); setShowEditarModal(true); }} />
       <EditarEmpresaModal show={showEditarModal} empresa={empresaActual} onClose={() => setShowEditarModal(false)} onSave={handleGuardarEdicionEmpresa} />
-
     </div>
   );
 }
