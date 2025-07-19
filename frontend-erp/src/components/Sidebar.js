@@ -131,6 +131,7 @@ const Sidebar = () => {
     { path: '/dashboard', icon: 'fa-chart-line', text: 'Dashboard' },
     { path: '/inventario', icon: 'fa-box', text: 'Inventario' },
     { path: '/productos', icon: 'fa-tag', text: 'Productos' },
+    { path: '/compras', icon: 'fa-shopping-cart', text: 'Compras' },
     { path: '/pedidos', icon: 'fa-truck', text: 'Pedidos' },
     { path: '/clientes', icon: 'fa-user', text: 'Clientes' },
     { path: '/usuarios', icon: 'fa-users', text: 'Usuarios' },

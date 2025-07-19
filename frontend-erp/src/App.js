@@ -15,6 +15,7 @@ import { NotificationProvider } from "./components/NotificationProvider";
 import './App.css';
 import './styles/theme.css';
 import authService from "./services/authService";
+import ComprasPage from "./pages/ComprasPage";
 
 function App() {
   // Manejar tokens de OAuth2 si vienen en la URL
@@ -100,6 +101,14 @@ function App() {
                   <Layout title="Auditoría" subtitle="Logs de Seguridad"><AuditoriaPage /></Layout>
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/compras"
+              element={
+                <ProtectedRoute>
+                  <Layout title="Compras" subtitle="Gestión de Compras"><ComprasPage /></Layout>
+                </ProtectedRoute>
+              }
             />
             <Route 
               path="/" 

@@ -1,3 +1,4 @@
+com\empresa\erp\services\AuditLogService.class
 com\empresa\erp\models\VisualConfig.class
 com\empresa\erp\controllers\IndicadoresController.class
 com\empresa\erp\services\EmpresaConfigService.class
@@ -6,6 +7,7 @@ com\empresa\erp\controllers\AuthController.class
 com\empresa\erp\models\RolPermiso.class
 com\empresa\erp\services\MovimientoInventarioService.class
 com\empresa\erp\repositories\PedidoRepository.class
+com\empresa\erp\controllers\AuditLogController.class
 com\empresa\erp\models\Notificacion.class
 com\empresa\erp\models\ReporteStockBajoDTO.class
 com\empresa\erp\controllers\RolPermisoController.class
@@ -16,7 +18,9 @@ com\empresa\erp\controllers\PasswordPolicyController.class
 com\empresa\erp\controllers\PedidoController.class
 com\empresa\erp\models\ReporteVentasPorClienteDTO.class
 com\empresa\erp\repositories\VisualConfigRepository.class
+com\empresa\erp\repositories\AuditLogRepository.class
 com\empresa\erp\services\PedidoService.class
+com\empresa\erp\models\AuditLog.class
 com\empresa\erp\models\ReporteProductosMasVendidosDTO.class
 com\empresa\erp\repositories\ProveedorRepository.class
 com\empresa\erp\models\EmpresaConfig.class

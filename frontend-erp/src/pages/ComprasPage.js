@@ -234,92 +234,597 @@ function ComprasPage() {
             <div>No hay compras para mostrar.</div>
           </div>
         ) : (
-          <table className="compras-table" style={{width:'100%',borderCollapse:'separate',borderSpacing:0,minWidth:900}}>
+          <table className="compras-table" style={{width:'100%',borderCollapse:'separate',borderSpacing:0,minWidth:1200}}>
             <thead style={{position:'sticky',top:0,zIndex:2,background:'#f1f5f9'}}>
               <tr>
-                <th>Proveedor</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Usuario</th>
-                <th>Acciones</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>ID Compra</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Fecha</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Proveedor</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Producto</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Imagen</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Cantidad</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Precio Unit.</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Subtotal</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Total Compra</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Usuario</th>
+                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {compras.map((c, idx) => (
-                <tr key={c.id || idx} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
-                  <td>{c.proveedor?.nombre || '-'}</td>
-                  <td>{c.fecha}</td>
-                  <td>${c.total?.toLocaleString('es-CO') || '0'}</td>
-                  <td>{c.usuario || '-'}</td>
-                  <td>
-                    <button className="btn-secondary" style={{marginRight:6}} onClick={() => handleOpenModal(c)}><i className="fas fa-eye"></i> Ver/Editar</button>
-                    <button className="btn-danger" onClick={() => handleDelete(c.id)}><i className="fas fa-trash"></i> Eliminar</button>
-                  </td>
-                </tr>
-              ))}
+              {compras.map((c, idx) => {
+                // Si la compra tiene detalles, mostrar cada detalle como una fila separada
+                if (c.detalles && c.detalles.length > 0) {
+                  return c.detalles.map((d, detalleIdx) => {
+                    const prod = productos.find(p => p.id == d.productoId);
+                    const isFirstRow = detalleIdx === 0;
+                    return (
+                      <tr key={`${c.id}-${detalleIdx}`} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',fontWeight:600}}>
+                          {isFirstRow ? `#${c.id}` : ''}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                          {isFirstRow ? (
+                            <div style={{display:'flex',alignItems:'center',gap:6}}>
+                              <i className="fas fa-calendar" style={{color:'#6b7280',fontSize:12}}></i>
+                              {new Date(c.fecha).toLocaleDateString('es-CO')}
+                            </div>
+                          ) : ''}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                          {isFirstRow ? (
+                            <div style={{display:'flex',alignItems:'center',gap:8}}>
+                              <div style={{width:40,height:40,borderRadius:'50%',background:'#e0e7ff',display:'flex',alignItems:'center',justifyContent:'center',color:'#3730a3',fontWeight:600,fontSize:12}}>
+                                {c.proveedor?.nombre?.charAt(0)?.toUpperCase() || 'P'}
+                              </div>
+                              <span>{c.proveedor?.nombre || '-'}</span>
+                            </div>
+                          ) : ''}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <span style={{fontWeight:500,fontSize:13}}>{prod?.nombre || 'Producto'}</span>
+                            {prod?.stock !== undefined && (
+                              <span style={{fontSize:11,color:'#6b7280',background:'#f3f4f6',padding:'2px 6px',borderRadius:4}}>
+                                Stock: {prod.stock}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                          <div style={{width:50,height:50,borderRadius:8,overflow:'hidden',background:'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto'}}>
+                            {prod?.imagenUrl ? (
+                              <img 
+                                src={`http://localhost:8081/api${prod.imagenUrl}`} 
+                                alt={prod.nombre}
+                                style={{width:'100%',height:'100%',objectFit:'cover'}}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div style={{display:prod?.imagenUrl ? 'none' : 'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#9ca3af',fontSize:16}}>
+                              <i className="fas fa-box"></i>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center',fontWeight:600}}>
+                          {d.cantidad}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                          ${d.precioUnitario?.toLocaleString('es-CO') || '0'}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#059669',textAlign:'center',fontWeight:600}}>
+                          ${(d.cantidad * d.precioUnitario).toLocaleString('es-CO')}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                          {isFirstRow ? (
+                            <span style={{fontWeight:700,color:'#059669',fontSize:16}}>
+                              ${c.total?.toLocaleString('es-CO') || '0'}
+                            </span>
+                          ) : ''}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                          {isFirstRow ? (
+                            <div style={{display:'flex',alignItems:'center',gap:6}}>
+                              <i className="fas fa-user" style={{color:'#6b7280',fontSize:12}}></i>
+                              {c.usuario || '-'}
+                            </div>
+                          ) : ''}
+                        </td>
+                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                          {isFirstRow ? (
+                            <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'center'}}>
+                              <button 
+                                onClick={() => handleOpenModal(c)} 
+                                style={{
+                                  background:'#3b82f6',
+                                  color:'#fff',
+                                  border:'none',
+                                  borderRadius:6,
+                                  padding:'6px 12px',
+                                  fontWeight:600,
+                                  fontSize:12,
+                                  cursor:'pointer',
+                                  transition:'all 0.2s ease',
+                                  display:'flex',
+                                  alignItems:'center',
+                                  gap:4
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                                onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                              >
+                                <i className="fas fa-eye" style={{fontSize:10}}></i>
+                                Ver
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(c.id)} 
+                                style={{
+                                  background:'#ef4444',
+                                  color:'#fff',
+                                  border:'none',
+                                  borderRadius:6,
+                                  padding:'6px 12px',
+                                  fontWeight:600,
+                                  fontSize:12,
+                                  cursor:'pointer',
+                                  transition:'all 0.2s ease',
+                                  display:'flex',
+                                  alignItems:'center',
+                                  gap:4
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                                onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                              >
+                                <i className="fas fa-trash" style={{fontSize:10}}></i>
+                                Eliminar
+                              </button>
+                            </div>
+                          ) : ''}
+                        </td>
+                      </tr>
+                    );
+                  });
+                } else {
+                  // Si no hay detalles, mostrar solo la información de la compra
+                  return (
+                    <tr key={c.id || idx} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',fontWeight:600}}>#{c.id}</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                          <i className="fas fa-calendar" style={{color:'#6b7280',fontSize:12}}></i>
+                          {new Date(c.fecha).toLocaleDateString('es-CO')}
+                        </div>
+                      </td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <div style={{width:40,height:40,borderRadius:'50%',background:'#e0e7ff',display:'flex',alignItems:'center',justifyContent:'center',color:'#3730a3',fontWeight:600,fontSize:12}}>
+                            {c.proveedor?.nombre?.charAt(0)?.toUpperCase() || 'P'}
+                          </div>
+                          <span>{c.proveedor?.nombre || '-'}</span>
+                        </div>
+                      </td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',fontStyle:'italic'}}>Sin productos</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                        <span style={{fontWeight:700,color:'#059669',fontSize:16}}>
+                          ${c.total?.toLocaleString('es-CO') || '0'}
+                        </span>
+                      </td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                          <i className="fas fa-user" style={{color:'#6b7280',fontSize:12}}></i>
+                          {c.usuario || '-'}
+                        </div>
+                      </td>
+                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
+                        <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'center'}}>
+                          <button 
+                            onClick={() => handleOpenModal(c)} 
+                            style={{
+                              background:'#3b82f6',
+                              color:'#fff',
+                              border:'none',
+                              borderRadius:6,
+                              padding:'6px 12px',
+                              fontWeight:600,
+                              fontSize:12,
+                              cursor:'pointer',
+                              transition:'all 0.2s ease',
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                            onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                          >
+                            <i className="fas fa-eye" style={{fontSize:10}}></i>
+                            Ver
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(c.id)} 
+                            style={{
+                              background:'#ef4444',
+                              color:'#fff',
+                              border:'none',
+                              borderRadius:6,
+                              padding:'6px 12px',
+                              fontWeight:600,
+                              fontSize:12,
+                              cursor:'pointer',
+                              transition:'all 0.2s ease',
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                            onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                          >
+                            <i className="fas fa-trash" style={{fontSize:10}}></i>
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+              })}
             </tbody>
           </table>
         )}
       </div>
       {modalOpen && (
-        <div className="modal-backdrop" style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.35)',zIndex:3000,display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div className="modal-content" style={{background:'#fff',borderRadius:14,boxShadow:'0 8px 32px rgba(37,99,235,0.13)',padding:'38px 36px 30px 36px',minWidth:340,maxWidth:520,display:'flex',flexDirection:'column',alignItems:'center',gap:18,position:'relative'}}>
-            <h2 style={{fontWeight:700,fontSize:22,color:'#2563eb',marginBottom:8}}>{editCompra ? 'Editar compra' : 'Nueva compra'}</h2>
-            <form onSubmit={handleSubmit} style={{width:'100%',display:'flex',flexDirection:'column',gap:10}}>
-              <label>Proveedor</label>
-              <select name="proveedorId" value={form.proveedorId} onChange={handleFormChange} required style={{padding:8,borderRadius:6,border:'1.5px solid #d1d5db'}}>
-                <option value="">Seleccione proveedor</option>
-                {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-              </select>
-              <label>Fecha</label>
-              <input type="date" name="fecha" value={form.fecha} onChange={handleFormChange} required style={{padding:8,borderRadius:6,border:'1.5px solid #d1d5db'}} />
-              <label>Usuario</label>
-              <input type="text" name="usuario" value={form.usuario} onChange={handleFormChange} placeholder="Usuario que registra" style={{padding:8,borderRadius:6,border:'1.5px solid #d1d5db'}} />
-              <div style={{margin:'12px 0 0 0'}}>
-                <b>Productos de la compra</b>
-                <table style={{width:'100%',marginTop:8,marginBottom:8}}>
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Cantidad</th>
-                      <th>Precio Unitario</th>
-                      <th>Subtotal</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {form.detalles.map((d, idx) => {
-                      const prod = productos.find(p => p.id == d.productoId);
-                      return (
-                        <tr key={idx}>
-                          <td>{prod?.nombre || '-'}</td>
-                          <td>{d.cantidad}</td>
-                          <td>${d.precioUnitario}</td>
-                          <td>${(d.cantidad * d.precioUnitario).toLocaleString('es-CO')}</td>
-                          <td><button type="button" onClick={() => handleRemoveDetalle(idx)} style={{background:'none',border:'none',color:'#e11d48',fontWeight:700,cursor:'pointer'}}>Quitar</button></td>
+        <div className="modal-backdrop" style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',zIndex:3000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
+          <div className="modal-content" style={{background:'#fff',borderRadius:16,boxShadow:'0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',padding:'32px',width:'90%',maxWidth:'800px',maxHeight:'90vh',overflowY:'auto',position:'relative'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24,paddingBottom:16,borderBottom:'1px solid #e2e8f0'}}>
+              <h2 style={{fontWeight:700,fontSize:24,color:'#1e293b',margin:0}}>
+                <i className="fas fa-shopping-cart" style={{marginRight:12,color:'#2563eb'}}></i>
+                {editCompra ? 'Editar Compra' : 'Nueva Compra'}
+              </h2>
+              <button 
+                onClick={handleCloseModal} 
+                style={{
+                  background:'none',
+                  border:'none',
+                  fontSize:24,
+                  cursor:'pointer',
+                  color:'#6b7280',
+                  padding:8,
+                  borderRadius:6,
+                  transition:'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f3f4f6';
+                  e.target.style.color = '#374151';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'none';
+                  e.target.style.color = '#6b7280';
+                }}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} style={{width:'100%',display:'flex',flexDirection:'column',gap:20}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+                <div>
+                  <label style={{display:'block',marginBottom:8,fontWeight:600,color:'#374151',fontSize:14}}>
+                    <i className="fas fa-truck" style={{marginRight:8,color:'#6b7280'}}></i>
+                    Proveedor
+                  </label>
+                  <select 
+                    name="proveedorId" 
+                    value={form.proveedorId} 
+                    onChange={handleFormChange} 
+                    required 
+                    style={{
+                      width:'100%',
+                      padding:12,
+                      borderRadius:8,
+                      border:'1px solid #d1d5db',
+                      fontSize:14,
+                      background:'#fff',
+                      transition:'all 0.2s ease'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#2563eb';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#d1d5db';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  >
+                    <option value="">Seleccione proveedor</option>
+                    {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{display:'block',marginBottom:8,fontWeight:600,color:'#374151',fontSize:14}}>
+                    <i className="fas fa-calendar" style={{marginRight:8,color:'#6b7280'}}></i>
+                    Fecha
+                  </label>
+                  <input 
+                    type="date" 
+                    name="fecha" 
+                    value={form.fecha} 
+                    onChange={handleFormChange} 
+                    required 
+                    style={{
+                      width:'100%',
+                      padding:12,
+                      borderRadius:8,
+                      border:'1px solid #d1d5db',
+                      fontSize:14,
+                      background:'#fff',
+                      transition:'all 0.2s ease'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#2563eb';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#d1d5db';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={{display:'block',marginBottom:8,fontWeight:600,color:'#374151',fontSize:14}}>
+                  <i className="fas fa-user" style={{marginRight:8,color:'#6b7280'}}></i>
+                  Usuario
+                </label>
+                <input 
+                  type="text" 
+                  name="usuario" 
+                  value={form.usuario} 
+                  onChange={handleFormChange} 
+                  placeholder="Usuario que registra la compra" 
+                  style={{
+                    width:'100%',
+                    padding:12,
+                    borderRadius:8,
+                    border:'1px solid #d1d5db',
+                    fontSize:14,
+                    background:'#fff',
+                    transition:'all 0.2s ease'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#2563eb';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d1d5db';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+              <div style={{border:'1px solid #e2e8f0',borderRadius:12,padding:20,background:'#f8fafc'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                  <h3 style={{fontWeight:700,color:'#374151',margin:0,fontSize:16}}>
+                    <i className="fas fa-boxes" style={{marginRight:8,color:'#2563eb'}}></i>
+                    Productos de la Compra
+                  </h3>
+                  <span style={{fontSize:12,color:'#6b7280',background:'#e5e7eb',padding:'4px 8px',borderRadius:6}}>
+                    {form.detalles.length} producto{form.detalles.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                {form.detalles.length > 0 && (
+                  <div style={{marginBottom:16,background:'#fff',borderRadius:8,overflow:'hidden',border:'1px solid #e2e8f0'}}>
+                    <table style={{width:'100%',borderCollapse:'collapse'}}>
+                      <thead style={{background:'#f1f5f9'}}>
+                        <tr>
+                          <th style={{padding:'12px',textAlign:'left',fontWeight:600,color:'#374151',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>Producto</th>
+                          <th style={{padding:'12px',textAlign:'center',fontWeight:600,color:'#374151',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>Cantidad</th>
+                          <th style={{padding:'12px',textAlign:'center',fontWeight:600,color:'#374151',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>Precio Unit.</th>
+                          <th style={{padding:'12px',textAlign:'center',fontWeight:600,color:'#374151',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>Subtotal</th>
+                          <th style={{padding:'12px',textAlign:'center',fontWeight:600,color:'#374151',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>Acción</th>
                         </tr>
-                      );
-                    })}
-                    <tr>
-                      <td>
-                        <select name="productoId" value={detalleForm.productoId} onChange={handleDetalleChange} style={{padding:6,borderRadius:6,border:'1.5px solid #d1d5db'}}>
-                          <option value="">Producto</option>
-                          {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                        </select>
-                      </td>
-                      <td><input type="number" name="cantidad" value={detalleForm.cantidad} onChange={handleDetalleChange} min={1} style={{width:60,padding:6,borderRadius:6,border:'1.5px solid #d1d5db'}} /></td>
-                      <td><input type="number" name="precioUnitario" value={detalleForm.precioUnitario} onChange={handleDetalleChange} min={0} style={{width:90,padding:6,borderRadius:6,border:'1.5px solid #d1d5db'}} /></td>
-                      <td></td>
-                      <td><button type="button" onClick={handleAddDetalle} style={{background:'#059669',color:'#fff',border:'none',borderRadius:6,padding:'6px 14px',fontWeight:700,cursor:'pointer'}}>Agregar</button></td>
-                    </tr>
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {form.detalles.map((d, idx) => {
+                          const prod = productos.find(p => p.id == d.productoId);
+                          return (
+                            <tr key={idx} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
+                              <td style={{padding:'12px',borderBottom:'1px solid #f1f5f9',fontSize:13,color:'#4b5563'}}>
+                                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  <div style={{width:32,height:32,borderRadius:6,overflow:'hidden',background:'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                                    {prod?.imagenUrl ? (
+                                      <img 
+                                        src={`http://localhost:8081/api${prod.imagenUrl}`} 
+                                        alt={prod.nombre}
+                                        style={{width:'100%',height:'100%',objectFit:'cover'}}
+                                        onError={(e) => {
+                                          e.target.style.display = 'none';
+                                          e.target.nextSibling.style.display = 'flex';
+                                        }}
+                                      />
+                                    ) : null}
+                                    <div style={{display:prod?.imagenUrl ? 'none' : 'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#9ca3af',fontSize:10}}>
+                                      <i className="fas fa-box"></i>
+                                    </div>
+                                  </div>
+                                  <span style={{fontWeight:500}}>{prod?.nombre || 'Producto'}</span>
+                                </div>
+                              </td>
+                              <td style={{padding:'12px',borderBottom:'1px solid #f1f5f9',fontSize:13,color:'#4b5563',textAlign:'center',fontWeight:600}}>{d.cantidad}</td>
+                              <td style={{padding:'12px',borderBottom:'1px solid #f1f5f9',fontSize:13,color:'#4b5563',textAlign:'center'}}>${d.precioUnitario?.toLocaleString('es-CO')}</td>
+                              <td style={{padding:'12px',borderBottom:'1px solid #f1f5f9',fontSize:13,color:'#059669',textAlign:'center',fontWeight:600}}>${(d.cantidad * d.precioUnitario).toLocaleString('es-CO')}</td>
+                              <td style={{padding:'12px',borderBottom:'1px solid #f1f5f9',fontSize:13,color:'#4b5563',textAlign:'center'}}>
+                                <button 
+                                  type="button" 
+                                  onClick={() => handleRemoveDetalle(idx)} 
+                                  style={{
+                                    background:'#ef4444',
+                                    color:'#fff',
+                                    border:'none',
+                                    borderRadius:6,
+                                    padding:'6px 10px',
+                                    fontWeight:600,
+                                    fontSize:11,
+                                    cursor:'pointer',
+                                    transition:'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                                  onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                                >
+                                  <i className="fas fa-trash" style={{fontSize:10,marginRight:4}}></i>
+                                  Quitar
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <div style={{background:'#fff',borderRadius:8,padding:16,border:'1px solid #e2e8f0'}}>
+                  <h4 style={{margin:'0 0 12px 0',fontSize:14,fontWeight:600,color:'#374151'}}>Agregar Producto</h4>
+                  <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr auto',gap:12,alignItems:'end'}}>
+                    <div>
+                      <label style={{display:'block',marginBottom:4,fontSize:12,color:'#6b7280'}}>Producto</label>
+                      <select 
+                        name="productoId" 
+                        value={detalleForm.productoId} 
+                        onChange={handleDetalleChange} 
+                        style={{
+                          width:'100%',
+                          padding:8,
+                          borderRadius:6,
+                          border:'1px solid #d1d5db',
+                          fontSize:13,
+                          background:'#fff'
+                        }}
+                      >
+                        <option value="">Seleccione producto</option>
+                        {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{display:'block',marginBottom:4,fontSize:12,color:'#6b7280'}}>Cantidad</label>
+                      <input 
+                        type="number" 
+                        name="cantidad" 
+                        value={detalleForm.cantidad} 
+                        onChange={handleDetalleChange} 
+                        min={1} 
+                        style={{
+                          width:'100%',
+                          padding:8,
+                          borderRadius:6,
+                          border:'1px solid #d1d5db',
+                          fontSize:13,
+                          background:'#fff'
+                        }} 
+                      />
+                    </div>
+                    <div>
+                      <label style={{display:'block',marginBottom:4,fontSize:12,color:'#6b7280'}}>Precio Unit.</label>
+                      <input 
+                        type="number" 
+                        name="precioUnitario" 
+                        value={detalleForm.precioUnitario} 
+                        onChange={handleDetalleChange} 
+                        min={0} 
+                        step="0.01"
+                        style={{
+                          width:'100%',
+                          padding:8,
+                          borderRadius:6,
+                          border:'1px solid #d1d5db',
+                          fontSize:13,
+                          background:'#fff'
+                        }} 
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={handleAddDetalle} 
+                      style={{
+                        background:'#059669',
+                        color:'#fff',
+                        border:'none',
+                        borderRadius:6,
+                        padding:'8px 16px',
+                        fontWeight:600,
+                        fontSize:13,
+                        cursor:'pointer',
+                        transition:'all 0.2s ease',
+                        display:'flex',
+                        alignItems:'center',
+                        gap:6
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = '#047857'}
+                      onMouseLeave={(e) => e.target.style.background = '#059669'}
+                    >
+                      <i className="fas fa-plus" style={{fontSize:10}}></i>
+                      Agregar
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div style={{display:'flex',justifyContent:'flex-end',gap:12,marginTop:10}}>
-                <button type="button" onClick={handleCloseModal} style={{background:'#e5e7eb',color:'#222',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Cancelar</button>
-                <button type="submit" style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Guardar</button>
+              {feedback && (
+                <div style={{
+                  padding:12,
+                  borderRadius:8,
+                  fontWeight:600,
+                  fontSize:14,
+                  background:feedback.startsWith('¡')?'#dcfce7':'#fef2f2',
+                  color:feedback.startsWith('¡')?'#166534':'#dc2626',
+                  border:'1px solid',
+                  borderColor:feedback.startsWith('¡')?'#bbf7d0':'#fecaca'
+                }}>
+                  {feedback}
+                </div>
+              )}
+              <div style={{display:'flex',justifyContent:'flex-end',gap:12,marginTop:8}}>
+                <button 
+                  type="button" 
+                  onClick={handleCloseModal} 
+                  style={{
+                    background:'#e5e7eb',
+                    color:'#374151',
+                    border:'none',
+                    borderRadius:8,
+                    padding:'12px 24px',
+                    fontWeight:600,
+                    fontSize:14,
+                    cursor:'pointer',
+                    transition:'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#d1d5db'}
+                  onMouseLeave={(e) => e.target.style.background = '#e5e7eb'}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  style={{
+                    background:'#2563eb',
+                    color:'#fff',
+                    border:'none',
+                    borderRadius:8,
+                    padding:'12px 24px',
+                    fontWeight:600,
+                    fontSize:14,
+                    cursor:'pointer',
+                    transition:'all 0.2s ease',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:8
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
+                  onMouseLeave={(e) => e.target.style.background = '#2563eb'}
+                >
+                  <i className="fas fa-save" style={{fontSize:12}}></i>
+                  {editCompra ? 'Actualizar' : 'Guardar'} Compra
+                </button>
               </div>
-              {feedback && <div style={{marginTop:8,color:feedback.startsWith('¡')?'#059669':'#e11d48',fontWeight:600}}>{feedback}</div>}
             </form>
           </div>
         </div>
