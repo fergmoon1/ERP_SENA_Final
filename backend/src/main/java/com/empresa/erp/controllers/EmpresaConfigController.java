@@ -21,4 +21,9 @@ public class EmpresaConfigController {
     public EmpresaConfig saveConfig(@RequestBody EmpresaConfig config) {
         return service.saveConfig(config);
     }
+
+    @DeleteMapping
+    public void deleteConfig() {
+        service.deleteConfig();
+    }
 } 

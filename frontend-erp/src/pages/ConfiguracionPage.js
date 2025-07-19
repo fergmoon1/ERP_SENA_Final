@@ -5,7 +5,7 @@ import '../styles/ConfiguracionPage.css';
 // Modal de notificación global reutilizable para empresa
 const EmpresaModal = ({ show, type, message, onClose }) => {
   if (!show) return null;
-  return (
+  return ReactDOM.createPortal(
     <div style={{
       position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
@@ -43,7 +43,103 @@ const EmpresaModal = ({ show, type, message, onClose }) => {
           Cerrar
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
+  );
+};
+
+// Modal de confirmación de eliminación
+const ConfirmModal = ({ show, message, onConfirm, onCancel }) => {
+  if (!show) return null;
+  return ReactDOM.createPortal(
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.35)',zIndex:4000,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:16,boxShadow:'0 8px 32px rgba(37,99,235,0.13)',padding:'32px 28px',minWidth:320,maxWidth:400,display:'flex',flexDirection:'column',alignItems:'center',gap:18,position:'relative'}}>
+        <div style={{fontSize:38,color:'#e11d48',marginBottom:8}}><i className="fas fa-exclamation-triangle"></i></div>
+        <div style={{fontWeight:700,fontSize:18,color:'#e11d48',textAlign:'center',marginBottom:6}}>Confirmar eliminación</div>
+        <div style={{fontSize:15,color:'#374151',textAlign:'center',marginBottom:8}}>{message}</div>
+        <div style={{display:'flex',gap:16,marginTop:8}}>
+          <button onClick={onCancel} style={{background:'#e5e7eb',color:'#222',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Cancelar</button>
+          <button onClick={onConfirm} style={{background:'#e11d48',color:'#fff',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Eliminar</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Modal para ver datos de empresa (solo lectura)
+const VerEmpresaModal = ({ show, empresa, onClose, onEdit }) => {
+  if (!show || !empresa) return null;
+  return ReactDOM.createPortal(
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.35)',zIndex:3100,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:18,boxShadow:'0 8px 32px rgba(37,99,235,0.13)',padding:'38px 36px 30px 36px',minWidth:340,maxWidth:480,display:'flex',flexDirection:'column',alignItems:'center',gap:18,position:'relative'}}>
+        <div style={{fontWeight:700,fontSize:22,color:'#2563eb',marginBottom:8,display:'flex',alignItems:'center',gap:10}}><i className="fas fa-building"></i>Datos de la Empresa</div>
+        {empresa.logoUrl && (
+          <img src={`/api/files/${empresa.logoUrl}`} alt="Logo" style={{maxWidth:120,maxHeight:120,borderRadius:10,objectFit:'contain',marginBottom:10}} />
+        )}
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Nombre:</b> {empresa.nombreEmpresa}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Dirección:</b> {empresa.direccionEmpresa}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Teléfono:</b> {empresa.telefonoEmpresa}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Email:</b> {empresa.emailEmpresa}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Sitio Web:</b> {empresa.sitioWeb}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Horario:</b> {empresa.horarioLaboral}</div>
+        <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Zona Horaria:</b> {empresa.zonaHoraria}</div>
+        <div style={{display:'flex',gap:12,marginTop:10}}>
+          <button onClick={onClose} style={{background:'#e5e7eb',color:'#222',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Cerrar</button>
+          <button onClick={() => { onClose(); onEdit(); }} style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Editar</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Modal para editar datos de empresa
+const EditarEmpresaModal = ({ show, empresa, onClose, onSave }) => {
+  const [form, setForm] = useState(empresa || {});
+  useEffect(() => { setForm(empresa || {}); }, [empresa]);
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+  if (!show || !empresa) return null;
+  return ReactDOM.createPortal(
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.35)',zIndex:3200,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:18,boxShadow:'0 8px 32px rgba(37,99,235,0.13)',padding:'38px 36px 30px 36px',minWidth:340,maxWidth:500,display:'flex',flexDirection:'column',alignItems:'center',gap:18,position:'relative'}}>
+        <div style={{fontWeight:700,fontSize:22,color:'#2563eb',marginBottom:8,display:'flex',alignItems:'center',gap:10}}><i className="fas fa-edit"></i>Editar Empresa</div>
+        {form.logoUrl && (
+          <img src={`/api/files/${form.logoUrl}`} alt="Logo" style={{maxWidth:120,maxHeight:120,borderRadius:10,objectFit:'contain',marginBottom:10}} />
+        )}
+        <form style={{width:'100%',display:'flex',flexDirection:'column',gap:10}} onSubmit={e => {e.preventDefault();onSave(form);}}>
+          <input type="text" name="nombreEmpresa" value={form.nombreEmpresa||''} onChange={handleChange} placeholder="Nombre de la empresa" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <input type="text" name="direccionEmpresa" value={form.direccionEmpresa||''} onChange={handleChange} placeholder="Dirección" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <input type="tel" name="telefonoEmpresa" value={form.telefonoEmpresa||''} onChange={handleChange} placeholder="Teléfono" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <input type="email" name="emailEmpresa" value={form.emailEmpresa||''} onChange={handleChange} placeholder="Email corporativo" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <input
+            type="url"
+            name="sitioWeb"
+            value={form.sitioWeb || ''}
+            onChange={e => {
+              let value = e.target.value;
+              if (value && !/^https?:\/\//i.test(value)) {
+                value = 'https://' + value;
+              }
+              setForm(prev => ({ ...prev, sitioWeb: value }));
+            }}
+            placeholder="https://www.empresa.com"
+            title="Incluye el prefijo https:// para URLs válidas"
+            autoComplete="url"
+          />
+          <input type="text" name="horarioLaboral" value={form.horarioLaboral||''} onChange={handleChange} placeholder="Horario laboral" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <input type="text" name="zonaHoraria" value={form.zonaHoraria||''} onChange={handleChange} placeholder="Zona horaria" style={{padding:8,borderRadius:6,border:'1px solid #d1d5db'}} />
+          <div style={{display:'flex',gap:12,justifyContent:'flex-end',marginTop:10}}>
+            <button type="button" onClick={onClose} style={{background:'#e5e7eb',color:'#222',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Cancelar</button>
+            <button type="submit" style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer'}}>Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
   );
 };
 
@@ -195,6 +291,24 @@ function ConfiguracionPage() {
 
   // Estado para mostrar el modal de empresa
   const [showEmpresaModal, setShowEmpresaModal] = useState(false);
+
+  // Estado para empresa cargada y modal de ver empresa
+  const [empresaActual, setEmpresaActual] = useState(null);
+  const [showEmpresaViewModal, setShowEmpresaViewModal] = useState(false);
+
+  // Estado para mostrar el modal de confirmación
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Estado para saber si se debe proceder con la eliminación
+  const [pendingDelete, setPendingDelete] = useState(false);
+
+  // Estado para mostrar aviso de edición
+  const [showEditMsg, setShowEditMsg] = useState(false);
+  const [editMsg, setEditMsg] = useState('');
+
+  // Estado para mostrar los modales de ver y editar
+  const [showVerModal, setShowVerModal] = useState(false);
+  const [showEditarModal, setShowEditarModal] = useState(false);
 
   const handleChange = e => {
     setParams({ ...params, [e.target.name]: e.target.value });
@@ -699,7 +813,9 @@ function ConfiguracionPage() {
         }
       });
       if (res.ok) {
-        const config = await res.json();
+        const text = await res.text();
+        if (!text) return; // No intentes parsear si está vacío
+        const config = JSON.parse(text);
         setVisualConfig(prev => ({
           ...prev,
           ...config,
@@ -915,49 +1031,188 @@ function ConfiguracionPage() {
 
   // 2. Al cargar la configuración de empresa, mostrar el logo si existe
   // Agregar función para cargar la configuración de empresa
-  useEffect(() => {
-    const fetchEmpresaConfig = async () => {
-      try {
-        const token = localStorage.getItem('jwt');
-        const res = await fetch('http://localhost:8081/api/empresa-config', {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : ''
-          }
-        });
-        if (res.ok) {
-          const config = await res.json();
-          setVisualConfig(prev => ({
-            ...prev,
-            nombreEmpresa: config.nombreEmpresa || '',
-            direccionEmpresa: config.direccionEmpresa || '',
-            telefonoEmpresa: config.telefonoEmpresa || '',
-            emailEmpresa: config.emailEmpresa || '',
-            sitioWeb: config.sitioWeb || '',
-            horarioLaboral: config.horarioLaboral || '',
-            zonaHoraria: config.zonaHoraria || '',
-            logoUrl: config.logoUrl || '',
-          }));
-          if (config.logoUrl) {
-            setLogoPreview(`/api/files/${config.logoUrl}`);
-          }
+  const fetchEmpresaConfig = async () => {
+    try {
+      const token = localStorage.getItem('jwt');
+      const res = await fetch('http://localhost:8081/api/empresa-config', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         }
-      } catch (err) {
-        // No hacer nada
+      });
+      if (res.ok) {
+        const config = await res.json();
+        setEmpresaActual(config);
+        setVisualConfig(prev => ({
+          ...prev,
+          nombreEmpresa: config.nombreEmpresa || '',
+          direccionEmpresa: config.direccionEmpresa || '',
+          telefonoEmpresa: config.telefonoEmpresa || '',
+          emailEmpresa: config.emailEmpresa || '',
+          sitioWeb: config.sitioWeb || '',
+          horarioLaboral: config.horarioLaboral || '',
+          zonaHoraria: config.zonaHoraria || '',
+          logoUrl: config.logoUrl || '',
+        }));
+        if (config.logoUrl) {
+          setLogoPreview(`/api/files/${config.logoUrl}`);
+        }
+      } else {
+        setEmpresaActual(null);
       }
-    };
-    fetchEmpresaConfig();
-  }, []);
+    } catch (err) {
+      setEmpresaActual(null);
+    }
+  };
 
-  // Mostrar modal al guardar empresa
-  useEffect(() => {
-    if (visualMsg) setShowEmpresaModal(true);
-  }, [visualMsg]);
+  // 3. Botones modernos para ver, editar y eliminar empresa
+  {/* Botones de acción para empresa */}
+  {empresaActual && empresaActual.nombreEmpresa && (
+    <div style={{display:'flex',gap:16,margin:'18px 0 0 0',justifyContent:'flex-end'}}>
+      <button
+        onClick={() => setShowVerModal(true)}
+        disabled={!empresaActual}
+        style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual)?0.5:1}}>
+        <i className="fas fa-eye"></i> Ver
+      </button>
+      <button
+        onClick={() => setShowEditarModal(true)}
+        disabled={!empresaActual}
+        style={{background:'#f59e42',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(245,158,66,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual)?0.5:1}}>
+        <i className="fas fa-edit"></i> Editar
+      </button>
+      <button
+        onClick={async () => {
+          if(empresaActual && empresaActual.nombreEmpresa && window.confirm('¿Estás seguro de eliminar la configuración de empresa?')){
+            try {
+              const token = localStorage.getItem('jwt');
+              const res = await fetch('http://localhost:8081/api/empresa-config', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': token ? `Bearer ${token}` : ''
+                }
+              });
+              if(res.ok){
+                setVisualMsg('Configuración de empresa eliminada correctamente.');
+                setVisualMsgType('success');
+                setEmpresaActual(null);
+                setVisualConfig(prev => ({...prev,
+                  nombreEmpresa: '',direccionEmpresa: '',telefonoEmpresa: '',emailEmpresa: '',sitioWeb: '',horarioLaboral: '',zonaHoraria: '',logoUrl: ''
+                }));
+                setLogoPreview(null);
+                setLogoFile(null);
+              }else{
+                setVisualMsg('Error al eliminar la configuración de empresa.');
+                setVisualMsgType('error');
+              }
+            }catch{
+              setVisualMsg('Error de red al eliminar la configuración de empresa.');
+              setVisualMsgType('error');
+            }
+          }
+        }}
+        disabled={!empresaActual || !empresaActual.nombreEmpresa}
+        style={{background:'#e11d48',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual || !empresaActual.nombreEmpresa)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(225,29,72,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual?.nombreEmpresa)?0.5:1}}>
+        <i className="fas fa-trash"></i> Eliminar
+      </button>
+    </div>
+  )}
 
-  // 1. Mostrar el modal SIEMPRE que visualMsg tenga valor
-  useEffect(() => {
-    setShowEmpresaModal(!!visualMsg);
-  }, [visualMsg]);
+  // 4. Modal para ver datos de empresa
+  {showEmpresaViewModal && empresaActual && (
+    ReactDOM.createPortal(
+      <div style={{
+        position: 'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.35)',zIndex:3100,display:'flex',alignItems:'center',justifyContent:'center',animation:'modalBackdropFadeIn 0.2s ease-out'} }>
+        <div style={{background:'#fff',borderRadius:18,boxShadow:'0 8px 32px rgba(37,99,235,0.13)',padding:'38px 36px 30px 36px',minWidth:340,maxWidth:480,display:'flex',flexDirection:'column',alignItems:'center',gap:18,position:'relative',animation:'modalFadeIn 0.3s cubic-bezier(.4,2,.6,1)'}}>
+          <div style={{fontWeight:700,fontSize:22,color:'#2563eb',marginBottom:8,display:'flex',alignItems:'center',gap:10}}><i className="fas fa-building"></i>Datos de la Empresa</div>
+          {empresaActual.logoUrl && (
+            <img src={`/api/files/${empresaActual.logoUrl}`} alt="Logo" style={{maxWidth:120,maxHeight:120,borderRadius:10,objectFit:'contain',marginBottom:10}} />
+          )}
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Nombre:</b> {empresaActual.nombreEmpresa}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Dirección:</b> {empresaActual.direccionEmpresa}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Teléfono:</b> {empresaActual.telefonoEmpresa}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Email:</b> {empresaActual.emailEmpresa}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Sitio Web:</b> {empresaActual.sitioWeb}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Horario:</b> {empresaActual.horarioLaboral}</div>
+          <div style={{width:'100%',fontSize:16,color:'#222',marginBottom:6}}><b>Zona Horaria:</b> {empresaActual.zonaHoraria}</div>
+          <button onClick={()=>setShowEmpresaViewModal(false)} style={{marginTop:8,background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'10px 28px',fontWeight:600,fontSize:16,cursor:'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)'}}>Cerrar</button>
+        </div>
+      </div>,
+      document.body
+    )
+  )}
+
+  // 5. Llamar fetchEmpresaConfig al montar y tras guardar/eliminar
+  useEffect(() => { fetchEmpresaConfig(); }, []);
+  useEffect(() => { if(visualMsgType==='success'){ fetchEmpresaConfig(); } }, [visualMsgType]);
+
+  // Corrige los handlers de ver y editar para que siempre funcionen
+  const handleVerEmpresa = () => {
+    if (empresaActual) setShowEmpresaViewModal(true);
+  };
+  const handleEditarEmpresa = () => {
+    if (empresaActual) {
+      setVisualConfig(prev => ({
+        ...prev,
+        nombreEmpresa: empresaActual.nombreEmpresa || '',
+        direccionEmpresa: empresaActual.direccionEmpresa || '',
+        telefonoEmpresa: empresaActual.telefonoEmpresa || '',
+        emailEmpresa: empresaActual.emailEmpresa || '',
+        sitioWeb: empresaActual.sitioWeb || '',
+        horarioLaboral: empresaActual.horarioLaboral || '',
+        zonaHoraria: empresaActual.zonaHoraria || '',
+        logoUrl: empresaActual.logoUrl || ''
+      }));
+      setLogoPreview(empresaActual.logoUrl ? `/api/files/${empresaActual.logoUrl}` : null);
+      setEditMsg('¡Ahora puedes editar la información de la empresa!');
+      setShowEditMsg(true);
+    }
+  };
+
+  // Handler para limpiar los campos del formulario de empresa
+  const handleLimpiarEmpresa = () => {
+    setVisualConfig(prev => ({
+      ...prev,
+      nombreEmpresa: '',
+      direccionEmpresa: '',
+      telefonoEmpresa: '',
+      emailEmpresa: '',
+      sitioWeb: '',
+      horarioLaboral: '',
+      zonaHoraria: '',
+      logoUrl: ''
+    }));
+    setLogoPreview(null);
+    setLogoFile(null);
+  };
+
+  // Handler para guardar edición de empresa
+  const handleGuardarEdicionEmpresa = async (form) => {
+    try {
+      const token = localStorage.getItem('jwt');
+      const res = await fetch('http://localhost:8081/api/empresa-config', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify(form)
+      });
+      if (res.ok) {
+        setVisualMsg('Datos de empresa actualizados correctamente.');
+        setVisualMsgType('success');
+        setShowEditarModal(false);
+        fetchEmpresaConfig();
+      } else {
+        setVisualMsg('Error al actualizar los datos de empresa.');
+        setVisualMsgType('error');
+      }
+    } catch {
+      setVisualMsg('Error de red al actualizar los datos de empresa.');
+      setVisualMsgType('error');
+    }
+  };
 
   return (
     <div className="configuracion-container">
@@ -1815,7 +2070,15 @@ function ConfiguracionPage() {
             </div>
                 <div className="empresa-field">
                   <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-globe"></i>Sitio web</label>
-                  <input type="url" name="sitioWeb" value={visualConfig.sitioWeb} onChange={handleVisualChange} placeholder="https://www.empresa.com" className="empresa-input" />
+                  <input
+                    type="url"
+                    name="sitioWeb"
+                    value={visualConfig.sitioWeb}
+                    onChange={handleVisualChange}
+                    placeholder="https://www.empresa.com"
+                    title="Incluye el prefijo https:// para URLs válidas"
+                    autoComplete="url"
+                  />
                 </div>
                 <div className="empresa-field">
                   <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-clock"></i>Horario laboral</label>
@@ -1827,9 +2090,9 @@ function ConfiguracionPage() {
                 <option value="America/Bogota">Colombia (Bogotá)</option>
                 <option value="America/Mexico_City">México (Ciudad de México)</option>
                 <option value="America/New_York">Estados Unidos (Nueva York)</option>
-                <option value="America/Lima">Perú (Lima)</option>
-                <option value="America/Santiago">Chile (Santiago)</option>
-                <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                <option value="America/Los_Angeles">Estados Unidos (Oeste)</option>
+                <option value="Europe/Madrid">España</option>
+                <option value="UTC">UTC</option>
               </select>
             </div>
           </div>
@@ -1841,6 +2104,31 @@ function ConfiguracionPage() {
             </button>
           </div>
         </form>
+        <div style={{display:'flex',gap:16,margin:'18px 0 0 0',justifyContent:'flex-end'}}>
+          <button
+            onClick={() => setShowVerModal(true)}
+            disabled={!empresaActual}
+            style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual)?0.5:1}}>
+            <i className="fas fa-eye"></i> Ver
+          </button>
+          <button
+            onClick={() => setShowEditarModal(true)}
+            disabled={!empresaActual}
+            style={{background:'#f59e42',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(245,158,66,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual)?0.5:1}}>
+            <i className="fas fa-edit"></i> Editar
+          </button>
+          <button
+            onClick={() => setShowConfirmModal(true)}
+            disabled={!empresaActual?.nombreEmpresa}
+            style={{background:'#e11d48',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:(!empresaActual?.nombreEmpresa)?'not-allowed':'pointer',boxShadow:'0 2px 8px rgba(225,29,72,0.10)',display:'flex',alignItems:'center',gap:8,opacity:(!empresaActual?.nombreEmpresa)?0.5:1}}>
+            <i className="fas fa-trash"></i> Eliminar
+          </button>
+          <button
+            onClick={handleLimpiarEmpresa}
+            style={{background:'#64748b',color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontWeight:600,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(100,116,139,0.10)',display:'flex',alignItems:'center',gap:8}}>
+            <i className="fas fa-eraser"></i> Limpiar
+          </button>
+        </div>
       </section>
 
       {/* Configuración de Seguridad */}
@@ -2438,6 +2726,56 @@ function ConfiguracionPage() {
         message={visualMsg}
         onClose={() => { setShowEmpresaModal(false); setVisualMsg(''); setVisualMsgType(''); }}
       />
+
+      {/* Modal de confirmación de eliminación */}
+      <ConfirmModal
+        show={showConfirmModal}
+        message="¿Estás seguro de que deseas eliminar la configuración de empresa? Esta acción no se puede deshacer."
+        onCancel={() => setShowConfirmModal(false)}
+        onConfirm={async () => {
+          setShowConfirmModal(false);
+          try {
+            const token = localStorage.getItem('jwt');
+            const res = await fetch('http://localhost:8081/api/empresa-config', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+              }
+            });
+            if(res.ok){
+              setVisualMsg('Configuración de empresa eliminada correctamente.');
+              setVisualMsgType('success');
+              setEmpresaActual(null);
+              setVisualConfig(prev => ({...prev,
+                nombreEmpresa: '',direccionEmpresa: '',telefonoEmpresa: '',emailEmpresa: '',sitioWeb: '',horarioLaboral: '',zonaHoraria: '',logoUrl: ''
+              }));
+              setLogoPreview(null);
+              setLogoFile(null);
+            }else{
+              setVisualMsg('Error al eliminar la configuración de empresa.');
+              setVisualMsgType('error');
+            }
+          }catch{
+            setVisualMsg('Error de red al eliminar la configuración de empresa.');
+            setVisualMsgType('error');
+          }
+        }}
+      />
+
+      {/* Modal de aviso de edición */}
+      {showEditMsg && (
+        <EmpresaModal
+          show={showEditMsg}
+          type="success"
+          message={editMsg}
+          onClose={() => setShowEditMsg(false)}
+        />
+      )}
+
+      {/* Renderiza los modales */}
+      <VerEmpresaModal show={showVerModal} empresa={empresaActual} onClose={() => setShowVerModal(false)} onEdit={() => { setShowVerModal(false); setShowEditarModal(true); }} />
+      <EditarEmpresaModal show={showEditarModal} empresa={empresaActual} onClose={() => setShowEditarModal(false)} onSave={handleGuardarEdicionEmpresa} />
 
     </div>
   );

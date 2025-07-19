@@ -24,4 +24,11 @@ public class EmpresaConfigService {
         }
         return repo.save(config);
     }
+
+    public void deleteConfig() {
+        List<EmpresaConfig> all = repo.findAll();
+        if (!all.isEmpty()) {
+            repo.deleteById(all.get(0).getId());
+        }
+    }
 } 

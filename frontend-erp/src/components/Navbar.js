@@ -13,8 +13,8 @@ const Navbar = ({ title, subtitle }) => {
   const navigate = useNavigate();
 
   // Debug: mostrar el título que se recibe
-  console.log('Navbar recibió title:', title);
-  console.log('Navbar recibió subtitle:', subtitle);
+  // console.log('Navbar recibió title:', title);
+  // console.log('Navbar recibió subtitle:', subtitle);
 
   // Actualiza el usuario si cambia en localStorage (por edición de perfil)
   useEffect(() => {
