@@ -110,7 +110,10 @@ function ConfiguracionPage() {
     // Configuración de backup
     backupAutomatico: true,
     frecuenciaBackup: 'diario',
-    retenerBackups: 30 // días
+    retenerBackups: 30, // días
+    tipoDegradado: 'linear',
+    anguloDegradado: 135,
+    textoPreview: 'Ejemplo de texto'
   });
   const [visualMsg, setVisualMsg] = useState('');
   const [visualMsgType, setVisualMsgType] = useState('');
@@ -138,6 +141,12 @@ function ConfiguracionPage() {
   const avatarRefs = useRef({});
 
   const [pendingAvatarId, setPendingAvatarId] = useState(null);
+
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+
+  // Modal de notificación global
+  const [showVisualModal, setShowVisualModal] = useState(false);
 
   const handleChange = e => {
     setParams({ ...params, [e.target.name]: e.target.value });
@@ -658,48 +667,52 @@ function ConfiguracionPage() {
     e.preventDefault();
     setVisualMsg('');
     setVisualMsgType('');
-    
+    let logoUrl = visualConfig.logoUrl;
     try {
-      const token = localStorage.getItem('jwt');
-      const formData = new FormData();
-      
-      // Agregar archivo de logo si existe
-      if (visualConfig.logo) {
-        formData.append('logo', visualConfig.logo);
+      // Subir logo si hay uno nuevo
+      if (logoFile) {
+        const formData = new window.FormData();
+        formData.append('file', logoFile);
+        const res = await fetch('http://localhost:8081/api/files/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (res.ok) {
+          const data = await res.json();
+          logoUrl = data.filename;
+        } else {
+          setVisualMsg('Error al subir el logo.');
+          setVisualMsgType('error');
+          return;
+        }
       }
-      
-      // Agregar otros campos como JSON
+      // Guardar configuración visual con el nombre del logo y todos los campos de empresa
+      const token = localStorage.getItem('jwt');
       const configData = {
-        colorPrimario: visualConfig.colorPrimario,
-        colorSecundario: visualConfig.colorSecundario,
-        tema: visualConfig.tema,
-        formatoFecha: visualConfig.formatoFecha,
-        formatoHora: visualConfig.formatoHora
+        ...visualConfig,
+        logoUrl,
+        nombreEmpresa: visualConfig.nombreEmpresa,
+        direccionEmpresa: visualConfig.direccionEmpresa,
+        telefonoEmpresa: visualConfig.telefonoEmpresa,
+        emailEmpresa: visualConfig.emailEmpresa,
+        sitioWeb: visualConfig.sitioWeb,
+        horarioLaboral: visualConfig.horarioLaboral,
+        zonaHoraria: visualConfig.zonaHoraria
       };
-      formData.append('config', JSON.stringify(configData));
-      
-      const res = await fetch('http://localhost:8081/api/visual-config', {
+      const res2 = await fetch('http://localhost:8081/api/visual-config', {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
-        body: formData
+        body: JSON.stringify(configData)
       });
-      
-      if (res.ok) {
-        const savedConfig = await res.json();
-        setVisualConfig(prev => ({
-          ...prev,
-          logoPreview: savedConfig.logoUrl || visualConfig.logoPreview
-        }));
+      if (res2.ok) {
         setVisualMsg('Personalización guardada correctamente.');
         setVisualMsgType('success');
-        
-        // Aplicar cambios inmediatamente
-        applyVisualConfig(savedConfig);
+        setLogoFile(null); // Limpiar archivo local
       } else {
-        const errorText = await res.text();
-        setVisualMsg(errorText || 'Error al guardar la personalización.');
+        setVisualMsg('Error al guardar la personalización.');
         setVisualMsgType('error');
       }
     } catch (err) {
@@ -787,6 +800,92 @@ function ConfiguracionPage() {
       }
     }
   }, [pendingAvatarId]);
+
+  // Al cargar visualConfig.logoUrl, mostrar preview desde backend si existe
+  useEffect(() => {
+    if (visualConfig.logoUrl && !logoFile) {
+      setLogoPreview(`/api/files/${visualConfig.logoUrl}`);
+    }
+  }, [visualConfig.logoUrl, logoFile]);
+
+  useEffect(() => {
+    if (visualMsg) setShowVisualModal(true);
+  }, [visualMsg]);
+
+  // 1. Agregar función para guardar la configuración de empresa
+  const handleGuardarEmpresa = async (e) => {
+    e.preventDefault && e.preventDefault();
+    setVisualMsg("");
+    setVisualMsgType("");
+    try {
+      const token = localStorage.getItem('jwt');
+      // Incluir logoUrl
+      const empresaData = {
+        nombreEmpresa: visualConfig.nombreEmpresa,
+        direccionEmpresa: visualConfig.direccionEmpresa,
+        telefonoEmpresa: visualConfig.telefonoEmpresa,
+        emailEmpresa: visualConfig.emailEmpresa,
+        sitioWeb: visualConfig.sitioWeb,
+        horarioLaboral: visualConfig.horarioLaboral,
+        zonaHoraria: visualConfig.zonaHoraria,
+        logoUrl: visualConfig.logoUrl || ''
+      };
+      const res = await fetch('http://localhost:8081/api/empresa-config', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify(empresaData)
+      });
+      if (res.ok) {
+        setVisualMsg('Configuración de empresa guardada correctamente.');
+        setVisualMsgType('success');
+      } else {
+        setVisualMsg('Error al guardar la configuración de empresa.');
+        setVisualMsgType('error');
+      }
+    } catch (err) {
+      setVisualMsg('Error de red al guardar la configuración de empresa.');
+      setVisualMsgType('error');
+    }
+  };
+
+  // 2. Al cargar la configuración de empresa, mostrar el logo si existe
+  // Agregar función para cargar la configuración de empresa
+  useEffect(() => {
+    const fetchEmpresaConfig = async () => {
+      try {
+        const token = localStorage.getItem('jwt');
+        const res = await fetch('http://localhost:8081/api/empresa-config', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        });
+        if (res.ok) {
+          const config = await res.json();
+          setVisualConfig(prev => ({
+            ...prev,
+            nombreEmpresa: config.nombreEmpresa || '',
+            direccionEmpresa: config.direccionEmpresa || '',
+            telefonoEmpresa: config.telefonoEmpresa || '',
+            emailEmpresa: config.emailEmpresa || '',
+            sitioWeb: config.sitioWeb || '',
+            horarioLaboral: config.horarioLaboral || '',
+            zonaHoraria: config.zonaHoraria || '',
+            logoUrl: config.logoUrl || '',
+          }));
+          if (config.logoUrl) {
+            setLogoPreview(`/api/files/${config.logoUrl}`);
+          }
+        }
+      } catch (err) {
+        // No hacer nada
+      }
+    };
+    fetchEmpresaConfig();
+  }, []);
 
   return (
     <div className="configuracion-container">
@@ -1352,7 +1451,7 @@ function ConfiguracionPage() {
                 style={{width: 70, padding: '6px 8px', border: '1.5px solid #d1d5db', borderRadius: 6, fontSize: 13}} />
               <span style={{color:'#6b7280', fontSize:11, marginTop:2}}>0 = nunca caduca</span>
             </div>
-          </div>
+            </div>
           <div style={{display:'flex',gap:18,alignItems:'center',flexWrap:'wrap',marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',gap:6}}>
               <label style={{fontWeight:600,color:'#374151',fontSize:13,marginRight:2}}>Mayúsculas (A-Z)</label>
@@ -1381,7 +1480,7 @@ function ConfiguracionPage() {
                 <input type="checkbox" name="requireSymbol" checked={passwordPolicy.requireSymbol} onChange={handlePolicyChange} />
                 <span className="slider"></span>
               </label>
-            </div>
+          </div>
             <button type="submit" className="configuracion-btn" style={{
               background:'#2563eb', color:'#fff', fontWeight:700, padding:'8px 18px', fontSize:'13px', borderRadius:'7px',
               boxShadow:'0 1px 4px rgba(37,99,235,0.08)', display:'flex', alignItems:'center', gap:'6px', marginLeft:'auto'
@@ -1403,356 +1502,230 @@ function ConfiguracionPage() {
       </div>
 
       {/* Personalización Visual */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="visual-panel" style={{margin: '24px 0 0 0', maxWidth: '100%', borderRadius: '12px', boxShadow: '0 4px 18px rgba(37,99,235,0.08)', padding: 0, background: 'rgba(255,255,255,0.75)', width: '100%', backdropFilter: 'blur(8px)'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '12px 12px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-paint-brush"></i>
-          Personalización Visual
+          Personalización Visual del Sistema
         </div>
-        
-        {/* Vista previa en tiempo real */}
-        <div style={{ padding: '20px 24px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-          <h4 style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '16px', fontWeight: '600' }}>
-            <i className="fas fa-eye" style={{ marginRight: '8px', color: '#2563eb' }}></i>
-            Vista Previa
-          </h4>
-          <div style={{ 
-            padding: '16px', 
-            border: '2px solid #e2e8f0', 
-            borderRadius: '8px', 
-            background: 'white',
-            display: 'flex',
-            gap: '16px',
-            alignItems: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <div style={{ 
-              padding: '8px 16px', 
-              background: visualConfig.colorPrimario, 
-              color: 'white', 
-              borderRadius: visualConfig.bordesRedondeados,
-              fontSize: visualConfig.tamanoFuente,
-              fontFamily: visualConfig.fuente,
-              boxShadow: visualConfig.sombras ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none'
-            }}>
-              Botón Primario
+        <div className="visual-panel__container" style={{display: 'flex', gap: 24, padding: '24px 0 24px 0', alignItems: 'flex-start', width: '100%'}}>
+          {/* Controles en retícula */}
+          <div className="visual-grid-config" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 18, flex: 1, width: '100%', maxWidth: 700}}>
+            {/* Colores */}
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{fontWeight:600,fontSize:13,color:'#2563eb',marginBottom:2,letterSpacing:'0.2px'}}><i className="fas fa-palette" style={{marginRight:6}}></i>Colores</div>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-fill-drip" style={{marginRight:5}}></i>Color primario</label>
+              <input type="color" name="colorPrimario" value={visualConfig.colorPrimario} onChange={handleVisualChange} style={{width:36,height:36,border:'none',borderRadius:8,boxShadow:'0 1px 2px rgba(0,0,0,0.04)',background:'#fff'}} />
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-fill-drip" style={{marginRight:5}}></i>Color secundario</label>
+              <input type="color" name="colorSecundario" value={visualConfig.colorSecundario} onChange={handleVisualChange} style={{width:36,height:36,border:'none',borderRadius:8,boxShadow:'0 1px 2px rgba(0,0,0,0.04)',background:'#fff'}} />
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-grip-lines-vertical" style={{marginRight:5}}></i>Tipo degradado</label>
+              <select name="tipoDegradado" value={visualConfig.tipoDegradado || 'linear'} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
+                <option value="linear">Lineal</option>
+                <option value="radial">Radial</option>
+                <option value="solid">Sin degradado</option>
+              </select>
+              {visualConfig.tipoDegradado !== 'solid' && <><label style={{color:'#222',fontSize:12}}><i className="fas fa-angle-double-right" style={{marginRight:5}}></i>Ángulo</label>
+              <input type="number" name="anguloDegradado" min="0" max="360" value={visualConfig.anguloDegradado || 135} onChange={handleVisualChange} style={{width:60,color:'#222',background:'#fff',fontSize:12,borderRadius:6}} /></>}
             </div>
-            <div style={{ 
-              padding: '8px 16px', 
-              background: visualConfig.colorSecundario, 
-              color: 'white', 
-              borderRadius: visualConfig.bordesRedondeados,
-              fontSize: visualConfig.tamanoFuente,
-              fontFamily: visualConfig.fuente,
-              boxShadow: visualConfig.sombras ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none'
-            }}>
-              Botón Secundario
-            </div>
-            <div style={{ 
-              padding: '8px 16px', 
-              border: `2px solid ${visualConfig.colorPrimario}`, 
-              color: visualConfig.colorPrimario, 
-              borderRadius: visualConfig.bordesRedondeados,
-              fontSize: visualConfig.tamanoFuente,
-              fontFamily: visualConfig.fuente,
-              background: 'transparent'
-            }}>
-              Botón Outline
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleGuardarVisual} style={{ padding: '24px' }}>
-          {/* Temas predefinidos */}
-          <div style={{ marginBottom: '32px' }}>
-            <h4 style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '16px', fontWeight: '600' }}>
-              <i className="fas fa-palette" style={{ marginRight: '8px', color: '#2563eb' }}></i>
-              Temas Predefinidos
-            </h4>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              {Object.entries(temasPredefinidos).map(([nombre, tema]) => (
-                <button
-                  key={nombre}
-                  type="button"
-                  onClick={() => aplicarTemaPredefinido(nombre)}
-                  style={{
-                    padding: '12px 16px',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '8px',
-                    background: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    minWidth: '120px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = tema.colorPrimario;
-                    e.target.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = '#e2e8f0';
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    background: `linear-gradient(135deg, ${tema.colorPrimario}, ${tema.colorSecundario})`,
-                    border: '2px solid #e2e8f0'
-                  }}></div>
-                  <span style={{ fontSize: '12px', fontWeight: '500', textTransform: 'capitalize' }}>
-                    {nombre.replace(/([A-Z])/g, ' $1').trim()}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Logo y colores */}
-            <div className="form-group">
-              <label>Logo de la empresa</label>
-              <input type="file" name="logo" accept="image/*" onChange={handleVisualChange} />
-              {visualConfig.logoPreview && (
-                <div style={{ marginTop: '10px' }}>
-                  <img src={visualConfig.logoPreview} alt="Logo preview" style={{ maxWidth: '120px', borderRadius: '8px', border: '1px solid #ccc' }} />
-                </div>
-              )}
-            </div>
-            
-            <div className="form-group">
-              <label>Color primario</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <input 
-                  type="color" 
-                  name="colorPrimario" 
-                  value={visualConfig.colorPrimario} 
-                  onChange={handleVisualChange} 
-                  style={{ width: '48px', height: '48px', border: 'none', background: 'none', cursor: 'pointer' }} 
-                />
-                <span style={{ fontSize: '14px', color: '#6b7280' }}>{visualConfig.colorPrimario}</span>
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <label>Color secundario</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <input 
-                  type="color" 
-                  name="colorSecundario" 
-                  value={visualConfig.colorSecundario} 
-                  onChange={handleVisualChange} 
-                  style={{ width: '48px', height: '48px', border: 'none', background: 'none', cursor: 'pointer' }} 
-                />
-                <span style={{ fontSize: '14px', color: '#6b7280' }}>{visualConfig.colorSecundario}</span>
-              </div>
-            </div>
-
             {/* Tipografía */}
-            <div className="form-group">
-              <label>Fuente principal</label>
-              <select name="fuente" value={visualConfig.fuente} onChange={handleVisualChange}>
-                <option value="Inter">Inter (Moderno)</option>
-                <option value="Roboto">Roboto (Clásico)</option>
-                <option value="Open Sans">Open Sans (Legible)</option>
-                <option value="Poppins">Poppins (Elegante)</option>
-                <option value="Montserrat">Montserrat (Profesional)</option>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{fontWeight:600,fontSize:13,color:'#2563eb',marginBottom:2,letterSpacing:'0.2px'}}><i className="fas fa-font" style={{marginRight:6}}></i>Tipografía</div>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-font" style={{marginRight:5}}></i>Fuente</label>
+              <select name="fuente" value={visualConfig.fuente} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
+                <option value="Inter">Inter</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Roboto">Roboto</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label>Tamaño de fuente base</label>
-              <select name="tamanoFuente" value={visualConfig.tamanoFuente} onChange={handleVisualChange}>
-                <option value="12px">Pequeño (12px)</option>
-                <option value="14px">Normal (14px)</option>
-                <option value="16px">Grande (16px)</option>
-                <option value="18px">Extra grande (18px)</option>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-text-height" style={{marginRight:5}}></i>Tamaño</label>
+              <select name="tamanoFuente" value={visualConfig.tamanoFuente} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
+                <option value="12px">Pequeño</option>
+                <option value="14px">Normal</option>
+                <option value="16px">Grande</option>
+                <option value="18px">Extra grande</option>
               </select>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-eye" style={{marginRight:5}}></i>Vista previa</label>
+              <input type="text" name="textoPreview" value={visualConfig.textoPreview || ''} onChange={e => setVisualConfig(prev => ({...prev, textoPreview: e.target.value}))} placeholder="Escribe aquí para ver el ejemplo" className="visual-font-preview" style={{fontFamily: visualConfig.fuente, fontSize: visualConfig.tamanoFuente, background: '#f3f4f6', padding: '4px 8px', borderRadius: 6, border: '1px solid #e5e7eb', color: '#222'}} />
             </div>
-
-            {/* Efectos visuales */}
-            <div className="form-group">
-              <label>Bordes redondeados</label>
-              <select name="bordesRedondeados" value={visualConfig.bordesRedondeados} onChange={handleVisualChange}>
+            {/* Efectos */}
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{fontWeight:600,fontSize:13,color:'#2563eb',marginBottom:2,letterSpacing:'0.2px'}}><i className="fas fa-magic" style={{marginRight:6}}></i>Efectos</div>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-border-style" style={{marginRight:5}}></i>Bordes</label>
+              <select name="bordesRedondeados" value={visualConfig.bordesRedondeados} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
                 <option value="0px">Sin bordes</option>
-                <option value="4px">Suave (4px)</option>
-                <option value="8px">Normal (8px)</option>
-                <option value="12px">Redondeado (12px)</option>
-                <option value="20px">Muy redondeado (20px)</option>
+                <option value="4px">Suave</option>
+                <option value="8px">Normal</option>
+                <option value="12px">Redondeado</option>
+                <option value="20px">Muy redondeado</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label>Densidad de la interfaz</label>
-              <select name="densidad" value={visualConfig.densidad} onChange={handleVisualChange}>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-compress-arrows-alt" style={{marginRight:5}}></i>Densidad</label>
+              <select name="densidad" value={visualConfig.densidad} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
                 <option value="compact">Compacta</option>
                 <option value="normal">Normal</option>
                 <option value="spacious">Espaciosa</option>
               </select>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-cloud-moon" style={{marginRight:5}}></i>Sombras</label>
+              <input type="checkbox" name="sombras" checked={visualConfig.sombras} onChange={handleVisualChange} style={{width:18,height:18}} />
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-bolt" style={{marginRight:5}}></i>Animaciones</label>
+              <input type="checkbox" name="animaciones" checked={visualConfig.animaciones} onChange={handleVisualChange} style={{width:18,height:18}} />
             </div>
-
-            {/* Opciones de efectos */}
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="sombras" 
-                  checked={visualConfig.sombras} 
-                  onChange={handleVisualChange} 
-                />
-                Habilitar sombras
-              </label>
-            </div>
-
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="animaciones" 
-                  checked={visualConfig.animaciones} 
-                  onChange={handleVisualChange} 
-                />
-                Habilitar animaciones
-              </label>
-            </div>
-
-            {/* Configuración de fecha y hora */}
-            <div className="form-group">
-              <label>Formato de fecha</label>
-              <select name="formatoFecha" value={visualConfig.formatoFecha} onChange={handleVisualChange}>
-                <option value="dd/MM/yyyy">dd/MM/yyyy</option>
-                <option value="MM/dd/yyyy">MM/dd/yyyy</option>
-                <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+            {/* Selector de idioma */}
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{fontWeight:600,fontSize:13,color:'#2563eb',marginBottom:2,letterSpacing:'0.2px'}}><i className="fas fa-globe" style={{marginRight:6}}></i>Idioma</div>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-language" style={{marginRight:5}}></i>Selecciona el idioma</label>
+              <select name="idioma" value={visualConfig.idioma || 'español'} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
+                <option value="español">Español</option>
+                <option value="inglés">Inglés</option>
+                <option value="portugués">Portugués</option>
               </select>
             </div>
-
-            <div className="form-group">
-              <label>Formato de hora</label>
-              <select name="formatoHora" value={visualConfig.formatoHora} onChange={handleVisualChange}>
-                <option value="24h">24 horas</option>
-                <option value="12h">12 horas (AM/PM)</option>
+            {/* Selector de formato de número */}
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{fontWeight:600,fontSize:13,color:'#2563eb',marginBottom:2,letterSpacing:'0.2px'}}><i className="fas fa-hashtag" style={{marginRight:6}}></i>Formato de número</div>
+              <label style={{color:'#222',fontSize:12}}><i className="fas fa-sort-numeric-up" style={{marginRight:5}}></i>Selecciona el formato</label>
+              <select name="formatoNumero" value={visualConfig.formatoNumero || 'us'} onChange={handleVisualChange} style={{color:'#222',background:'#fff',fontSize:12,borderRadius:6,padding:'4px 10px'}}>
+                <option value="us">1,234.56 (US)</option>
+                <option value="eu">1.234,56 (EU)</option>
+                <option value="fr">1 234,56 (FR)</option>
               </select>
             </div>
           </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', gap: '12px' }}>
-            <button 
-              type="button" 
-              onClick={() => aplicarTemaPredefinido('claro')}
-              style={{ 
-                padding: '10px 20px', 
-                border: '1px solid #d1d5db', 
-                borderRadius: '8px', 
-                background: 'white', 
-                color: '#374151', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              <i className="fas fa-undo"></i>
-              Restaurar
-            </button>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar personalización
-            </button>
-          </div>
-          
-          {visualMsg && (
-            <div style={{
-              background: visualMsgType === 'success' ? '#e7fbe7' : '#ffeaea',
-              color: visualMsgType === 'success' ? '#388e3c' : '#d32f2f',
-              border: `1px solid ${visualMsgType === 'success' ? '#4caf50' : '#f44336'}`,
-              borderRadius: '6px',
-              padding: '10px 18px',
-              marginBottom: '10px',
-              fontWeight: '500',
-              fontSize: '15px',
-              display: 'inline-block',
-              marginLeft: '0px',
-              marginTop: '16px'
+          {/* Vista previa (derecha) */}
+          <div className="visual-panel__preview" style={{flex: '0 0 260px', minWidth: 180, maxWidth: 260, marginLeft: 24}}>
+            <div className="visual-preview-mockup" style={{
+              fontFamily: visualConfig.fuente,
+              fontSize: visualConfig.tamanoFuente,
+              borderRadius: visualConfig.bordesRedondeados,
+              boxShadow: visualConfig.sombras ? '0 8px 32px rgba(37,99,235,0.15)' : 'none',
+              background: visualConfig.tipoDegradado === 'radial'
+                ? `radial-gradient(circle, ${visualConfig.colorPrimario} 60%, ${visualConfig.colorSecundario} 100%)`
+                : visualConfig.tipoDegradado === 'solid'
+                  ? visualConfig.colorPrimario
+                  : `linear-gradient(${visualConfig.anguloDegradado || 135}deg, ${visualConfig.colorPrimario} 60%, ${visualConfig.colorSecundario} 100%)`,
+              color: visualConfig.tema === 'oscuro' ? '#fff' : '#222',
+              border: visualConfig.tema === 'oscuro' ? '2.5px solid #222' : '2.5px solid #e0e7ef',
+              transition: visualConfig.animaciones ? 'all 0.3s cubic-bezier(.4,2,.6,1)' : 'none',
+              width: '100%',
+              minHeight: '140px',
+              margin: '0 auto',
+              padding: '8px 4px 8px 4px',
+              maxWidth: 260,
+              backgroundColor: 'rgba(255,255,255,0.7)',
+              backdropFilter: 'blur(8px)'
             }}>
-              {visualMsg}
+              <div className="visual-preview-header" style={{background: visualConfig.tema === 'oscuro' ? 'rgba(30,41,59,0.7)' : 'rgba(55,65,81,0.18)', color: visualConfig.tema === 'oscuro' ? '#fff' : '#fff', fontSize: '1rem', padding: '6px 12px', marginBottom: '8px', borderRadius: '6px'}}>
+                <i className="fas fa-cogs"></i> ERP SENA
             </div>
-          )}
-        </form>
+              <div className="visual-preview-content" style={{gap: '8px'}}>
+                <button className="visual-preview-btn visual-preview-btn--primary">Botón Primario</button>
+                <button className="visual-preview-btn visual-preview-btn--secondary">Botón Secundario</button>
+                <button className="visual-preview-btn visual-preview-btn--outline">Botón Outline</button>
+                <div className="visual-font-preview" style={{fontFamily: visualConfig.fuente, fontSize: visualConfig.tamanoFuente, background: visualConfig.tema === 'oscuro' ? '#222' : '#f3f4f6', color: '#222', padding: '4px 8px', borderRadius: 6, border: '1px solid #e5e7eb', marginTop: 4}}>
+                  Ejemplo de texto en la vista previa
       </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Configuración de Empresa */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="empresa-panel" style={{margin: '32px 0 0 0', maxWidth: '100%', borderRadius: '14px', boxShadow: '0 4px 18px rgba(37,99,235,0.10)', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', padding: '0 0 24px 0', width: '100%'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '14px 14px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-building"></i>
           Configuración de Empresa
         </div>
-        <form style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Nombre de la empresa</label>
+        <form style={{ padding: '24px 24px 0 24px' }}>
+          <div style={{display:'flex',gap:32,alignItems:'flex-start',flexWrap:'wrap'}}>
+            {/* Área de drag & drop para logo */}
+            <div style={{minWidth:220,maxWidth:260,flex:'0 0 220px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start'}}>
+              <label style={{fontWeight:600,color:'#2563eb',fontSize:14,marginBottom:8,display:'flex',alignItems:'center',gap:8}}><i className="fas fa-image"></i>Logo de la empresa</label>
+              <div
+                onDragOver={e => {e.preventDefault();e.stopPropagation();}}
+                onDrop={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    const file = e.dataTransfer.files[0];
+                    setLogoFile(file);
+                    const reader = new FileReader();
+                    reader.onload = ev => setLogoPreview(ev.target.result);
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{
+                  border: '2px dashed #2563eb',
+                  borderRadius: 12,
+                  background: '#f8fafc',
+                  width: 180,
+                  height: 180,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  marginBottom: 10,
+                  position: 'relative',
+                  transition: 'border 0.2s'
+                }}
+                onClick={() => document.getElementById('logo-upload-input').click()}
+                title="Arrastra y suelta una imagen o haz clic para seleccionar"
+              >
+                {logoPreview || (visualConfig.logoUrl && !logoFile) ? (
+                  <img src={logoPreview || `/api/files/${visualConfig.logoUrl}`} alt="Logo" style={{maxWidth: '90%', maxHeight: '90%', borderRadius: 8, objectFit: 'contain'}} />
+                ) : (
+                  <>
+                    <i className="fas fa-cloud-upload-alt" style={{fontSize: 38, color: '#2563eb', marginBottom: 8}}></i>
+                    <span style={{color:'#2563eb',fontSize:13,textAlign:'center'}}>Arrastra y suelta aquí<br/>o haz clic para seleccionar</span>
+                  </>
+                )}
               <input 
-                type="text" 
-                name="nombreEmpresa" 
-                value={visualConfig.nombreEmpresa} 
-                onChange={handleVisualChange} 
-                placeholder="Ingrese el nombre de la empresa"
+                  id="logo-upload-input"
+                  type="file"
+                  accept="image/*"
+                  style={{display:'none'}}
+                  onChange={e => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      setLogoFile(file);
+                      const reader = new FileReader();
+                      reader.onload = ev => setLogoPreview(ev.target.result);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
               />
             </div>
-            <div className="form-group">
-              <label>Dirección</label>
-              <input 
-                type="text" 
-                name="direccionEmpresa" 
-                value={visualConfig.direccionEmpresa} 
-                onChange={handleVisualChange} 
-                placeholder="Ingrese la dirección"
-              />
+              <span style={{color:'#6b7280',fontSize:12,textAlign:'center'}}>Formatos permitidos: PNG, JPG, SVG. Tamaño recomendado: 180x180px</span>
             </div>
-            <div className="form-group">
-              <label>Teléfono</label>
-              <input 
-                type="tel" 
-                name="telefonoEmpresa" 
-                value={visualConfig.telefonoEmpresa} 
-                onChange={handleVisualChange} 
-                placeholder="Ingrese el teléfono"
-              />
+            {/* Grid de campos de empresa */}
+            <div style={{flex:1}}>
+              <div className="empresa-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:20}}>
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-briefcase"></i>Nombre de la empresa</label>
+                  <input type="text" name="nombreEmpresa" value={visualConfig.nombreEmpresa} onChange={handleVisualChange} placeholder="Ingrese el nombre de la empresa" className="empresa-input" />
             </div>
-            <div className="form-group">
-              <label>Email corporativo</label>
-              <input 
-                type="email" 
-                name="emailEmpresa" 
-                value={visualConfig.emailEmpresa} 
-                onChange={handleVisualChange} 
-                placeholder="Ingrese el email corporativo"
-              />
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-map-marker-alt"></i>Dirección</label>
+                  <input type="text" name="direccionEmpresa" value={visualConfig.direccionEmpresa} onChange={handleVisualChange} placeholder="Ingrese la dirección" className="empresa-input" />
             </div>
-            <div className="form-group">
-              <label>Sitio web</label>
-              <input 
-                type="url" 
-                name="sitioWeb" 
-                value={visualConfig.sitioWeb} 
-                onChange={handleVisualChange} 
-                placeholder="https://www.empresa.com"
-              />
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-phone"></i>Teléfono</label>
+                  <input type="tel" name="telefonoEmpresa" value={visualConfig.telefonoEmpresa} onChange={handleVisualChange} placeholder="Ingrese el teléfono" className="empresa-input" />
             </div>
-            <div className="form-group">
-              <label>Horario laboral</label>
-              <input 
-                type="text" 
-                name="horarioLaboral" 
-                value={visualConfig.horarioLaboral} 
-                onChange={handleVisualChange} 
-                placeholder="8:00-18:00"
-              />
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-envelope"></i>Email corporativo</label>
+                  <input type="email" name="emailEmpresa" value={visualConfig.emailEmpresa} onChange={handleVisualChange} placeholder="Ingrese el email corporativo" className="empresa-input" />
             </div>
-            <div className="form-group">
-              <label>Zona horaria</label>
-              <select name="zonaHoraria" value={visualConfig.zonaHoraria} onChange={handleVisualChange}>
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-globe"></i>Sitio web</label>
+                  <input type="url" name="sitioWeb" value={visualConfig.sitioWeb} onChange={handleVisualChange} placeholder="https://www.empresa.com" className="empresa-input" />
+                </div>
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-clock"></i>Horario laboral</label>
+                  <input type="text" name="horarioLaboral" value={visualConfig.horarioLaboral} onChange={handleVisualChange} placeholder="8:00-18:00" className="empresa-input" />
+                </div>
+                <div className="empresa-field">
+                  <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-globe-americas"></i>Zona horaria</label>
+                  <select name="zonaHoraria" value={visualConfig.zonaHoraria} onChange={handleVisualChange} className="empresa-input">
                 <option value="America/Bogota">Colombia (Bogotá)</option>
                 <option value="America/Mexico_City">México (Ciudad de México)</option>
                 <option value="America/New_York">Estados Unidos (Nueva York)</option>
@@ -1762,93 +1735,66 @@ function ConfiguracionPage() {
               </select>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" className="bg-green-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px' }}>
+            <button type="button" className="empresa-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#2563eb 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}} onClick={handleGuardarEmpresa}>
+              <i className="fas fa-save"></i>Guardar configuración
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Configuración de Seguridad */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="seguridad-panel" style={{margin: '32px 0 0 0', maxWidth: '100%', borderRadius: '14px', boxShadow: '0 4px 18px rgba(37,99,235,0.10)', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', padding: '0 0 24px 0', width: '100%'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '14px 14px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-shield-alt"></i>
           Configuración de Seguridad
         </div>
-        <form style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Tiempo de sesión (minutos)</label>
-              <input 
-                type="number" 
-                name="tiempoSesion" 
-                value={visualConfig.tiempoSesion} 
-                onChange={handleVisualChange} 
-                min="5" 
-                max="480"
-                placeholder="30"
-              />
-              <p className="text-gray-500 text-sm mt-1">Tiempo antes de que expire la sesión por inactividad</p>
+        <form style={{ padding: '24px 24px 0 24px' }}>
+          <div className="seguridad-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:20}}>
+            <div className="seguridad-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-hourglass-half"></i>Tiempo de sesión (minutos)</label>
+              <input type="number" name="tiempoSesion" value={visualConfig.tiempoSesion} onChange={handleVisualChange} min="5" max="480" placeholder="30" className="seguridad-input" />
+              <span className="seguridad-help">Tiempo antes de que expire la sesión por inactividad</span>
             </div>
-            <div className="form-group">
-              <label>Máximo intentos de login</label>
-              <input 
-                type="number" 
-                name="maxIntentosLogin" 
-                value={visualConfig.maxIntentosLogin} 
-                onChange={handleVisualChange} 
-                min="3" 
-                max="10"
-                placeholder="5"
-              />
-              <p className="text-gray-500 text-sm mt-1">Número de intentos antes del bloqueo temporal</p>
+            <div className="seguridad-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-user-lock"></i>Máximo intentos de login</label>
+              <input type="number" name="maxIntentosLogin" value={visualConfig.maxIntentosLogin} onChange={handleVisualChange} min="3" max="10" placeholder="5" className="seguridad-input" />
+              <span className="seguridad-help">Número de intentos antes del bloqueo temporal</span>
             </div>
-            <div className="form-group">
-              <label>Tiempo de bloqueo (minutos)</label>
-              <input 
-                type="number" 
-                name="bloqueoTemporal" 
-                value={visualConfig.bloqueoTemporal} 
-                onChange={handleVisualChange} 
-                min="5" 
-                max="60"
-                placeholder="15"
-              />
-              <p className="text-gray-500 text-sm mt-1">Tiempo de bloqueo después de exceder intentos</p>
+            <div className="seguridad-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-lock"></i>Tiempo de bloqueo (minutos)</label>
+              <input type="number" name="bloqueoTemporal" value={visualConfig.bloqueoTemporal} onChange={handleVisualChange} min="5" max="60" placeholder="15" className="seguridad-input" />
+              <span className="seguridad-help">Tiempo de bloqueo después de exceder intentos</span>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="requiereCaptcha" 
-                  checked={visualConfig.requiereCaptcha} 
-                  onChange={handleVisualChange} 
-                />
-                Requerir reCAPTCHA en login
-              </label>
-              <p className="text-gray-500 text-sm mt-1">Activar verificación reCAPTCHA para mayor seguridad</p>
+            <div className="seguridad-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-robot"></i>Requerir reCAPTCHA en login</label>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="requiereCaptcha" checked={visualConfig.requiereCaptcha} onChange={handleVisualChange} className="seguridad-checkbox" />
+                <span className="seguridad-help">Activar verificación reCAPTCHA para mayor seguridad</span>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" className="bg-red-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px' }}>
+            <button type="button" className="seguridad-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#0891b2 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}}>
+              <i className="fas fa-save"></i>Guardar configuración
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Configuración de Notificaciones */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="notificaciones-panel" style={{margin: '32px 0 0 0', maxWidth: '100%', borderRadius: '14px', boxShadow: '0 4px 18px rgba(37,99,235,0.10)', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', padding: '0 0 24px 0', width: '100%'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '14px 14px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-bell"></i>
           Configuración de Notificaciones
         </div>
-        <form style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Posición de notificaciones</label>
-              <select name="notificacionesPosicion" value={visualConfig.notificacionesPosicion} onChange={handleVisualChange}>
+        <form style={{ padding: '24px 24px 0 24px' }}>
+          <div className="notificaciones-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:18}}>
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-map-marker-alt"></i>Posición de notificaciones</label>
+              <select name="notificacionesPosicion" value={visualConfig.notificacionesPosicion} onChange={handleVisualChange} className="notificaciones-input">
                 <option value="top-right">Superior derecha</option>
                 <option value="top-left">Superior izquierda</option>
                 <option value="bottom-right">Inferior derecha</option>
@@ -1857,92 +1803,68 @@ function ConfiguracionPage() {
                 <option value="bottom-center">Inferior centro</option>
               </select>
             </div>
-            <div className="form-group">
-              <label>Duración de notificaciones (ms)</label>
-              <input 
-                type="number" 
-                name="notificacionesDuracion" 
-                value={visualConfig.notificacionesDuracion} 
-                onChange={handleVisualChange} 
-                min="2000" 
-                max="10000"
-                step="500"
-                placeholder="5000"
-              />
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-clock"></i>Duración (ms)</label>
+              <input type="number" name="notificacionesDuracion" value={visualConfig.notificacionesDuracion} onChange={handleVisualChange} min="2000" max="10000" step="500" placeholder="5000" className="notificaciones-input" />
+              <span className="notificaciones-help">Tiempo visible de la notificación</span>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="notificacionesSonido" 
-                  checked={visualConfig.notificacionesSonido} 
-                  onChange={handleVisualChange} 
-                />
-                Activar sonido en notificaciones
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-volume-up"></i>Sonido</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="notificacionesSonido" checked={visualConfig.notificacionesSonido} onChange={handleVisualChange} className="notificaciones-checkbox" />
+                <span className="notificaciones-help">Activar sonido en notificaciones</span>
               </label>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="notificacionesEmail" 
-                  checked={visualConfig.notificacionesEmail} 
-                  onChange={handleVisualChange} 
-                />
-                Notificaciones por email
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-envelope"></i>Email</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="notificacionesEmail" checked={visualConfig.notificacionesEmail} onChange={handleVisualChange} className="notificaciones-checkbox" />
+                <span className="notificaciones-help">Notificaciones por email</span>
               </label>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="notificacionesPush" 
-                  checked={visualConfig.notificacionesPush} 
-                  onChange={handleVisualChange} 
-                />
-                Notificaciones push
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-bolt"></i>Push</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="notificacionesPush" checked={visualConfig.notificacionesPush} onChange={handleVisualChange} className="notificaciones-checkbox" />
+                <span className="notificaciones-help">Notificaciones push</span>
               </label>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="notificacionesSMS" 
-                  checked={visualConfig.notificacionesSMS} 
-                  onChange={handleVisualChange} 
-                />
-                Notificaciones por SMS
+            <div className="notificaciones-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-sms"></i>SMS</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="notificacionesSMS" checked={visualConfig.notificacionesSMS} onChange={handleVisualChange} className="notificaciones-checkbox" />
+                <span className="notificaciones-help">Notificaciones por SMS</span>
               </label>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" className="bg-purple-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px' }}>
+            <button type="button" className="notificaciones-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#2563eb 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}}>
+              <i className="fas fa-save"></i>Guardar configuración
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Configuración de Reportes */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="reportes-panel" style={{margin: '32px 0 0 0', maxWidth: '100%', borderRadius: '14px', boxShadow: '0 4px 18px rgba(37,99,235,0.10)', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', padding: '0 0 24px 0', width: '100%'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '14px 14px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-chart-bar"></i>
           Configuración de Reportes
         </div>
-        <form style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label>Formato de reporte predeterminado</label>
-              <select name="formatoReporte" value={visualConfig.formatoReporte} onChange={handleVisualChange}>
+        <form style={{ padding: '24px 24px 0 24px' }}>
+          <div className="reportes-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:18}}>
+            <div className="reportes-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-file-alt"></i>Formato de reporte predeterminado</label>
+              <select name="formatoReporte" value={visualConfig.formatoReporte} onChange={handleVisualChange} className="reportes-input">
                 <option value="PDF">PDF</option>
                 <option value="Excel">Excel (XLSX)</option>
                 <option value="CSV">CSV</option>
                 <option value="HTML">HTML</option>
               </select>
             </div>
-            <div className="form-group">
-              <label>Frecuencia de reportes automáticos</label>
-              <select name="frecuenciaReportes" value={visualConfig.frecuenciaReportes} onChange={handleVisualChange}>
+            <div className="reportes-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-calendar-alt"></i>Frecuencia de reportes automáticos</label>
+              <select name="frecuenciaReportes" value={visualConfig.frecuenciaReportes} onChange={handleVisualChange} className="reportes-input">
                 <option value="diario">Diario</option>
                 <option value="semanal">Semanal</option>
                 <option value="mensual">Mensual</option>
@@ -1950,77 +1872,61 @@ function ConfiguracionPage() {
                 <option value="anual">Anual</option>
               </select>
             </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="incluirGraficos" 
-                  checked={visualConfig.incluirGraficos} 
-                  onChange={handleVisualChange} 
-                />
-                Incluir gráficos en reportes
+            <div className="reportes-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-chart-pie"></i>Incluir gráficos</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="incluirGraficos" checked={visualConfig.incluirGraficos} onChange={handleVisualChange} className="reportes-checkbox" />
+                <span className="reportes-help">Incluir gráficos en reportes</span>
               </label>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" className="bg-orange-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px' }}>
+            <button type="button" className="reportes-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#2563eb 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}}>
+              <i className="fas fa-save"></i>Guardar configuración
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Configuración de Backup */}
-      <div className="configuracion-section">
-        <div className="configuracion-section-title">
+      <section className="backup-panel" style={{margin: '32px 0 0 0', maxWidth: '100%', borderRadius: '14px', boxShadow: '0 4px 18px rgba(37,99,235,0.10)', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', padding: '0 0 24px 0', width: '100%'}}>
+        <div className="configuracion-section-title" style={{marginBottom: 0, borderRadius: '14px 14px 0 0', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 18, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10}}>
           <i className="fas fa-database"></i>
           Configuración de Backup
         </div>
-        <form style={{ padding: '24px' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input 
-                  type="checkbox" 
-                  name="backupAutomatico" 
-                  checked={visualConfig.backupAutomatico} 
-                  onChange={handleVisualChange} 
-                />
-                Habilitar backup automático
+        <form style={{ padding: '24px 24px 0 24px' }}>
+          <div className="backup-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))',gap:18}}>
+            <div className="backup-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-sync-alt"></i>Backup automático</label>
+              <label style={{display:'flex',alignItems:'center',gap:10}}>
+                <input type="checkbox" name="backupAutomatico" checked={visualConfig.backupAutomatico} onChange={handleVisualChange} className="backup-checkbox" />
+                <span className="backup-help">Habilitar backup automático</span>
               </label>
             </div>
-            <div className="form-group">
-              <label>Frecuencia de backup</label>
-              <select name="frecuenciaBackup" value={visualConfig.frecuenciaBackup} onChange={handleVisualChange}>
+            <div className="backup-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-calendar-check"></i>Frecuencia de backup</label>
+              <select name="frecuenciaBackup" value={visualConfig.frecuenciaBackup} onChange={handleVisualChange} className="backup-input">
                 <option value="diario">Diario</option>
                 <option value="semanal">Semanal</option>
                 <option value="mensual">Mensual</option>
               </select>
             </div>
-            <div className="form-group">
-              <label>Retener backups por (días)</label>
-              <input 
-                type="number" 
-                name="retenerBackups" 
-                value={visualConfig.retenerBackups} 
-                onChange={handleVisualChange} 
-                min="7" 
-                max="365"
-                placeholder="30"
-              />
-              <p className="text-gray-500 text-sm mt-1">Número de días antes de eliminar backups antiguos</p>
+            <div className="backup-field">
+              <label style={{display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#2563eb',fontSize:14}}><i className="fas fa-hourglass-end"></i>Retener backups por (días)</label>
+              <input type="number" name="retenerBackups" value={visualConfig.retenerBackups} onChange={handleVisualChange} min="7" max="365" placeholder="30" className="backup-input" />
+              <span className="backup-help">Número de días antes de eliminar backups antiguos</span>
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', gap: '12px' }}>
-            <button type="button" className="bg-blue-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-download" style={{ marginRight: '8px' }}></i>Crear backup manual
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px', gap: '12px' }}>
+            <button type="button" className="backup-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#2563eb 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}}>
+              <i className="fas fa-download"></i>Crear backup manual
             </button>
-            <button type="button" className="bg-cyan-600 text-white px-4 py-2 rounded" style={{ display: 'flex', alignItems: 'center' }}>
-              <i className="fas fa-save" style={{ marginRight: '8px' }}></i>Guardar configuración
+            <button type="button" className="backup-btn-guardar" style={{background:'linear-gradient(90deg,#2563eb 0%,#2563eb 100%)',color:'#fff',fontWeight:700,padding:'12px 32px',fontSize:15,borderRadius:10,boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:10,border:'none',cursor:'pointer'}}>
+              <i className="fas fa-save"></i>Guardar configuración
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
       {/* Modal de cambio de contraseña */}
       {showPasswordModal && (
@@ -2384,6 +2290,47 @@ function ConfiguracionPage() {
           })()}
         </div>,
         document.body
+      )}
+
+      {showVisualModal && visualMsg && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.35)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: 'modalBackdropFadeIn 0.2s ease-out'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 8px 32px rgba(37,99,235,0.13)',
+            padding: '36px 32px 28px 32px',
+            minWidth: 320,
+            maxWidth: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 18,
+            position: 'relative',
+            animation: 'modalFadeIn 0.3s ease-out'
+          }}>
+            <div style={{fontSize: 38, color: visualMsgType === 'success' ? '#059669' : '#d32f2f', marginBottom: 8}}>
+              <i className={`fas ${visualMsgType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`}></i>
+            </div>
+            <div style={{fontWeight: 700, fontSize: 18, color: '#222', textAlign: 'center', marginBottom: 6}}>
+              {visualMsgType === 'success' ? '¡Éxito!' : 'Error'}
+            </div>
+            <div style={{fontSize: 15, color: '#374151', textAlign: 'center', marginBottom: 8}}>
+              {visualMsg}
+            </div>
+            <button onClick={() => setShowVisualModal(false)} style={{marginTop: 8, background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'8px 24px',fontWeight:600,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)'}}>
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
 
     </div>

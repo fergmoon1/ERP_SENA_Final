@@ -1,5 +1,6 @@
 com\empresa\erp\models\VisualConfig.class
 com\empresa\erp\controllers\IndicadoresController.class
+com\empresa\erp\services\EmpresaConfigService.class
 com\empresa\erp\repositories\NotificacionRepository.class
 com\empresa\erp\controllers\AuthController.class
 com\empresa\erp\models\RolPermiso.class
@@ -18,6 +19,7 @@ com\empresa\erp\repositories\VisualConfigRepository.class
 com\empresa\erp\services\PedidoService.class
 com\empresa\erp\models\ReporteProductosMasVendidosDTO.class
 com\empresa\erp\repositories\ProveedorRepository.class
+com\empresa\erp\models\EmpresaConfig.class
 com\empresa\erp\services\ValidacionService.class
 com\empresa\erp\services\MovimientoInventarioService$1.class
 com\empresa\erp\services\PasswordPolicyService.class
@@ -44,7 +46,9 @@ com\empresa\erp\config\SecurityConfig$1.class
 com\empresa\erp\services\NotificacionService.class
 com\empresa\erp\controllers\HomeController.class
 com\empresa\erp\controllers\ReporteController.class
+com\empresa\erp\controllers\EmpresaConfigController.class
 com\empresa\erp\models\Proveedor.class
+com\empresa\erp\repositories\EmpresaConfigRepository.class
 com\empresa\erp\repositories\MovimientoInventarioRepository.class
 com\empresa\erp\services\RolPermisoInitializer.class
 com\empresa\erp\repositories\PasswordPolicyRepository.class

@@ -1,6 +1,8 @@
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\RateLimitFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\DetallePedidoRepository.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\EmpresaConfigController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\DetalleCompra.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\EmpresaConfigService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\RolPermisoInitializer.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\JwtAuthenticationFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProductoController.java
@@ -55,6 +57,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\CorsFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProveedorController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\VisualConfigService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Compra.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\EmpresaConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\MovimientoInventarioRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraController.java
@@ -67,6 +70,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\PedidoService.j
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\VisualConfigController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\SecurityConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteProductosMasVendidosDTO.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\EmpresaConfigRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteVentasPorClienteDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Notificacion.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\CompraService.java
