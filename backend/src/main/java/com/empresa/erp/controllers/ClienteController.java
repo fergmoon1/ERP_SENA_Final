@@ -11,12 +11,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/clientes")
 @CrossOrigin(origins = "*")
 public class ClienteController {
     private final ClienteService clienteService;
+    @Autowired
+    private AuditLogService auditLogService;
 
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
@@ -33,29 +39,50 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Cliente cliente) {
+    public ResponseEntity<?> create(@RequestBody Cliente cliente, HttpServletRequest request) {
         try {
-            cliente.setFechaCreacion(LocalDate.now());
-            return ResponseEntity.ok(clienteService.save(cliente));
+            cliente.setFechaCreacion(java.time.LocalDate.now());
+            ResponseEntity<?> response = ResponseEntity.ok(clienteService.save(cliente));
+            auditLogService.save(new AuditLog(
+                "sistema",
+                "CREAR", "Clientes",
+                "Cliente creado: " + (cliente.getNombre() != null ? cliente.getNombre() : "cliente") + " desde IP: " + request.getRemoteAddr(),
+                "info"
+            ));
+            return response;
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Cliente cliente) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Cliente cliente, HttpServletRequest request) {
         try {
             cliente.setId(id);
-            return ResponseEntity.ok(clienteService.save(cliente));
+            ResponseEntity<?> response = ResponseEntity.ok(clienteService.save(cliente));
+            auditLogService.save(new AuditLog(
+                "sistema",
+                "EDITAR", "Clientes",
+                "Cliente editado: " + (cliente.getNombre() != null ? cliente.getNombre() : "cliente") + " desde IP: " + request.getRemoteAddr(),
+                "info"
+            ));
+            return response;
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        Optional<Cliente> clienteOpt = clienteService.findById(id);
         clienteService.deleteById(id);
-        
+        String nombre = clienteOpt.map(c -> c.getNombre() != null ? c.getNombre() : "cliente").orElse("cliente");
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "ELIMINAR", "Clientes",
+            "Cliente eliminado: " + nombre + " desde IP: " + request.getRemoteAddr(),
+            "warning"
+        ));
     }
     
     @PostMapping("/{id}/imagen")

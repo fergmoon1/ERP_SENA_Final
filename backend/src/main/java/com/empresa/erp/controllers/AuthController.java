@@ -18,6 +18,9 @@ import java.util.HashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -30,6 +33,8 @@ public class AuthController {
     private RefreshTokenRepository refreshTokenRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private AuditLogService auditLogService;
     
 
 
@@ -38,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, Object> login(@RequestBody Map<String, String> body) {
+    public Map<String, Object> login(@RequestBody Map<String, String> body, HttpServletRequest request) {
         logger.info("Body recibido: {}", body);
         String correo = body.get("correo");
         String password = body.get("password");
@@ -72,15 +77,18 @@ public class AuthController {
         // --- FIN BLOQUE SOLO PARA PRUEBAS AUTOMATIZADAS ---
         if (!success) {
             logger.error("reCAPTCHA inválido o no verificado");
+            auditLogService.save(new AuditLog(correo, "LOGIN", "Autenticación", "Intento fallido de login (reCAPTCHA) desde IP: " + request.getRemoteAddr(), "warning"));
             throw new RuntimeException("reCAPTCHA inválido o no verificado");
         }
         // Si el reCAPTCHA es válido, proceder con el login
         try {
             Map<String, Object> result = authService.loginWithRefreshAndUser(correo, password);
             logger.info("Login exitoso para: {}", correo);
+            auditLogService.save(new AuditLog(correo, "LOGIN", "Autenticación", "Login exitoso desde IP: " + request.getRemoteAddr(), "info"));
             return result;
         } catch (Exception e) {
             logger.error("Error en login: {}", e.getMessage());
+            auditLogService.save(new AuditLog(correo, "LOGIN", "Autenticación", "Error de login desde IP: " + request.getRemoteAddr() + ". Motivo: " + e.getMessage(), "critical"));
             throw e;
         }
     }
@@ -98,11 +106,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public Map<String, String> logout(@RequestBody Map<String, String> body) {
+    public Map<String, String> logout(@RequestBody Map<String, String> body, HttpServletRequest request) {
         String refreshTokenStr = body.get("refreshToken");
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
             .orElseThrow(() -> new RuntimeException("Refresh token inválido"));
+        String correo = refreshToken.getUsuario() != null ? refreshToken.getUsuario().getCorreo() : "desconocido";
         refreshTokenRepository.delete(refreshToken);
+        auditLogService.save(new AuditLog(correo, "LOGOUT", "Autenticación", "Logout exitoso desde IP: " + request.getRemoteAddr(), "info"));
         return Map.of("message", "Logout exitoso");
     }
 

@@ -10,12 +10,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
     private final UsuarioService usuarioService;
+    @Autowired
+    private AuditLogService auditLogService;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -32,25 +38,55 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public Usuario create(@RequestBody Usuario usuario) {
-        return usuarioService.save(usuario);
+    public Usuario create(@RequestBody Usuario usuario, HttpServletRequest request) {
+        Usuario nuevo = usuarioService.save(usuario);
+        auditLogService.save(new AuditLog(
+            nuevo.getCorreo() != null ? nuevo.getCorreo() : (nuevo.getNombre() != null ? nuevo.getNombre() : "usuario"),
+            "CREAR", "Usuarios",
+            "Usuario creado desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return nuevo;
     }
 
     @PutMapping("/{id}")
-    public Usuario update(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public Usuario update(@PathVariable Long id, @RequestBody Usuario usuario, HttpServletRequest request) {
         usuario.setId(id);
-        return usuarioService.save(usuario);
+        Usuario actualizado = usuarioService.save(usuario);
+        auditLogService.save(new AuditLog(
+            actualizado.getCorreo() != null ? actualizado.getCorreo() : (actualizado.getNombre() != null ? actualizado.getNombre() : "usuario"),
+            "EDITAR", "Usuarios",
+            "Usuario editado desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return actualizado;
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        Optional<Usuario> usuarioOpt = usuarioService.findById(id);
         usuarioService.deleteById(id);
+        String usuarioStr = usuarioOpt.map(u -> u.getCorreo() != null ? u.getCorreo() : (u.getNombre() != null ? u.getNombre() : "usuario")).orElse("usuario");
+        auditLogService.save(new AuditLog(
+            usuarioStr,
+            "ELIMINAR", "Usuarios",
+            "Usuario eliminado desde IP: " + request.getRemoteAddr(),
+            "warning"
+        ));
     }
 
     @PutMapping("/{id}/password")
-    public void updatePassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public void updatePassword(@PathVariable Long id, @RequestBody Map<String, String> body, HttpServletRequest request) {
         String newPassword = body.get("password");
         usuarioService.updatePassword(id, newPassword);
+        Optional<Usuario> usuarioOpt = usuarioService.findById(id);
+        String usuarioStr = usuarioOpt.map(u -> u.getCorreo() != null ? u.getCorreo() : (u.getNombre() != null ? u.getNombre() : "usuario")).orElse("usuario");
+        auditLogService.save(new AuditLog(
+            usuarioStr,
+            "CAMBIAR_PASSWORD", "Usuarios",
+            "Cambio de contraseña desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
     }
 
     @PostMapping("/{id}/avatar")

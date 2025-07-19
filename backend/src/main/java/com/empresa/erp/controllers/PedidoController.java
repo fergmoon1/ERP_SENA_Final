@@ -10,6 +10,10 @@ import org.springframework.security.access.AccessDeniedException;
 import com.empresa.erp.models.Usuario;
 import com.empresa.erp.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +26,8 @@ public class PedidoController {
     private final PedidoService pedidoService;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private AuditLogService auditLogService;
 
     public PedidoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
@@ -42,54 +48,46 @@ public class PedidoController {
     }
 
     @PostMapping
-    public Pedido create(@RequestBody CrearPedidoDTO crearPedidoDTO) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String correoUsuario = auth.getName();
+    public Pedido create(@RequestBody CrearPedidoDTO crearPedidoDTO, HttpServletRequest request) {
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String correoUsuario = auth != null ? auth.getName() : "sistema";
         Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
-            .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
-        
-        return pedidoService.saveFromDTO(crearPedidoDTO, usuario);
+            .orElse(null);
+        Pedido pedido = pedidoService.saveFromDTO(crearPedidoDTO, usuario);
+        auditLogService.save(new AuditLog(
+            correoUsuario,
+            "CREAR", "Pedidos",
+            "Pedido creado (ID: " + pedido.getId() + ") desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return pedido;
     }
 
     @PutMapping("/{id}")
-    public Pedido update(@PathVariable Long id, @RequestBody Pedido pedido) {
+    public Pedido update(@PathVariable Long id, @RequestBody Pedido pedido, HttpServletRequest request) {
         pedido.setId(id);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String correoUsuario = auth.getName();
-        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
-            .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
-        Pedido pedidoOriginal = pedidoService.findById(id)
-            .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-        // Permitir a ADMIN o SUPERVISOR modificar cualquier pedido
-        if (!"ADMIN".equalsIgnoreCase(usuario.getRol()) && !"SUPERVISOR".equalsIgnoreCase(usuario.getRol())) {
-            if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
-                throw new AccessDeniedException("No tienes permiso para modificar este pedido");
-            }
-        }
-        if (pedido.getMotivoEstado() != null) {
-            pedidoOriginal.setMotivoEstado(pedido.getMotivoEstado());
-        }
-        pedidoOriginal.setEstado(pedido.getEstado());
-        pedidoOriginal.setFecha(pedido.getFecha());
-        pedidoOriginal.setDetalles(pedido.getDetalles());
-        pedidoOriginal.setTotal(pedido.getTotal());
-        return pedidoService.save(pedidoOriginal);
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String correoUsuario = auth != null ? auth.getName() : "sistema";
+        Pedido pedidoActualizado = pedidoService.save(pedido);
+        auditLogService.save(new AuditLog(
+            correoUsuario,
+            "EDITAR", "Pedidos",
+            "Pedido editado (ID: " + pedidoActualizado.getId() + ") desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return pedidoActualizado;
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String correoUsuario = auth.getName();
-        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
-            .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
-        Pedido pedidoOriginal = pedidoService.findById(id)
-            .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
-        // Permitir a ADMIN o SUPERVISOR eliminar cualquier pedido
-        if (!"ADMIN".equalsIgnoreCase(usuario.getRol()) && !"SUPERVISOR".equalsIgnoreCase(usuario.getRol())) {
-            if (pedidoOriginal.getUsuario() == null || !pedidoOriginal.getUsuario().getCorreo().equals(correoUsuario)) {
-                throw new AccessDeniedException("No tienes permiso para eliminar este pedido");
-            }
-        }
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String correoUsuario = auth != null ? auth.getName() : "sistema";
         pedidoService.deleteById(id);
+        auditLogService.save(new AuditLog(
+            correoUsuario,
+            "ELIMINAR", "Pedidos",
+            "Pedido eliminado (ID: " + id + ") desde IP: " + request.getRemoteAddr(),
+            "warning"
+        ));
     }
 }

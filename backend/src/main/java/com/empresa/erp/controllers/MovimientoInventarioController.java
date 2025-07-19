@@ -2,6 +2,10 @@ package com.empresa.erp.controllers;
 
 import com.empresa.erp.models.MovimientoInventario;
 import com.empresa.erp.services.MovimientoInventarioService;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +19,8 @@ import java.util.Optional;
 public class MovimientoInventarioController {
     
     private final MovimientoInventarioService movimientoInventarioService;
+    @Autowired
+    private AuditLogService auditLogService;
     
     public MovimientoInventarioController(MovimientoInventarioService movimientoInventarioService) {
         this.movimientoInventarioService = movimientoInventarioService;
@@ -85,35 +91,40 @@ public class MovimientoInventarioController {
     
     // POST - Crear un nuevo movimiento
     @PostMapping
-    public ResponseEntity<MovimientoInventario> createMovimiento(@RequestBody MovimientoInventario movimiento) {
-        try {
-            MovimientoInventario nuevoMovimiento = movimientoInventarioService.save(movimiento);
-            return ResponseEntity.ok(nuevoMovimiento);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public MovimientoInventario create(@RequestBody MovimientoInventario movimiento, HttpServletRequest request) {
+        MovimientoInventario nuevo = movimientoInventarioService.save(movimiento);
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "CREAR", "Inventario",
+            "Movimiento creado (ID: " + nuevo.getId() + ") desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return nuevo;
     }
     
     // PUT - Actualizar un movimiento existente
     @PutMapping("/{id}")
-    public ResponseEntity<MovimientoInventario> updateMovimiento(@PathVariable Long id, @RequestBody MovimientoInventario movimiento) {
-        try {
-            movimiento.setId(id);
-            MovimientoInventario movimientoActualizado = movimientoInventarioService.save(movimiento);
-            return ResponseEntity.ok(movimientoActualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public MovimientoInventario update(@PathVariable Long id, @RequestBody MovimientoInventario movimiento, HttpServletRequest request) {
+        movimiento.setId(id);
+        MovimientoInventario actualizado = movimientoInventarioService.save(movimiento);
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "EDITAR", "Inventario",
+            "Movimiento editado (ID: " + actualizado.getId() + ") desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return actualizado;
     }
     
     // DELETE - Eliminar un movimiento
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovimiento(@PathVariable Long id) {
-        try {
-            movimientoInventarioService.deleteById(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        movimientoInventarioService.deleteById(id);
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "ELIMINAR", "Inventario",
+            "Movimiento eliminado (ID: " + id + ") desde IP: " + request.getRemoteAddr(),
+            "warning"
+        ));
     }
 } 

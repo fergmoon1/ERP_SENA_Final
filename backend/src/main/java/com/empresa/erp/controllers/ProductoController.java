@@ -2,6 +2,10 @@ package com.empresa.erp.controllers;
 
 import com.empresa.erp.models.Producto;
 import com.empresa.erp.services.ProductoService;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +25,8 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class ProductoController {
     private final ProductoService productoService;
+    @Autowired
+    private AuditLogService auditLogService;
 
     public ProductoController(ProductoService productoService) {
         this.productoService = productoService;
@@ -37,19 +43,41 @@ public class ProductoController {
     }
 
     @PostMapping
-    public Producto create(@RequestBody Producto producto) {
-        return productoService.save(producto);
+    public Producto create(@RequestBody Producto producto, HttpServletRequest request) {
+        Producto nuevo = productoService.save(producto);
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "CREAR", "Productos",
+            "Producto creado: " + nuevo.getNombre() + " desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return nuevo;
     }
 
     @PutMapping("/{id}")
-    public Producto update(@PathVariable Long id, @RequestBody Producto producto) {
+    public Producto update(@PathVariable Long id, @RequestBody Producto producto, HttpServletRequest request) {
         producto.setId(id);
-        return productoService.save(producto);
+        Producto actualizado = productoService.save(producto);
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "EDITAR", "Productos",
+            "Producto editado: " + actualizado.getNombre() + " desde IP: " + request.getRemoteAddr(),
+            "info"
+        ));
+        return actualizado;
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+        Optional<Producto> productoOpt = productoService.findById(id);
         productoService.deleteById(id);
+        String nombre = productoOpt.map(p -> p.getNombre() != null ? p.getNombre() : "producto").orElse("producto");
+        auditLogService.save(new AuditLog(
+            "sistema",
+            "ELIMINAR", "Productos",
+            "Producto eliminado: " + nombre + " desde IP: " + request.getRemoteAddr(),
+            "warning"
+        ));
     }
 
     @PostMapping("/{id}/upload-image")
