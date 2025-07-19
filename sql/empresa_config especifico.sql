@@ -1,4 +1,4 @@
-DELETE FROM empresa_config WHERE id = 4;
+DELETE FROM empresa_config WHERE id = 3;
 
 -- ==0=====Borrado y reinicio==========
 

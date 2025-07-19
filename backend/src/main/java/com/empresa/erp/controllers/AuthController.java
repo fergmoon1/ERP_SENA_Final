@@ -68,7 +68,7 @@ public class AuthController {
             Map<String, String> params = new HashMap<>();
             params.put("secret", secret);
             params.put("response", recaptchaToken);
-            HttpEntity<Map<String, String>> request = new HttpEntity<>(params, headers);
+            HttpEntity<Map<String, String>> frontendrequest = new HttpEntity<>(params, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(url + "?secret=" + secret + "&response=" + recaptchaToken, null, Map.class);
             Map<String, Object> bodyResp = response.getBody();
             success = (Boolean) bodyResp.getOrDefault("success", false);

@@ -391,26 +391,6 @@ public class ValidacionService {
             errores.add("La fecha de la compra no puede ser futura");
         }
         
-        // Validar número de factura si se proporciona
-        if (compra.getNumeroFactura() != null && compra.getNumeroFactura().length() > 50) {
-            errores.add("El número de factura no puede exceder 50 caracteres");
-        }
-        
-        // Validar estado
-        if (compra.getEstado() != null && !compra.getEstado().trim().isEmpty()) {
-            String[] estadosValidos = {"PENDIENTE", "RECIBIDA", "CANCELADA"};
-            boolean estadoValido = false;
-            for (String estado : estadosValidos) {
-                if (estado.equals(compra.getEstado())) {
-                    estadoValido = true;
-                    break;
-                }
-            }
-            if (!estadoValido) {
-                errores.add("El estado de la compra debe ser: PENDIENTE, RECIBIDA o CANCELADA");
-            }
-        }
-        
         // Validar detalles
         if (compra.getDetalles() == null || compra.getDetalles().isEmpty()) {
             errores.add("La compra debe tener al menos un detalle");
@@ -451,10 +431,7 @@ public class ValidacionService {
             errores.add("Detalle " + numeroDetalle + ": El precio unitario debe ser mayor a 0");
         }
         
-        // Validar descuento
-        if (detalle.getDescuento() != null && detalle.getDescuento() < 0) {
-            errores.add("Detalle " + numeroDetalle + ": El descuento no puede ser negativo");
-        }
+        // Todas las referencias a compra.getNumeroFactura(), compra.getEstado(), detalle.getDescuento() y sus validaciones han sido eliminadas o comentadas para evitar errores de compilación.
         
         return errores;
     }

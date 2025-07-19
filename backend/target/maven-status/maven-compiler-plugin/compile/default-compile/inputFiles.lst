@@ -35,6 +35,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\RefreshToke
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Pedido.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\ClienteRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\MovimientoInventarioService.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\AuditLog.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\IndicadoresController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\RefreshToken.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\UsuarioController.java
@@ -55,6 +56,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Cliente.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\NotificacionService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\CorsFilter.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ProveedorController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\AuditLogService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\VisualConfigService.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Compra.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\EmpresaConfig.java
@@ -63,6 +65,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\UsuarioService.
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\CompraController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ClienteController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\RolPermisoController.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\AuditLogRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\VisualConfigRepository.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuthController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\ReporteController.java
@@ -71,6 +74,7 @@ C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\VisualConfig
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\config\SecurityConfig.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteProductosMasVendidosDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\repositories\EmpresaConfigRepository.java
+C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\controllers\AuditLogController.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\ReporteVentasPorClienteDTO.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\models\Notificacion.java
 C:\ERP_SENA_Final\backend\src\main\java\com\empresa\erp\services\CompraService.java
