@@ -2,6 +2,51 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/ConfiguracionPage.css';
 
+// Modal de notificación global reutilizable para empresa
+const EmpresaModal = ({ show, type, message, onClose }) => {
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(0,0,0,0.35)',
+      zIndex: 3000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      animation: 'modalBackdropFadeIn 0.2s ease-out'
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: 18,
+        boxShadow: '0 8px 32px rgba(37,99,235,0.13)',
+        padding: '38px 36px 30px 36px',
+        minWidth: 340,
+        maxWidth: 420,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 18,
+        position: 'relative',
+        animation: 'modalFadeIn 0.3s cubic-bezier(.4,2,.6,1)'
+      }}>
+        <div style={{fontSize: 44, color: type === 'success' ? '#059669' : '#d32f2f', marginBottom: 8}}>
+          <i className={`fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`}></i>
+        </div>
+        <div style={{fontWeight: 700, fontSize: 20, color: '#222', textAlign: 'center', marginBottom: 6}}>
+          {type === 'success' ? '¡Éxito!' : 'Error'}
+        </div>
+        <div style={{fontSize: 16, color: '#374151', textAlign: 'center', marginBottom: 8}}>
+          {message}
+        </div>
+        <button onClick={onClose} style={{marginTop: 8, background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'10px 28px',fontWeight:600,fontSize:16,cursor:'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)'}}>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
+};
+
 function ConfiguracionPage() {
   // Estado para los parámetros del sistema
   const [params, setParams] = useState({
@@ -147,6 +192,9 @@ function ConfiguracionPage() {
 
   // Modal de notificación global
   const [showVisualModal, setShowVisualModal] = useState(false);
+
+  // Estado para mostrar el modal de empresa
+  const [showEmpresaModal, setShowEmpresaModal] = useState(false);
 
   const handleChange = e => {
     setParams({ ...params, [e.target.name]: e.target.value });
@@ -680,6 +728,7 @@ function ConfiguracionPage() {
         if (res.ok) {
           const data = await res.json();
           logoUrl = data.filename;
+          setVisualConfig(prev => ({ ...prev, logoUrl: data.filename })); // <-- AJUSTE CLAVE
         } else {
           setVisualMsg('Error al subir el logo.');
           setVisualMsgType('error');
@@ -819,7 +868,6 @@ function ConfiguracionPage() {
     setVisualMsgType("");
     try {
       const token = localStorage.getItem('jwt');
-      // Incluir logoUrl
       const empresaData = {
         nombreEmpresa: visualConfig.nombreEmpresa,
         direccionEmpresa: visualConfig.direccionEmpresa,
@@ -841,6 +889,20 @@ function ConfiguracionPage() {
       if (res.ok) {
         setVisualMsg('Configuración de empresa guardada correctamente.');
         setVisualMsgType('success');
+        // Limpiar formulario de empresa
+        setVisualConfig(prev => ({
+          ...prev,
+          nombreEmpresa: '',
+          direccionEmpresa: '',
+          telefonoEmpresa: '',
+          emailEmpresa: '',
+          sitioWeb: '',
+          horarioLaboral: '',
+          zonaHoraria: '',
+          logoUrl: ''
+        }));
+        setLogoPreview(null);
+        setLogoFile(null);
       } else {
         setVisualMsg('Error al guardar la configuración de empresa.');
         setVisualMsgType('error');
@@ -886,6 +948,16 @@ function ConfiguracionPage() {
     };
     fetchEmpresaConfig();
   }, []);
+
+  // Mostrar modal al guardar empresa
+  useEffect(() => {
+    if (visualMsg) setShowEmpresaModal(true);
+  }, [visualMsg]);
+
+  // 1. Mostrar el modal SIEMPRE que visualMsg tenga valor
+  useEffect(() => {
+    setShowEmpresaModal(!!visualMsg);
+  }, [visualMsg]);
 
   return (
     <div className="configuracion-container">
@@ -1043,8 +1115,8 @@ function ConfiguracionPage() {
                     <label>Zona Horaria</label>
                     <select name="zonaHoraria" value={params.zonaHoraria} onChange={handleChange}>
                       <option value="America/Bogota">Colombia (Bogotá)</option>
-                      <option value="America/Mexico_City">México</option>
-                      <option value="America/New_York">Estados Unidos (Este)</option>
+                      <option value="America/Mexico_City">México (Ciudad de México)</option>
+                      <option value="America/New_York">Estados Unidos (Nueva York)</option>
                       <option value="America/Los_Angeles">Estados Unidos (Oeste)</option>
                       <option value="Europe/Madrid">España</option>
                       <option value="UTC">UTC</option>
@@ -1650,6 +1722,19 @@ function ConfiguracionPage() {
                     const reader = new FileReader();
                     reader.onload = ev => setLogoPreview(ev.target.result);
                     reader.readAsDataURL(file);
+                    // Subir el archivo inmediatamente y actualizar visualConfig.logoUrl
+                    const formData = new window.FormData();
+                    formData.append('file', file);
+                    fetch('http://localhost:8081/api/files/upload', {
+                      method: 'POST',
+                      body: formData
+                    })
+                      .then(res => res.ok ? res.json() : null)
+                      .then(data => {
+                        if (data && data.filename) {
+                          setVisualConfig(prev => ({ ...prev, logoUrl: data.filename }));
+                        }
+                      });
                   }
                 }}
                 style={{
@@ -1690,6 +1775,19 @@ function ConfiguracionPage() {
                       const reader = new FileReader();
                       reader.onload = ev => setLogoPreview(ev.target.result);
                       reader.readAsDataURL(file);
+                      // Subir el archivo inmediatamente y actualizar visualConfig.logoUrl
+                      const formData = new window.FormData();
+                      formData.append('file', file);
+                      fetch('http://localhost:8081/api/files/upload', {
+                        method: 'POST',
+                        body: formData
+                      })
+                        .then(res => res.ok ? res.json() : null)
+                        .then(data => {
+                          if (data && data.filename) {
+                            setVisualConfig(prev => ({ ...prev, logoUrl: data.filename }));
+                          }
+                        });
                     }
                   }}
               />
@@ -2332,6 +2430,14 @@ function ConfiguracionPage() {
           </div>
         </div>
       )}
+
+      {/* Modal de notificación para empresa */}
+      <EmpresaModal
+        show={!!visualMsg}
+        type={visualMsgType}
+        message={visualMsg}
+        onClose={() => { setShowEmpresaModal(false); setVisualMsg(''); setVisualMsgType(''); }}
+      />
 
     </div>
   );

@@ -1,0 +1,1 @@
+DELETE FROM empresa_config WHERE id = 1;
