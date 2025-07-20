@@ -108,7 +108,7 @@ function AuditoriaPage() {
   };
 
   return (
-    <div className="auditoria-container" style={{padding:'32px 0 32px 0',maxWidth:1200,margin:'0 auto'}}>
+    <>
       <div className="auditoria-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
         <h1 style={{fontSize:28,fontWeight:800,color:'#2563eb'}}>Auditoría del Sistema</h1>
         <button onClick={exportLogs} style={{background:'linear-gradient(90deg,#2563eb 0%,#059669 100%)',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:700,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:8}}>
@@ -149,11 +149,11 @@ function AuditoriaPage() {
         <button type="submit" style={{background:'#2563eb',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:700,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(37,99,235,0.10)',display:'flex',alignItems:'center',gap:8}}>
           <i className="fas fa-search"></i> Buscar
         </button>
-        <button type="button" onClick={clearFilters} style={{background:'#e5e7eb',color:'#222',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:700,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(100,116,139,0.10)',display:'flex',alignItems:'center',gap:8}}>
+        <button type="button" onClick={clearFilters} style={{background:'#fbbf24',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:700,fontSize:15,cursor:'pointer',boxShadow:'0 2px 8px rgba(251,191,36,0.10)',display:'flex',alignItems:'center',gap:8}}>
           <i className="fas fa-eraser"></i> Limpiar
         </button>
       </form>
-      <div className="logs-section" style={{background:'#fff',borderRadius:14,boxShadow:'0 2px 8px rgba(37,99,235,0.06)',padding:'18px 0 0 0',marginBottom:32,overflowX:'auto'}}>
+      <div className="logs-section" style={{background:'#fff',borderRadius:14,boxShadow:'0 2px 8px rgba(37,99,235,0.06)',padding:'18px 24px 0 24px',marginBottom:32,overflowX:'auto',width:'100%'}}>
         <h2 style={{margin:'0 0 18px 24px',fontSize:20,fontWeight:700,color:'#2563eb'}}>Registros de Auditoría</h2>
         {loading ? (
           <div style={{textAlign:'center',padding:'48px 0',color:'#64748b',fontSize:18}}>
@@ -166,26 +166,30 @@ function AuditoriaPage() {
             <div>No hay registros para mostrar.</div>
           </div>
         ) : (
-          <table className="logs-table" style={{width:'100%',borderCollapse:'separate',borderSpacing:0,minWidth:900}}>
-            <thead style={{position:'sticky',top:0,zIndex:2,background:'#f1f5f9'}}>
+          <table className="logs-table" style={{width:'100%',minWidth:1100,borderCollapse:'collapse',margin:0,padding:0}}>
+            <thead style={{position:'sticky',top:0,zIndex:2,background:'#374151',color:'#fff'}}>
               <tr>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Fecha</th>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Usuario</th>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Acción</th>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Módulo</th>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Detalle</th>
-                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#374151',borderBottom:'2px solid #e5e7eb'}}>Severidad</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>ID</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Fecha y Hora</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Usuario</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Acción</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Módulo</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Detalle / Descripción</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>IP</th>
+                <th style={{padding:'12px 8px',fontWeight:700,fontSize:15,color:'#fff',borderBottom:'2px solid #e5e7eb',textAlign:'left'}}>Severidad</th>
               </tr>
             </thead>
             <tbody>
               {logs.map((log, idx) => (
                 <tr key={log.id || idx} style={{background:idx%2===0?'#f8fafc':'#fff',transition:'background 0.2s'}}>
-                  <td style={{padding:'10px 8px',fontSize:15,color:'#222'}}>{log.fecha ? new Date(log.fecha).toLocaleString('es-CO') : '-'}</td>
-                  <td style={{padding:'10px 8px',fontSize:15,color:'#2563eb',fontWeight:600}}>{log.usuario}</td>
-                  <td style={{padding:'10px 8px',fontSize:15}}><i className={getActionIcon(log.accion)} style={{marginRight:7}}></i>{log.accion}</td>
-                  <td style={{padding:'10px 8px',fontSize:15}}>{log.modulo}</td>
-                  <td style={{padding:'10px 8px',fontSize:15,maxWidth:320,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={log.detalle}>{log.detalle}</td>
-                  <td style={{padding:'10px 8px',fontSize:15}}>
+                  <td style={{padding:'10px 8px',fontSize:15,color:'#222',textAlign:'left'}}>{log.id}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,color:'#222',textAlign:'left'}}>{log.fecha ? new Date(log.fecha).toLocaleString('es-CO') : '-'}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,color:'#2563eb',fontWeight:600,textAlign:'left'}}>{log.usuario}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,textAlign:'left'}}><i className={getActionIcon(log.accion)} style={{marginRight:7}}></i>{log.accion}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,textAlign:'left'}}>{log.modulo}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,maxWidth:320,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',textAlign:'left'}} title={log.detalle}>{log.detalle}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,textAlign:'left'}}>{log.ip || (log.detalle && log.detalle.match(/IP: ([\d\.]+)/) ? log.detalle.match(/IP: ([\d\.]+)/)[1] : '-')}</td>
+                  <td style={{padding:'10px 8px',fontSize:15,textAlign:'left'}}>
                     <span className={`severity-badge ${getSeverityClass(log.severidad)}`} style={{padding:'4px 12px',borderRadius:8,fontWeight:700,fontSize:14,background:getSeverityClass(log.severidad)==='critical'?'#fee2e2':getSeverityClass(log.severidad)==='high'?'#fef3c7':getSeverityClass(log.severidad)==='medium'?'#e0e7ff':'#e0f2fe',color:getSeverityClass(log.severidad)==='critical'?'#e11d48':getSeverityClass(log.severidad)==='high'?'#f59e42':getSeverityClass(log.severidad)==='medium'?'#2563eb':'#0891b2'}}>
                       {log.severidad}
                     </span>
@@ -196,7 +200,7 @@ function AuditoriaPage() {
           </table>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
