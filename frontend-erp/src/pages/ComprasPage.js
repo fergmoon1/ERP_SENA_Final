@@ -17,6 +17,8 @@ function ComprasPage() {
     detalles: []
   });
   const [detalleForm, setDetalleForm] = useState({ productoId: '', cantidad: '', precioUnitario: '' });
+  const [error, setError] = useState(null);
+  const [totalCompras, setTotalCompras] = useState(0);
 
   const token = localStorage.getItem('jwt');
   const config = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
@@ -29,16 +31,64 @@ function ComprasPage() {
 
   const fetchCompras = async () => {
     setLoading(true);
+    setError(null);
+    
     try {
-      let url = '/api/compras';
-      if (filtros.proveedorId) url = `/api/compras/proveedor/${filtros.proveedorId}`;
-      const res = await fetch(url, config);
-      const data = await res.json();
-      setCompras(data);
-    } catch {
+      console.log('Iniciando fetch de compras...');
+      
+      const response = await fetch('http://localhost:8081/api/compras/demo', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Respuesta recibida:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      console.log('Content-Type:', contentType);
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Respuesta no es JSON. Content-Type: ${contentType}`);
+      }
+
+      const text = await response.text();
+      console.log('Respuesta en texto:', text.substring(0, 500) + '...');
+      
+      if (!text || text.trim() === '') {
+        throw new Error('Respuesta vacía del servidor');
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Error al parsear JSON:', parseError);
+        console.error('Texto recibido:', text);
+        throw new Error(`Error al parsear JSON: ${parseError.message}. Respuesta: ${text.substring(0, 200)}`);
+      }
+
+      console.log('Datos parseados:', data);
+      
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Error del servidor');
+      }
+
+      setCompras(data.compras || []);
+      setTotalCompras(data.total || 0);
+      
+    } catch (error) {
+      console.error('Error completo:', error);
+      setError(`Error al cargar compras: ${error.message}`);
       setCompras([]);
+      setTotalCompras(0);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const fetchProveedores = async () => {
@@ -191,6 +241,8 @@ function ComprasPage() {
     document.body.removeChild(a);
   };
 
+  console.log('Renderizando ComprasPage, compras:', compras.length, 'loading:', loading);
+
   return (
     <div className="compras-container" style={{padding:'32px 0',maxWidth:1200,margin:'0 auto'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
@@ -202,6 +254,7 @@ function ComprasPage() {
           <i className="fas fa-download"></i> Exportar CSV
         </button>
       </div>
+      
       <form onSubmit={handleBuscar} style={{display:'flex',gap:18,flexWrap:'wrap',marginBottom:24,alignItems:'end'}}>
         <div style={{display:'flex',flexDirection:'column',gap:4}}>
           <label>Proveedor</label>
@@ -221,12 +274,19 @@ function ComprasPage() {
           <i className="fas fa-eraser"></i> Limpiar
         </button>
       </form>
+      
       <div className="compras-table-section" style={{background:'#fff',borderRadius:14,boxShadow:'0 2px 8px rgba(37,99,235,0.06)',padding:'18px 0',marginBottom:32,overflowX:'auto'}}>
         <h2 style={{margin:'0 0 18px 24px',fontSize:20,fontWeight:700,color:'#2563eb'}}>Listado de Compras</h2>
+        
         {loading ? (
           <div style={{textAlign:'center',padding:'48px 0',color:'#64748b',fontSize:18}}>
             <i className="fas fa-spinner fa-spin" style={{fontSize:28,marginBottom:12}}></i>
             <div>Cargando compras...</div>
+          </div>
+        ) : error ? (
+          <div style={{textAlign:'center',padding:'48px 0',color:'#dc2626',fontSize:18}}>
+            <i className="fas fa-exclamation-triangle" style={{fontSize:28,marginBottom:12}}></i>
+            <div>{error}</div>
           </div>
         ) : compras.length === 0 ? (
           <div style={{textAlign:'center',padding:'48px 0',color:'#64748b',fontSize:18}}>
@@ -234,248 +294,142 @@ function ComprasPage() {
             <div>No hay compras para mostrar.</div>
           </div>
         ) : (
-          <table className="compras-table" style={{width:'100%',borderCollapse:'separate',borderSpacing:0,minWidth:1200}}>
+          <table className="compras-table" style={{width:'100%',borderCollapse:'separate',borderSpacing:0,minWidth:900}}>
             <thead style={{position:'sticky',top:0,zIndex:2,background:'#f1f5f9'}}>
               <tr>
-                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>ID Compra</th>
-                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Fecha</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>ID</th>
                 <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Proveedor</th>
-                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Producto</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Imagen</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Cantidad</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Precio Unit.</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Subtotal</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Total Compra</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Fecha</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Productos</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Total</th>
                 <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Usuario</th>
-                <th style={{padding:'16px 12px',textAlign:'center',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Acciones</th>
+                <th style={{padding:'16px 12px',textAlign:'left',fontWeight:700,color:'#374151',fontSize:14,borderBottom:'1px solid #e2e8f0'}}>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {compras.map((c, idx) => {
-                // Si la compra tiene detalles, mostrar cada detalle como una fila separada
-                if (c.detalles && c.detalles.length > 0) {
-                  return c.detalles.map((d, detalleIdx) => {
-                    const prod = productos.find(p => p.id == d.productoId);
-                    const isFirstRow = detalleIdx === 0;
-                    return (
-                      <tr key={`${c.id}-${detalleIdx}`} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',fontWeight:600}}>
-                          {isFirstRow ? `#${c.id}` : ''}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                          {isFirstRow ? (
-                            <div style={{display:'flex',alignItems:'center',gap:6}}>
-                              <i className="fas fa-calendar" style={{color:'#6b7280',fontSize:12}}></i>
-                              {new Date(c.fecha).toLocaleDateString('es-CO')}
-                            </div>
-                          ) : ''}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                          {isFirstRow ? (
-                            <div style={{display:'flex',alignItems:'center',gap:8}}>
-                              <div style={{width:40,height:40,borderRadius:'50%',background:'#e0e7ff',display:'flex',alignItems:'center',justifyContent:'center',color:'#3730a3',fontWeight:600,fontSize:12}}>
-                                {c.proveedor?.nombre?.charAt(0)?.toUpperCase() || 'P'}
+              {compras.map((c, idx) => (
+                <tr key={c.id || idx} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',fontWeight:600}}>#{c.id}</td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <div style={{width:40,height:40,borderRadius:'50%',background:'#e0e7ff',display:'flex',alignItems:'center',justifyContent:'center',color:'#3730a3',fontWeight:600,fontSize:12}}>
+                        {c.proveedor?.nombre?.charAt(0)?.toUpperCase() || 'P'}
+                      </div>
+                      <span>{c.proveedor?.nombre || '-'}</span>
+                    </div>
+                  </td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <i className="fas fa-calendar" style={{color:'#6b7280',fontSize:12}}></i>
+                      {new Date(c.fecha).toLocaleDateString('es-CO')}
+                    </div>
+                  </td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                      {c.detalles && c.detalles.length > 0 ? (
+                        <>
+                          {c.detalles.slice(0,2).map((d, detalleIdx) => {
+                            const prod = productos.find(p => p.id == d.productoId);
+                            return (
+                              <div key={detalleIdx} style={{display:'flex',alignItems:'center',gap:8}}>
+                                <div style={{width:32,height:32,borderRadius:6,overflow:'hidden',background:'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                                  {prod?.imagenUrl ? (
+                                    <img 
+                                      src={`http://localhost:8081/api${prod.imagenUrl}`} 
+                                      alt={prod.nombre}
+                                      style={{width:'100%',height:'100%',objectFit:'cover'}}
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div style={{display:prod?.imagenUrl ? 'none' : 'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#9ca3af',fontSize:10}}>
+                                    <i className="fas fa-box"></i>
+                                  </div>
+                                </div>
+                                <span style={{fontSize:12}}>{prod?.nombre || 'Producto'}</span>
+                                <span style={{fontSize:11,color:'#6b7280',background:'#f3f4f6',padding:'2px 6px',borderRadius:4}}>x{d.cantidad}</span>
                               </div>
-                              <span>{c.proveedor?.nombre || '-'}</span>
+                            );
+                          })}
+                          {c.detalles.length > 2 && (
+                            <div style={{fontSize:11,color:'#6b7280',fontStyle:'italic'}}>
+                              +{c.detalles.length - 2} productos más
                             </div>
-                          ) : ''}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                          <div style={{display:'flex',alignItems:'center',gap:8}}>
-                            <span style={{fontWeight:500,fontSize:13}}>{prod?.nombre || 'Producto'}</span>
-                            {prod?.stock !== undefined && (
-                              <span style={{fontSize:11,color:'#6b7280',background:'#f3f4f6',padding:'2px 6px',borderRadius:4}}>
-                                Stock: {prod.stock}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                          <div style={{width:50,height:50,borderRadius:8,overflow:'hidden',background:'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto'}}>
-                            {prod?.imagenUrl ? (
-                              <img 
-                                src={`http://localhost:8081/api${prod.imagenUrl}`} 
-                                alt={prod.nombre}
-                                style={{width:'100%',height:'100%',objectFit:'cover'}}
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'flex';
-                                }}
-                              />
-                            ) : null}
-                            <div style={{display:prod?.imagenUrl ? 'none' : 'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#9ca3af',fontSize:16}}>
-                              <i className="fas fa-box"></i>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center',fontWeight:600}}>
-                          {d.cantidad}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                          ${d.precioUnitario?.toLocaleString('es-CO') || '0'}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#059669',textAlign:'center',fontWeight:600}}>
-                          ${(d.cantidad * d.precioUnitario).toLocaleString('es-CO')}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                          {isFirstRow ? (
-                            <span style={{fontWeight:700,color:'#059669',fontSize:16}}>
-                              ${c.total?.toLocaleString('es-CO') || '0'}
-                            </span>
-                          ) : ''}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                          {isFirstRow ? (
-                            <div style={{display:'flex',alignItems:'center',gap:6}}>
-                              <i className="fas fa-user" style={{color:'#6b7280',fontSize:12}}></i>
-                              {c.usuario || '-'}
-                            </div>
-                          ) : ''}
-                        </td>
-                        <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                          {isFirstRow ? (
-                            <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'center'}}>
-                              <button 
-                                onClick={() => handleOpenModal(c)} 
-                                style={{
-                                  background:'#3b82f6',
-                                  color:'#fff',
-                                  border:'none',
-                                  borderRadius:6,
-                                  padding:'6px 12px',
-                                  fontWeight:600,
-                                  fontSize:12,
-                                  cursor:'pointer',
-                                  transition:'all 0.2s ease',
-                                  display:'flex',
-                                  alignItems:'center',
-                                  gap:4
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                                onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
-                              >
-                                <i className="fas fa-eye" style={{fontSize:10}}></i>
-                                Ver
-                              </button>
-                              <button 
-                                onClick={() => handleDelete(c.id)} 
-                                style={{
-                                  background:'#ef4444',
-                                  color:'#fff',
-                                  border:'none',
-                                  borderRadius:6,
-                                  padding:'6px 12px',
-                                  fontWeight:600,
-                                  fontSize:12,
-                                  cursor:'pointer',
-                                  transition:'all 0.2s ease',
-                                  display:'flex',
-                                  alignItems:'center',
-                                  gap:4
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = '#dc2626'}
-                                onMouseLeave={(e) => e.target.style.background = '#ef4444'}
-                              >
-                                <i className="fas fa-trash" style={{fontSize:10}}></i>
-                                Eliminar
-                              </button>
-                            </div>
-                          ) : ''}
-                        </td>
-                      </tr>
-                    );
-                  });
-                } else {
-                  // Si no hay detalles, mostrar solo la información de la compra
-                  return (
-                    <tr key={c.id || idx} style={{background:idx%2===0?'#f8fafc':'#fff'}}>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',fontWeight:600}}>#{c.id}</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                        <div style={{display:'flex',alignItems:'center',gap:6}}>
-                          <i className="fas fa-calendar" style={{color:'#6b7280',fontSize:12}}></i>
-                          {new Date(c.fecha).toLocaleDateString('es-CO')}
-                        </div>
-                      </td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                        <div style={{display:'flex',alignItems:'center',gap:8}}>
-                          <div style={{width:40,height:40,borderRadius:'50%',background:'#e0e7ff',display:'flex',alignItems:'center',justifyContent:'center',color:'#3730a3',fontWeight:600,fontSize:12}}>
-                            {c.proveedor?.nombre?.charAt(0)?.toUpperCase() || 'P'}
-                          </div>
-                          <span>{c.proveedor?.nombre || '-'}</span>
-                        </div>
-                      </td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',fontStyle:'italic'}}>Sin productos</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#6b7280',textAlign:'center'}}>-</td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                        <span style={{fontWeight:700,color:'#059669',fontSize:16}}>
-                          ${c.total?.toLocaleString('es-CO') || '0'}
-                        </span>
-                      </td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
-                        <div style={{display:'flex',alignItems:'center',gap:6}}>
-                          <i className="fas fa-user" style={{color:'#6b7280',fontSize:12}}></i>
-                          {c.usuario || '-'}
-                        </div>
-                      </td>
-                      <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563',textAlign:'center'}}>
-                        <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'center'}}>
-                          <button 
-                            onClick={() => handleOpenModal(c)} 
-                            style={{
-                              background:'#3b82f6',
-                              color:'#fff',
-                              border:'none',
-                              borderRadius:6,
-                              padding:'6px 12px',
-                              fontWeight:600,
-                              fontSize:12,
-                              cursor:'pointer',
-                              transition:'all 0.2s ease',
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                            onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
-                          >
-                            <i className="fas fa-eye" style={{fontSize:10}}></i>
-                            Ver
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(c.id)} 
-                            style={{
-                              background:'#ef4444',
-                              color:'#fff',
-                              border:'none',
-                              borderRadius:6,
-                              padding:'6px 12px',
-                              fontWeight:600,
-                              fontSize:12,
-                              cursor:'pointer',
-                              transition:'all 0.2s ease',
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = '#dc2626'}
-                            onMouseLeave={(e) => e.target.style.background = '#ef4444'}
-                          >
-                            <i className="fas fa-trash" style={{fontSize:10}}></i>
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-              })}
+                          )}
+                        </>
+                      ) : (
+                        <span style={{color:'#6b7280',fontStyle:'italic'}}>Sin productos</span>
+                      )}
+                    </div>
+                  </td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <span style={{fontWeight:700,color:'#059669',fontSize:16}}>
+                      ${c.total?.toLocaleString('es-CO') || '0'}
+                    </span>
+                  </td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <i className="fas fa-user" style={{color:'#6b7280',fontSize:12}}></i>
+                      {c.usuario || '-'}
+                    </div>
+                  </td>
+                  <td style={{padding:'16px 12px',borderBottom:'1px solid #f1f5f9',fontSize:14,color:'#4b5563'}}>
+                    <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                      <button 
+                        onClick={() => handleOpenModal(c)} 
+                        style={{
+                          background:'#3b82f6',
+                          color:'#fff',
+                          border:'none',
+                          borderRadius:6,
+                          padding:'6px 12px',
+                          fontWeight:600,
+                          fontSize:12,
+                          cursor:'pointer',
+                          transition:'all 0.2s ease',
+                          display:'flex',
+                          alignItems:'center',
+                          gap:4
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                        onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                      >
+                        <i className="fas fa-eye" style={{fontSize:10}}></i>
+                        Ver
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(c.id)} 
+                        style={{
+                          background:'#ef4444',
+                          color:'#fff',
+                          border:'none',
+                          borderRadius:6,
+                          padding:'6px 12px',
+                          fontWeight:600,
+                          fontSize:12,
+                          cursor:'pointer',
+                          transition:'all 0.2s ease',
+                          display:'flex',
+                          alignItems:'center',
+                          gap:4
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                        onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+                      >
+                        <i className="fas fa-trash" style={{fontSize:10}}></i>
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
+      
       {modalOpen && (
         <div className="modal-backdrop" style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',zIndex:3000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
           <div className="modal-content" style={{background:'#fff',borderRadius:16,boxShadow:'0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',padding:'32px',width:'90%',maxWidth:'800px',maxHeight:'90vh',overflowY:'auto',position:'relative'}}>

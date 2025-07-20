@@ -77,6 +77,11 @@ public class SecurityConfig {
                 .requestMatchers("/oauth/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/files/**").permitAll() // <-- permite imágenes públicas
+                .requestMatchers("/api/compras/test").permitAll() // <-- endpoint de prueba público
+                .requestMatchers("/api/compras/test-simple").permitAll() // <-- endpoint de prueba simple
+                .requestMatchers("/api/compras/diagnostico").permitAll() // <-- endpoint de diagnóstico público
+                .requestMatchers("/api/compras/demo").permitAll() // <-- endpoint demo completamente público
+                .requestMatchers("/api/compras/public").authenticated() // <-- endpoint público temporal
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.GET, "/api/productos/**").hasAnyRole("ADMIN", "SUPERVISOR", "USER")

@@ -5,6 +5,7 @@ import com.empresa.erp.models.DetalleCompra;
 import com.empresa.erp.repositories.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,16 +24,41 @@ public class CompraService {
 
     public Compra save(Compra compra) {
         if (compra.getDetalles() != null) {
-            double total = 0.0;
+            double subtotal = 0.0;
+            double descuentoTotal = 0.0;
+            
             for (DetalleCompra d : compra.getDetalles()) {
                 d.setCompra(compra);
                 if (d.getCantidad() != null && d.getPrecioUnitario() != null) {
-                    d.setSubtotal(d.getCantidad() * d.getPrecioUnitario());
-                    total += d.getSubtotal();
+                    double descuento = d.getDescuento() != null ? d.getDescuento() : 0.0;
+                    d.setSubtotal((d.getCantidad() * d.getPrecioUnitario()) - descuento);
+                    subtotal += (d.getCantidad() * d.getPrecioUnitario());
+                    descuentoTotal += descuento;
                 }
             }
-            compra.setTotal(total);
+            
+            compra.setSubtotal(subtotal);
+            compra.setDescuentoTotal(descuentoTotal);
+            
+            // Calcular IVA (19% en Colombia)
+            double iva = subtotal * 0.19;
+            compra.setIva(iva);
+            
+            // Calcular total
+            compra.setTotal(subtotal - descuentoTotal + iva);
         }
+        
+        // Establecer fechas si no están definidas
+        if (compra.getFechaRegistro() == null) {
+            compra.setFechaRegistro(LocalDateTime.now());
+        }
+        compra.setFechaActualizacion(LocalDateTime.now());
+        
+        // Establecer estado por defecto si no está definido
+        if (compra.getEstado() == null) {
+            compra.setEstado("PENDIENTE");
+        }
+        
         return compraRepository.save(compra);
     }
 
