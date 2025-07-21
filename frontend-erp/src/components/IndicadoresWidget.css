@@ -160,4 +160,20 @@
   .indicador-label, .indicador-value {
     font-size: 0.85em;
   }
+}
+@media (max-width: 480px) {
+  .indicadores-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+    padding: 2px;
+  }
+  .indicador-card {
+    height: 80px;
+    min-width: 0;
+    font-size: 1em;
+    padding: 10px 4px;
+  }
+  .indicador-label, .indicador-value {
+    font-size: 1em;
+  }
 } 

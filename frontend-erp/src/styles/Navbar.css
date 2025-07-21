@@ -463,3 +463,79 @@ body.dark-mode .logout-btn {
     padding-left: 300px;    /* ← 20px hacia la derecha */
     /*padding-left: -20px;    ← 20px hacia la izquierda */
 }
+
+/* Mostrar hamburguesa solo en móvil */
+.hamburger {
+  display: none;
+}
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2100;
+    background: none;
+    border: none;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3000;
+    background: #fff;
+    height: 60px;
+    padding: 0 4px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .topbar-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto;
+    gap: 4px;
+    padding: 0;
+    margin: 0;
+  }
+  .hamburger {
+    left: 4px;
+    top: 50%;
+    font-size: 20px;
+    padding: 4px;
+  }
+  .dashboard-texto h1 {
+    font-size: 1em;
+  }
+  .dashboard-texto p {
+    font-size: 0.9em;
+  }
+  .perfil-texto strong {
+    font-size: 0.9em;
+  }
+  .perfil-texto span {
+    font-size: 0.8em;
+  }
+  .busqueda input {
+    width: 100%;
+    min-width: 0;
+    font-size: 0.95em;
+    height: 32px;
+  }
+  .busqueda i {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+@media (max-width: 480px) {
+  .topbar {
+    height: 44px;
+    border-radius: 0 0 6px 6px;
+    padding: 0 2px;
+  }
+  .hamburger {
+    font-size: 18px;
+    padding: 2px;
+  }
+}

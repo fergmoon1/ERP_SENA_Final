@@ -1016,4 +1016,105 @@
 
 .mark-all-btn i {
     font-size: 12px;
+}
+
+/* Overlay para móvil */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  z-index: 1999;
+  display: block;
+}
+
+/* Sidebar visible en móvil */
+.sidebar.sidebar-mobile-visible {
+  left: 0 !important;
+  box-shadow: 2px 0 16px rgba(0,0,0,0.25);
+  transition: left 0.3s;
+}
+
+/* Sidebar delgada solo iconos en móvil */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    padding: 0 !important;
+    border-radius: 0 16px 16px 0 !important;
+    align-items: center !important;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.10) !important;
+    left: 0 !important;
+    position: fixed !important;
+    top: 0;
+    height: 100vh !important;
+    z-index: 2100;
+    background: rgb(19, 19, 19) !important;
+  }
+  .sidebar .logo,
+  .sidebar .footer-icons,
+  .sidebar .user-circles {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .sidebar .logo-icon,
+  .sidebar .user-circle,
+  .sidebar .icon-circle {
+    margin: 0 auto;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar .menu {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+  .sidebar .menu li {
+    justify-content: center;
+    padding: 10px 0;
+    margin-bottom: 0;
+    font-size: 18px;
+    width: 100%;
+    position: relative;
+  }
+  .sidebar .menu li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    color: #fff;
+    background: none;
+    padding: 0;
+  }
+  .sidebar .menu li a .fa-chevron-right,
+  .sidebar .menu li span,
+  .sidebar .menu li .menu-text {
+    display: none !important;
+  }
+  .sidebar .menu li:hover::after,
+  .sidebar .menu li:focus::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #222;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    white-space: nowrap;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    pointer-events: none;
+  }
 } 

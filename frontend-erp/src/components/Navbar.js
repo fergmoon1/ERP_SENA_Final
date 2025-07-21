@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import Avatar from './Avatar';
 
-const Navbar = ({ title, subtitle }) => {
+const Navbar = ({ title, subtitle, onHamburgerClick }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
@@ -80,7 +80,7 @@ const Navbar = ({ title, subtitle }) => {
 
   return (
     <header className="topbar">
-      <div className="hamburger" onClick={toggleMenu}>
+      <div className="hamburger" onClick={onHamburgerClick}>
         <i className="fa-solid fa-bars"></i>
       </div>
 

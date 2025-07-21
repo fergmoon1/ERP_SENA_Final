@@ -956,23 +956,38 @@
 
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 16px;
+    padding: 4px;
   }
-  
   .dashboard-content {
-    padding: 24px;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 16px;
   }
-  
+  .dashboard-section {
+    margin-bottom: 16px;
+  }
   .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
-  
   .stat-card {
-    padding: 4px 2px;
-    min-height: 45px;
+    width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 10px 6px;
+    font-size: 1em;
+    border-radius: 10px;
   }
-  
+  .section-title {
+    font-size: 1.1em;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+  .filter-section {
+    padding: 8px 2px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
   .stat-icon {
     width: 18px;
     height: 18px;
@@ -1028,12 +1043,12 @@
   }
   
   .section-title {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 18px;
+    margin-bottom: 16px;
   }
   
   .section-title i {
-    font-size: 18px;
+    font-size: 16px;
   }
   
   .financiero-title,
@@ -1041,12 +1056,12 @@
   .predictivo-title,
   .calidad-title,
   .proveedores-title {
-    font-size: 16px;
-    padding: 10px 12px;
+    font-size: 14px;
+    padding: 8px 10px;
   }
   
   .dashboard-section {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 }
 
@@ -1058,17 +1073,19 @@
   }
   
   .dashboard-header h1 {
-    font-size: 24px;
+    font-size: 1.1em;
   }
-  
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-  }
-  
   .stat-card {
-    padding: 4px 2px;
-    min-height: 50px;
+    font-size: 1.1em;
+    padding: 8px 2px;
+  }
+  .dashboard-content {
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
   
   .stat-icon {
@@ -1113,12 +1130,9 @@
   }
   
   .section-title {
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-  
-  .section-title i {
-    font-size: 16px;
+    font-size: 1em;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
   }
   
   .financiero-title,
@@ -1536,4 +1550,50 @@ body.dark-mode .error-message {
   color: #1976d2;
   font-weight: 700;
   letter-spacing: 0.2px;
+} 
+
+/* Tablas scrollables en móvil */
+@media (max-width: 768px) {
+  .table-card {
+    overflow-x: auto;
+    padding: 12px;
+  }
+  .table-card table {
+    min-width: 600px;
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+  .table-card th, .table-card td {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .dashboard-content {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-card table {
+    min-width: 400px;
+  }
+  .dashboard-header h1 {
+    font-size: 18px;
+  }
+  .dashboard-content {
+    padding: 4px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 } 
