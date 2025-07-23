@@ -201,288 +201,288 @@ const Sidebar = ({ visible, onClose }) => {
         <div className="sidebar-overlay" onClick={onClose}></div>
       )}
       <nav className={`sidebar${collapsed ? ' collapsed' : ''}${isMobile && visible ? ' sidebar-mobile-visible' : ''}`} style={isMobile ? {position: 'fixed', left: visible ? 0 : '-100%', top: 0, height: '100vh', zIndex: 2000, transition: 'left 0.3s'} : {}}>
-        <div className="logo">
-          <span className="logo-icon"><i className="fa-solid fa-columns"></i></span>
-          <span className="logo-icon"><i className="fa-solid fa-star"></i></span>
-          <span className="logo-icon"><i className="fa-solid fa-chevron-left"></i></span>
-          <span className="logo-icon"><i className="fa-solid fa-chevron-right"></i></span>
-        </div>
-        
-        <div className="user-circles">
-          <span className="user-circle user-photo" onClick={() => setShowProfile(true)} style={{cursor: 'pointer'}}>
-            <Avatar src={user.avatar} alt={user.nombre || 'Usuario'} size={40} />
-          </span>
-          <span className="user-circle" onClick={() => setShowNotifications(true)} style={{cursor: 'pointer', position: 'relative'}}>
-            <i className="fa-solid fa-bell"></i>
-            {unreadCount > 0 && (
-              <span className="notif-badge">{unreadCount}</span>
-            )}
-          </span>
-          <span className="user-circle" onClick={() => setShowFavorites(true)} style={{cursor: 'pointer'}}>
-            <i className="fa-solid fa-star"></i>
-          </span>
-          <span className="user-circle" onClick={() => setShowSearch(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-magnifying-glass"></i></span>
-          <span className="user-circle" onClick={() => setShowFilters(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-sliders"></i></span>
-        </div>
-        
-        <ul className="menu">
-          {menuItems.map((item) => (
+      <div className="logo">
+        <span className="logo-icon"><i className="fa-solid fa-columns"></i></span>
+        <span className="logo-icon"><i className="fa-solid fa-star"></i></span>
+        <span className="logo-icon"><i className="fa-solid fa-chevron-left"></i></span>
+        <span className="logo-icon"><i className="fa-solid fa-chevron-right"></i></span>
+      </div>
+      
+      <div className="user-circles">
+        <span className="user-circle user-photo" onClick={() => setShowProfile(true)} style={{cursor: 'pointer'}}>
+          <Avatar src={user.avatar} alt={user.nombre || 'Usuario'} size={40} />
+        </span>
+        <span className="user-circle" onClick={() => setShowNotifications(true)} style={{cursor: 'pointer', position: 'relative'}}>
+          <i className="fa-solid fa-bell"></i>
+          {unreadCount > 0 && (
+            <span className="notif-badge">{unreadCount}</span>
+          )}
+        </span>
+        <span className="user-circle" onClick={() => setShowFavorites(true)} style={{cursor: 'pointer'}}>
+          <i className="fa-solid fa-star"></i>
+        </span>
+        <span className="user-circle" onClick={() => setShowSearch(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-magnifying-glass"></i></span>
+        <span className="user-circle" onClick={() => setShowFilters(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-sliders"></i></span>
+      </div>
+      
+      <ul className="menu">
+        {menuItems.map((item) => (
             <li key={item.path} className={location.pathname === item.path ? 'activo' : ''} data-tooltip={item.text}>
-              <Link to={item.path}>
-                <i className={`fa-solid ${item.icon}`}></i>
+            <Link to={item.path}>
+              <i className={`fa-solid ${item.icon}`}></i>
                 {!isMobile && <i className="fa-solid fa-chevron-right"></i>}
                 {!isMobile && <span className="menu-text">{item.text}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        
-        <div className="footer-icons">
-          <span className="icon-circle" onClick={() => setCollapsed(!collapsed)} style={{cursor: 'pointer'}}><i className="fa-solid fa-arrow-left"></i></span>
-          <span className="icon-circle" onClick={() => setShowHelp(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-headphones"></i></span>
-          <span className="icon-circle" onClick={() => setShowConfig(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-gear"></i></span>
-          <span className="icon-circle" onClick={() => {
-            const workArea = document.querySelector('.work-area');
-            if (workArea) {
-              workArea.scrollTo({top: 0, behavior: 'smooth'});
-            }
-          }} style={{cursor: 'pointer'}}><i className="fa-solid fa-arrow-up"></i></span>
-          <span className="icon-circle" onClick={handleLogout} style={{cursor: 'pointer'}} title="Cerrar sesión"><i className="fa-solid fa-sign-out-alt"></i></span>
-        </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      
+      <div className="footer-icons">
+        <span className="icon-circle" onClick={() => setCollapsed(!collapsed)} style={{cursor: 'pointer'}}><i className="fa-solid fa-arrow-left"></i></span>
+        <span className="icon-circle" onClick={() => setShowHelp(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-headphones"></i></span>
+        <span className="icon-circle" onClick={() => setShowConfig(true)} style={{cursor: 'pointer'}}><i className="fa-solid fa-gear"></i></span>
+        <span className="icon-circle" onClick={() => {
+          const workArea = document.querySelector('.work-area');
+          if (workArea) {
+            workArea.scrollTo({top: 0, behavior: 'smooth'});
+          }
+        }} style={{cursor: 'pointer'}}><i className="fa-solid fa-arrow-up"></i></span>
+        <span className="icon-circle" onClick={handleLogout} style={{cursor: 'pointer'}} title="Cerrar sesión"><i className="fa-solid fa-sign-out-alt"></i></span>
+      </div>
 
-        {showNotifications && (
-          <div className="notifications-panel-overlay" onClick={() => setShowNotifications(false)}>
-            <div className="notifications-panel" onClick={e => e.stopPropagation()}>
-              <div className="notifications-header">
-                <span>Notificaciones</span>
-                <div className="notifications-actions">
-                  <button 
-                    className="refresh-btn" 
-                    onClick={loadNotifications}
-                    disabled={loadingNotifications}
-                    title="Recargar notificaciones"
-                  >
-                    <i className={`fa-solid fa-sync-alt ${loadingNotifications ? 'fa-spin' : ''}`}></i>
-                  </button>
-                  <button className="close-btn" onClick={() => setShowNotifications(false)}>&times;</button>
-                </div>
-              </div>
-              <div className="notifications-list">
-                {loadingNotifications ? (
-                  <div className="notification-loading">
-                    <i className="fa-solid fa-spinner fa-spin"></i>
-                    <span>Cargando notificaciones...</span>
-                  </div>
-                ) : notifications.length === 0 ? (
-                  <div className="notification-empty">
-                    <i className="fa-solid fa-bell-slash"></i>
-                    <span>No hay notificaciones.</span>
-                  </div>
-                ) : (
-                  notifications.map(n => (
-                    <div key={n.id} className={`notification-item ${n.leida ? 'read' : 'unread'}`}>
-                      <div className="notification-content">
-                        <strong>{n.titulo}</strong>
-                        <div className="notification-message">{n.mensaje}</div>
-                        <div className="notification-time">
-                          {n.fechaCreacion ? new Date(n.fechaCreacion).toLocaleString('es-ES') : ''}
-                        </div>
-                      </div>
-                      {!n.leida && (
-                        <div className="notification-unread-indicator"></div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-              {notifications.length > 0 && unreadCount > 0 && (
-                <button className="mark-all-btn" onClick={markAllAsRead}>
-                  <i className="fa-solid fa-check-double"></i>
-                  Marcar todas como leídas ({unreadCount})
+      {showNotifications && (
+        <div className="notifications-panel-overlay" onClick={() => setShowNotifications(false)}>
+          <div className="notifications-panel" onClick={e => e.stopPropagation()}>
+            <div className="notifications-header">
+              <span>Notificaciones</span>
+              <div className="notifications-actions">
+                <button 
+                  className="refresh-btn" 
+                  onClick={loadNotifications}
+                  disabled={loadingNotifications}
+                  title="Recargar notificaciones"
+                >
+                  <i className={`fa-solid fa-sync-alt ${loadingNotifications ? 'fa-spin' : ''}`}></i>
                 </button>
+                <button className="close-btn" onClick={() => setShowNotifications(false)}>&times;</button>
+              </div>
+            </div>
+            <div className="notifications-list">
+              {loadingNotifications ? (
+                <div className="notification-loading">
+                  <i className="fa-solid fa-spinner fa-spin"></i>
+                  <span>Cargando notificaciones...</span>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="notification-empty">
+                  <i className="fa-solid fa-bell-slash"></i>
+                  <span>No hay notificaciones.</span>
+                </div>
+              ) : (
+                notifications.map(n => (
+                  <div key={n.id} className={`notification-item ${n.leida ? 'read' : 'unread'}`}>
+                    <div className="notification-content">
+                      <strong>{n.titulo}</strong>
+                      <div className="notification-message">{n.mensaje}</div>
+                      <div className="notification-time">
+                        {n.fechaCreacion ? new Date(n.fechaCreacion).toLocaleString('es-ES') : ''}
+                      </div>
+                    </div>
+                    {!n.leida && (
+                      <div className="notification-unread-indicator"></div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+            {notifications.length > 0 && unreadCount > 0 && (
+              <button className="mark-all-btn" onClick={markAllAsRead}>
+                <i className="fa-solid fa-check-double"></i>
+                Marcar todas como leídas ({unreadCount})
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showFavorites && (
+        <div className="favorites-panel-overlay" onClick={() => setShowFavorites(false)}>
+          <div className="favorites-panel" onClick={e => e.stopPropagation()}>
+            <div className="favorites-header">
+              <span>Favoritos</span>
+              <button className="close-btn" onClick={() => setShowFavorites(false)}>&times;</button>
+            </div>
+            <div className="favorites-list">
+              {favorites.length === 0 ? (
+                <div className="favorites-empty">No hay favoritos.</div>
+              ) : (
+                favorites.map(fav => (
+                  <a key={fav.id} href={fav.path} className="favorite-item">
+                    <i className={`fa-solid ${fav.icon}`}></i>
+                    <span>{fav.name}</span>
+                  </a>
+                ))
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showFavorites && (
-          <div className="favorites-panel-overlay" onClick={() => setShowFavorites(false)}>
-            <div className="favorites-panel" onClick={e => e.stopPropagation()}>
-              <div className="favorites-header">
-                <span>Favoritos</span>
-                <button className="close-btn" onClick={() => setShowFavorites(false)}>&times;</button>
+      {showProfile && (
+        <div className="profile-panel-overlay" onClick={() => setShowProfile(false)}>
+          <div className="profile-panel" onClick={e => e.stopPropagation()}>
+            <div className="profile-header">
+              <span>Perfil de Usuario</span>
+              <button className="close-btn" onClick={() => setShowProfile(false)}>&times;</button>
+            </div>
+            <div className="profile-content">
+              <div className="profile-avatar">
+                <img src={userProfile.foto} alt="Avatar" />
               </div>
-              <div className="favorites-list">
-                {favorites.length === 0 ? (
-                  <div className="favorites-empty">No hay favoritos.</div>
+              <div className="profile-info">
+                <div className="profile-name">{userProfile.nombre}</div>
+                <div className="profile-email">{userProfile.email}</div>
+                <div className="profile-role">{userProfile.rol}</div>
+              </div>
+              <button className="profile-edit-btn">Editar perfil</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSearch && (
+        <div className="search-panel-overlay" onClick={() => setShowSearch(false)}>
+          <div className="search-panel" onClick={e => e.stopPropagation()}>
+            <div className="search-header">
+              <span>Búsqueda Global</span>
+              <button className="close-btn" onClick={() => setShowSearch(false)}>&times;</button>
+            </div>
+            <div className="search-content">
+              <input
+                className="search-input"
+                type="text"
+                placeholder="Buscar en todo el sistema..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+              <div className="search-results">
+                {searchTerm.trim() === '' ? (
+                  <div className="search-empty">Escribe para buscar...</div>
                 ) : (
-                  favorites.map(fav => (
-                    <a key={fav.id} href={fav.path} className="favorite-item">
-                      <i className={`fa-solid ${fav.icon}`}></i>
-                      <span>{fav.name}</span>
-                    </a>
-                  ))
+                  searchResults.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                    <div className="search-empty">Sin resultados.</div>
+                  ) : (
+                    searchResults.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase())).map(r => (
+                      <div key={r.id} className="search-result-item">
+                        <span className="search-type">{r.type}</span>
+                        <span className="search-name">{r.name}</span>
+                        <span className="search-extra">{r.extra}</span>
+                      </div>
+                    ))
+                  )
                 )}
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showProfile && (
-          <div className="profile-panel-overlay" onClick={() => setShowProfile(false)}>
-            <div className="profile-panel" onClick={e => e.stopPropagation()}>
-              <div className="profile-header">
-                <span>Perfil de Usuario</span>
-                <button className="close-btn" onClick={() => setShowProfile(false)}>&times;</button>
-              </div>
-              <div className="profile-content">
-                <div className="profile-avatar">
-                  <img src={userProfile.foto} alt="Avatar" />
-                </div>
-                <div className="profile-info">
-                  <div className="profile-name">{userProfile.nombre}</div>
-                  <div className="profile-email">{userProfile.email}</div>
-                  <div className="profile-role">{userProfile.rol}</div>
-                </div>
-                <button className="profile-edit-btn">Editar perfil</button>
+      {showFilters && (
+        <div className="filters-panel-overlay" onClick={() => setShowFilters(false)}>
+          <div className="filters-panel" onClick={e => e.stopPropagation()}>
+            <div className="filters-header">
+              <span>Filtros Avanzados</span>
+              <button className="close-btn" onClick={() => setShowFilters(false)}>&times;</button>
+            </div>
+            <div className="filters-content">
+              <label className="filters-label">Tipo:
+                <select value={filterType} onChange={e => setFilterType(e.target.value)}>
+                  <option value="">Todos</option>
+                  <option value="producto">Producto</option>
+                  <option value="cliente">Cliente</option>
+                  <option value="pedido">Pedido</option>
+                  <option value="proveedor">Proveedor</option>
+                </select>
+              </label>
+              <label className="filters-label">Estado:
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                  <option value="">Todos</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="completado">Completado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </label>
+              <label className="filters-label">Fecha:
+                <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
+              </label>
+              <div className="filters-actions">
+                <button className="filters-apply-btn">Aplicar</button>
+                <button className="filters-clear-btn" onClick={() => {setFilterType('');setFilterStatus('');setFilterDate('');}}>Limpiar</button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showSearch && (
-          <div className="search-panel-overlay" onClick={() => setShowSearch(false)}>
-            <div className="search-panel" onClick={e => e.stopPropagation()}>
-              <div className="search-header">
-                <span>Búsqueda Global</span>
-                <button className="close-btn" onClick={() => setShowSearch(false)}>&times;</button>
+      {showHelp && (
+        <div className="help-panel-overlay" onClick={() => setShowHelp(false)}>
+          <div className="help-panel" onClick={e => e.stopPropagation()}>
+            <div className="help-header">
+              <span>Ayuda y Soporte</span>
+              <button className="close-btn" onClick={() => setShowHelp(false)}>&times;</button>
+            </div>
+            <div className="help-content">
+              <div className="help-section">
+                <strong>Contacto:</strong>
+                <div>Email: soporte@erpempresa.com</div>
+                <div>Teléfono: +57 123 456 7890</div>
               </div>
-              <div className="search-content">
-                <input
-                  className="search-input"
-                  type="text"
-                  placeholder="Buscar en todo el sistema..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  autoFocus
-                />
-                <div className="search-results">
-                  {searchTerm.trim() === '' ? (
-                    <div className="search-empty">Escribe para buscar...</div>
-                  ) : (
-                    searchResults.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
-                      <div className="search-empty">Sin resultados.</div>
-                    ) : (
-                      searchResults.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase())).map(r => (
-                        <div key={r.id} className="search-result-item">
-                          <span className="search-type">{r.type}</span>
-                          <span className="search-name">{r.name}</span>
-                          <span className="search-extra">{r.extra}</span>
-                        </div>
-                      ))
-                    )
-                  )}
-                </div>
+              <div className="help-section">
+                <strong>Preguntas Frecuentes:</strong>
+                <ul className="help-faq">
+                  <li>¿Cómo restablezco mi contraseña?</li>
+                  <li>¿Cómo registro un nuevo producto?</li>
+                  <li>¿Dónde veo mis pedidos?</li>
+                  <li>¿Cómo contacto al soporte?</li>
+                </ul>
               </div>
+              <button className="help-send-btn">Enviar mensaje al soporte</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showFilters && (
-          <div className="filters-panel-overlay" onClick={() => setShowFilters(false)}>
-            <div className="filters-panel" onClick={e => e.stopPropagation()}>
-              <div className="filters-header">
-                <span>Filtros Avanzados</span>
-                <button className="close-btn" onClick={() => setShowFilters(false)}>&times;</button>
-              </div>
-              <div className="filters-content">
-                <label className="filters-label">Tipo:
-                  <select value={filterType} onChange={e => setFilterType(e.target.value)}>
-                    <option value="">Todos</option>
-                    <option value="producto">Producto</option>
-                    <option value="cliente">Cliente</option>
-                    <option value="pedido">Pedido</option>
-                    <option value="proveedor">Proveedor</option>
-                  </select>
-                </label>
-                <label className="filters-label">Estado:
-                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-                    <option value="">Todos</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="completado">Completado</option>
-                    <option value="cancelado">Cancelado</option>
-                  </select>
-                </label>
-                <label className="filters-label">Fecha:
-                  <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
-                </label>
-                <div className="filters-actions">
-                  <button className="filters-apply-btn">Aplicar</button>
-                  <button className="filters-clear-btn" onClick={() => {setFilterType('');setFilterStatus('');setFilterDate('');}}>Limpiar</button>
-                </div>
-              </div>
+      {showConfig && (
+        <div className="config-panel-overlay" onClick={() => setShowConfig(false)}>
+          <div className="config-panel" onClick={e => e.stopPropagation()}>
+            <div className="config-header">
+              <span>Configuración General</span>
+              <button className="close-btn" onClick={() => setShowConfig(false)}>&times;</button>
+            </div>
+            <div className="config-content">
+              <label className="config-label">Idioma:
+                <select value={configLang} onChange={e => setConfigLang(e.target.value)}>
+                  <option value="es">Español</option>
+                  <option value="en">Inglés</option>
+                </select>
+              </label>
+              <label className="config-label">Tema:
+                <select value={configTheme} onChange={e => setConfigTheme(e.target.value)}>
+                  <option value="claro">Claro</option>
+                  <option value="oscuro">Oscuro</option>
+                </select>
+              </label>
+              <label className="config-label">
+                <input type="checkbox" checked={configNotif} onChange={e => setConfigNotif(e.target.checked)} />
+                &nbsp;Recibir notificaciones
+              </label>
+              <button className="config-save-btn">Guardar cambios</button>
             </div>
           </div>
-        )}
-
-        {showHelp && (
-          <div className="help-panel-overlay" onClick={() => setShowHelp(false)}>
-            <div className="help-panel" onClick={e => e.stopPropagation()}>
-              <div className="help-header">
-                <span>Ayuda y Soporte</span>
-                <button className="close-btn" onClick={() => setShowHelp(false)}>&times;</button>
-              </div>
-              <div className="help-content">
-                <div className="help-section">
-                  <strong>Contacto:</strong>
-                  <div>Email: soporte@erpempresa.com</div>
-                  <div>Teléfono: +57 123 456 7890</div>
-                </div>
-                <div className="help-section">
-                  <strong>Preguntas Frecuentes:</strong>
-                  <ul className="help-faq">
-                    <li>¿Cómo restablezco mi contraseña?</li>
-                    <li>¿Cómo registro un nuevo producto?</li>
-                    <li>¿Dónde veo mis pedidos?</li>
-                    <li>¿Cómo contacto al soporte?</li>
-                  </ul>
-                </div>
-                <button className="help-send-btn">Enviar mensaje al soporte</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showConfig && (
-          <div className="config-panel-overlay" onClick={() => setShowConfig(false)}>
-            <div className="config-panel" onClick={e => e.stopPropagation()}>
-              <div className="config-header">
-                <span>Configuración General</span>
-                <button className="close-btn" onClick={() => setShowConfig(false)}>&times;</button>
-              </div>
-              <div className="config-content">
-                <label className="config-label">Idioma:
-                  <select value={configLang} onChange={e => setConfigLang(e.target.value)}>
-                    <option value="es">Español</option>
-                    <option value="en">Inglés</option>
-                  </select>
-                </label>
-                <label className="config-label">Tema:
-                  <select value={configTheme} onChange={e => setConfigTheme(e.target.value)}>
-                    <option value="claro">Claro</option>
-                    <option value="oscuro">Oscuro</option>
-                  </select>
-                </label>
-                <label className="config-label">
-                  <input type="checkbox" checked={configNotif} onChange={e => setConfigNotif(e.target.checked)} />
-                  &nbsp;Recibir notificaciones
-                </label>
-                <button className="config-save-btn">Guardar cambios</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
+        </div>
+      )}
+    </nav>
     </>
   );
 };
