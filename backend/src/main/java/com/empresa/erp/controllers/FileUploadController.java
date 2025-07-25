@@ -221,8 +221,8 @@ public class FileUploadController {
                     .header("Access-Control-Allow-Headers", "*")
                     .build();
             }
-        } catch (IOException e) {
-            System.out.println("Error accediendo al archivo de usuario: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error sirviendo imagen de usuario: " + e.getMessage());
             return ResponseEntity.internalServerError()
                 .header("Access-Control-Allow-Origin", "*")
                 .header("Access-Control-Allow-Methods", "GET")
@@ -354,4 +354,4 @@ public class FileUploadController {
             return ResponseEntity.internalServerError().body("Error al eliminar el archivo: " + e.getMessage());
         }
     }
-} 
+}
