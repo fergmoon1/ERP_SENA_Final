@@ -168,11 +168,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Permitir todos los orígenes para desarrollo
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001", "https://accounts.google.com"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setMaxAge(3600L); // Cache preflight por 1 hora
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -216,20 +219,25 @@ public class SecurityConfig {
                     System.out.println("JWT generated: " + (jwt != null ? "YES" : "NO"));
                     System.out.println("RefreshToken generated: " + (refreshToken != null ? "YES" : "NO"));
                     
-                    // Set cookies for JWT and RefreshToken
+                    // Set cookies for JWT and RefreshToken con configuración corregida
                     jakarta.servlet.http.Cookie jwtCookie = new jakarta.servlet.http.Cookie("jwt", jwt);
                     jwtCookie.setPath("/");
-                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setHttpOnly(false); // Permitir acceso desde JavaScript
+                    jwtCookie.setSecure(false); // Para localhost HTTP
+                    jwtCookie.setDomain("localhost"); // Configurar dominio específicamente
                     jwtCookie.setMaxAge(60 * 60 * 24); // 1 día
                     response.addCookie(jwtCookie);
 
                     jakarta.servlet.http.Cookie refreshCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
                     refreshCookie.setPath("/");
-                    refreshCookie.setHttpOnly(true);
+                    refreshCookie.setHttpOnly(false); // Permitir acceso desde JavaScript
+                    refreshCookie.setSecure(false); // Para localhost HTTP
+                    refreshCookie.setDomain("localhost"); // Configurar dominio específicamente
                     refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7 días
                     response.addCookie(refreshCookie);
 
-                    String redirectUrl = "http://localhost:3001/dashboard";
+                    // También agregar el token como parámetro en la URL de redirección
+                    String redirectUrl = "http://localhost:3001/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
                     System.out.println("Redirecting to: " + redirectUrl);
 
                     response.sendRedirect(redirectUrl);
