@@ -216,9 +216,22 @@ public class SecurityConfig {
                     System.out.println("JWT generated: " + (jwt != null ? "YES" : "NO"));
                     System.out.println("RefreshToken generated: " + (refreshToken != null ? "YES" : "NO"));
                     
-                    String redirectUrl = "http://localhost:3001/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
+                    // Set cookies for JWT and RefreshToken
+                    jakarta.servlet.http.Cookie jwtCookie = new jakarta.servlet.http.Cookie("jwt", jwt);
+                    jwtCookie.setPath("/");
+                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setMaxAge(60 * 60 * 24); // 1 día
+                    response.addCookie(jwtCookie);
+
+                    jakarta.servlet.http.Cookie refreshCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
+                    refreshCookie.setPath("/");
+                    refreshCookie.setHttpOnly(true);
+                    refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7 días
+                    response.addCookie(refreshCookie);
+
+                    String redirectUrl = "http://localhost:3001/dashboard";
                     System.out.println("Redirecting to: " + redirectUrl);
-                    
+
                     response.sendRedirect(redirectUrl);
                 } else {
                     System.out.println("Authentication is not OAuth2AuthenticationToken: " + authentication.getClass().getName());
