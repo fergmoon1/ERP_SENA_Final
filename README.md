@@ -27,6 +27,63 @@ ERP SENA es una solución empresarial moderna y robusta diseñada para optimizar
 - 🔒 Sistema de seguridad robusto
 - 🌐 Interfaz responsive y moderna
 
+## 🚀 Inicio Rápido
+
+### ⚙️ Iniciar Backend
+1. Navegar al directorio backend:
+```bash
+cd backend
+```
+
+2. Instalar dependencias con Maven:
+```bash
+mvn clean install
+```
+
+3. Configurar base de datos MySQL:
+- Crear una base de datos llamada `erp_sena`
+- Importar el archivo SQL de estructura ubicado en `/sql`
+- Configurar credenciales en `application.properties`:
+  ```properties
+  spring.datasource.url=jdbc:mysql://localhost:3306/erp_sena
+  spring.datasource.username=tu_usuario
+  spring.datasource.password=tu_password
+  ```
+
+4. Ejecutar el servidor:
+```bash
+mvn spring-boot:run
+```
+El backend estará disponible en `http://localhost:8080`
+
+### 🎨 Iniciar Frontend
+1. Navegar al directorio frontend:
+```bash
+cd frontend-erp
+```
+
+2. Instalar dependencias:
+```bash
+npm install
+```
+
+3. Iniciar la aplicación:
+```bash
+npm start
+```
+El frontend estará disponible en `http://localhost:3000`
+
+> 💡 **Nota**: Asegúrate de tener el backend ejecutándose antes de iniciar el frontend.
+
+### 🔓 Credenciales por defecto
+- **Admin**:
+  - Usuario: admin@erp.com
+  - Contraseña: admin123
+
+- **Usuario Regular**:
+  - Usuario: user@erp.com
+  - Contraseña: user123
+
 ## 🔐 Seguridad
 - 🔑 Autenticación basada en JWT
 - 👥 Roles y permisos de usuario
