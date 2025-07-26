@@ -1,93 +1,109 @@
-# ERP SENA - Sistema de Gestión Empresarial
-
-## Descripción
-Sistema ERP (Enterprise Resource Planning) desarrollado para gestionar procesos empresariales, incluyendo gestión de usuarios, inventario, pedidos, productos y más.
-
-## Estructura del Proyecto
-El proyecto está dividido en dos componentes principales:
-
-### Frontend (`frontend-erp/`)
-- Desarrollado con React.js
-- Estructura de componentes reutilizables
-- Gestión de estado con Redux/Context API
-- Estilos modularizados con CSS
-
-### Backend (`backend/`)
-- Desarrollado con Spring Boot (Java)
-- Arquitectura REST
-- Seguridad con Spring Security
-- Base de datos MySQL
-
-## Requisitos Previos
-- Node.js (v14 o superior)
-- Java JDK 11 o superior
-- MySQL 8.0 o superior
-- Maven
-
-## Instalación y Configuración
-
-### Backend
-1. Navegar al directorio backend:
-```bash
-cd backend
+## 🔐 Seguridad
+- 🔑 Autenticación basada en JWT
+- 👥 Roles y permisos de usuario
+- 🔒 Encriptación de contraseñas
+- 🎫 Validación de tokens
+- 🛡️ Protección contra CSRF
+- 🔰 Headers de seguridad HTTP
+[![Backend Spring Boot](https://img.shields.io/badge/Backend-Spring_Boot-6DB33F?style=flat-square&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+## 🗺️ Mapa de Navegación
+- 🔑 **Login** `/login`
+- 📊 **Dashboard** `/dashboard`
+- 👥 **Usuarios** `/usuarios`
+- 📦 **Productos** `/productos`
+- 📋 **Inventario** `/inventario`
+- 🛒 **Pedidos** `/pedidos`
+- 📈 **Reportes** `/reportes`
+- ⚙️ **Configuración** `/configuracion`
+- 🔧 Desarrollado con React.js
+## 📈 Metodología de Desarrollo
+- 🔄 Metodología Ágil (Scrum)
+- 📝 Control de versiones con Git
+- 🧪 Pruebas automatizadas con Postman
+- 🧩 Desarrollo basado en componentes
+- 🔄 Integración continua
+- 🔌 Arquitectura REST
+## 📚 Librerías Principales
+- 🗄️ Base de datos MySQL
+### 🎨 Frontend
+```json
+{
+  "dependencies": {
+    "react": "^18.x",
+    "react-router": "^6.x",
+    "axios": "^1.x",
+    "material-ui": "^5.x",
+    "redux": "^4.x"
+  }
+}
 ```
 
-2. Instalar dependencias con Maven:
-```bash
+### ⚙️ Backend
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+    </dependency>
+    <!-- Más dependencias... -->
+</dependencies>
+```
 mvn clean install
-```
-
+## 🔄 Control de Versiones
+El proyecto utiliza Git con las siguientes convenciones para commits:
 3. Configurar la base de datos:
-- Crear una base de datos MySQL
-- Configurar las credenciales en `application.properties`
-
-4. Ejecutar el servidor:
-```bash
-mvn spring-boot:run
+- ✨ `feat`: Nuevas características
+- 🐛 `fix`: Corrección de errores
+- 📚 `docs`: Documentación
+- 💄 `style`: Cambios de estilo
+- ♻️ `refactor`: Refactorización
+- 🧪 `test`: Pruebas
 ```
-
-### Frontend
-1. Navegar al directorio frontend:
-```bash
-cd frontend-erp
+## 🧪 Pruebas
+- ✅ Pruebas unitarias con JUnit
+- 🔄 Pruebas de integración
+- 🌐 Colecciones de Postman
+- 🔍 Pruebas end-to-end
 ```
-
-2. Instalar dependencias:
-```bash
-npm install
-```
-
-3. Iniciar la aplicación:
-```bash
+## 🧩 Componentes Reutilizables
+- 📝 Formularios genéricos
+- 📊 Tablas de datos
+- 🧭 Componentes de navegación
+- 💫 Modales
+- ⌛ Componentes de carga
+- 🔔 Notificaciones
+- ✅ Validadores
 npm start
-```
+## 📞 Soporte y Contacto
 
-## Arquitectura y Capas
+## 🏛️ Arquitectura y Capas
+## 📄 Licencia
+### 🖥️ Capa de Presentación (Frontend)
+- 🧩 **Componentes**: React.js
+---
+<div align="center">
+    <p>Desarrollado con ❤️ por el equipo ERP SENA</p>
+    <img src="https://img.shields.io/badge/Estado-En_Desarrollo-blue?style=for-the-badge&logo=dev.to&logoColor=white" alt="Estado del Proyecto"/>
+</div>
+- 🎨 **Estilos**: CSS Modules
+- 📊 **Estado**: Redux/Context API
+- 🔄 **Routing**: React Router
+- 🌐 **Comunicación**: Axios
 
-### Capa de Presentación (Frontend)
-- **Componentes**: React.js
-- **Estilos**: CSS Modules
-- **Estado**: Redux/Context API
-- **Routing**: React Router
-- **Comunicación**: Axios para peticiones HTTP
+### ⚙️ Capa de Negocio (Backend)
+- 🔧 **Framework**: Spring Boot
+- 🔒 **Seguridad**: Spring Security, JWT
+- 🔌 **API**: REST Controllers
+- 💼 **Servicios**: Business Logic
+- 📦 **DTO**: Data Transfer Objects
 
-### Capa de Negocio (Backend)
-- **Framework**: Spring Boot
-- **Seguridad**: Spring Security, JWT
-- **API**: REST Controllers
-- **Servicios**: Business Logic
-- **DTO**: Data Transfer Objects
+### 🗄️ Capa de Datos
+- 📊 **ORM**: JPA/Hibernate
+- 💾 **Base de datos**: MySQL
+- 📁 **Repositorios**: Spring Data JPA
 
-### Capa de Datos
-- **ORM**: JPA/Hibernate
-- **Base de datos**: MySQL
-- **Repositorios**: Spring Data JPA
-
-## Seguridad
-- Autenticación basada en JWT
-- Roles y permisos de usuario
-- Encriptación de contraseñas
-- Validación de tokens
 - Protección contra CSRF
 - Headers de seguridad HTTP
 
