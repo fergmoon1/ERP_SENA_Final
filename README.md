@@ -1,3 +1,32 @@
+&nbsp;
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="línea">
+  <h1>🏢 ERP SENA</h1>
+  <h2>Sistema Integral de Gestión Empresarial</h2>
+  
+  <p align="center">
+    <strong>Transformando la gestión empresarial con tecnología de vanguardia</strong>
+  </p>
+
+  [![Made with React](https://img.shields.io/badge/Made_with-React-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactjs.org/)
+  [![Backend Spring Boot](https://img.shields.io/badge/Backend-Spring_Boot-6DB33F?style=flat-square&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+  [![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+  [![Version](https://img.shields.io/badge/Versión-1.0.0-blue?style=flat-square)](https://github.com/tu-repo/erp-sena)
+  [![Estado](https://img.shields.io/badge/Estado-En_Desarrollo-green?style=flat-square)](https://github.com/tu-repo/erp-sena)
+</div>
+
+## 🌟 Visión General
+ERP SENA es una solución empresarial moderna y robusta diseñada para optimizar y automatizar los procesos de gestión empresarial. Desarrollada con tecnologías de última generación, nuestra plataforma ofrece una experiencia fluida y eficiente para la administración de recursos empresariales.
+
+### ✨ Características Destacadas
+- 📊 Dashboard intuitivo y personalizable
+- 👥 Gestión avanzada de usuarios y roles
+- 📦 Control de inventario en tiempo real
+- 🛒 Sistema integrado de pedidos
+- 📈 Reportes analíticos detallados
+- 🔒 Sistema de seguridad robusto
+- 🌐 Interfaz responsive y moderna
+
 ## 🔐 Seguridad
 - 🔑 Autenticación basada en JWT
 - 👥 Roles y permisos de usuario
