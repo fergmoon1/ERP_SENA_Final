@@ -1,0 +1,375 @@
+{
+  "info": {
+    "_postman_id": "erp-sena-proveedores-collection",
+    "name": "ERP SENA - Proveedores (Automatizada)",
+    "description": "Colección de endpoints de gestión de proveedores para ERP SENA: listar, crear, obtener, actualizar y eliminar proveedores. Incluye tests y ejemplos para los roles ADMIN, SUPERVISOR y USER.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "ADMIN - Obtener Todos los Proveedores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Proveedores obtenidos exitosamente (ADMIN)', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "SUPERVISOR - Obtener Todos los Proveedores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Proveedores obtenidos exitosamente (SUPERVISOR)', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "USER - Obtener Todos los Proveedores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('USER no puede obtener proveedores', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Crear Proveedor",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Proveedor creado exitosamente (ADMIN)', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json.nombre).to.eql('Proveedor Test');",
+              "    if (json.id) { pm.environment.set('proveedor_id', json.id); }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "SUPERVISOR - Crear Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('SUPERVISOR no puede crear proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "USER - Crear Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('USER no puede crear proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Actualizar Proveedor",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Proveedor actualizado exitosamente (ADMIN)', function() {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json.nombre).to.eql('Proveedor Test');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    },
+    {
+      "name": "SUPERVISOR - Actualizar Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('SUPERVISOR no puede actualizar proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    },
+    {
+      "name": "USER - Actualizar Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('USER no puede actualizar proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proveedor Test\",\n  \"telefono\": \"3009876543\",\n  \"direccion\": \"Calle Proveedor 456\",\n  \"contacto\": \"Juan Perez\",\n  \"telefonoContacto\": \"3001112233\",\n  \"descripcion\": \"Proveedor de servicios de prueba\",\n  \"activo\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    },
+    {
+      "name": "ADMIN - Eliminar Proveedor",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Proveedor eliminado exitosamente (ADMIN)', function() {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_admin}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    },
+    {
+      "name": "SUPERVISOR - Eliminar Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('SUPERVISOR no puede eliminar proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_supervisor}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    },
+    {
+      "name": "USER - Eliminar Proveedor (No Permitido)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('USER no puede eliminar proveedor', function() {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token_user}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/proveedores/{{proveedor_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["proveedores", "{{proveedor_id}}"]
+        }
+      }
+    }
+  ]
+} 
