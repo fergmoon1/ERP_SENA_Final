@@ -14,6 +14,7 @@
 - 📋 **Inventario** `/inventario`
 - 🛒 **Pedidos** `/pedidos`
 - 📈 **Reportes** `/reportes`
+- 
 - ⚙️ **Configuración** `/configuracion`
 - 🔧 Desarrollado con React.js
 ## 📈 Metodología de Desarrollo
