@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taller de Pruebas de Software - ERP_SENA_Final</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #0062ff;
+      --secondary: #004dff;
+      --accent: #6a00ff;
+      --dark: #171717;
+      --light: #f9f9f9;
+      --gray: #e0e0e0;
+      --white: #ffffff;
+      --shadow: 0 4px 15px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      line-height: 1.7;
+      background-color: var(--light);
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    section {
+      padding: 3rem 2rem;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    section:last-child {
+      border-bottom: none;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      margin: 1rem 0;
+      color: var(--dark);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: #444;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .card {
+      background: var(--light);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #f0f5ff;
+    }
+
+    .icon {
+      color: var(--primary);
+      margin-right: 0.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(45deg, #0062ff, #6a00ff);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧪 Taller de Pruebas de Software</h1>
+      <p>Proyecto: ERP_SENA_Final – Sistema de Gestión Empresarial</p>
+      <div class="badges">
+        <span class="badge"><i class="fas fa-laptop-code"></i> JMeter</span>
+        <span class="badge"><i class="fas fa-server"></i> Spring Boot</span>
+        <span class="badge"><i class="fas fa-database"></i> MySQL</span>
+        <span class="badge"><i class="fas fa-shield-alt"></i> JWT</span>
+      </div>
+    </header>
+
+    <section>
+      <h2><i class="fas fa-list"></i> 1. Tipos de Pruebas de Software</h2>
+      <table>
+        <tr>
+          <th>Tipo de Prueba</th>
+          <th>Características</th>
+          <th>Beneficios</th>
+        </tr>
+        <tr>
+          <td><strong>Pruebas de Carga</strong></td>
+          <td>Simula múltiples usuarios concurrentes</td>
+          <td>Mide rendimiento bajo carga realista</td>
+        </tr>
+        <tr>
+          <td><strong>Pruebas de Estrés</strong></td>
+          <td>Sobrepasa el límite de usuarios</td>
+          <td>Identifica el punto de ruptura del sistema</td>
+        </tr>
+        <tr>
+          <td><strong>Pruebas de Rendimiento</strong></td>
+          <td>Evalúa tiempos de respuesta y estabilidad</td>
+          <td>Asegura que el sistema sea rápido y confiable</td>
+        </tr>
+        <tr>
+          <td><strong>Pruebas de Seguridad</strong></td>
+          <td>Busca vulnerabilidades (JWT, CSRF, etc.)</td>
+          <td>Protege datos sensibles y autenticación</td>
+        </tr>
+        <tr>
+          <td><strong>Pruebas de Regresión</strong></td>
+          <td>Verifica que nuevas funciones no rompan lo existente</td>
+          <td>Mantiene la estabilidad del sistema</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-check-circle"></i> 2. Pruebas Aplicadas al Proyecto</h2>
+      <p>Para el proyecto <strong>ERP_SENA_Final</strong>, las pruebas más adecuadas son:</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-chart-line"></i> Pruebas de Carga</h3>
+          <p>El sistema puede tener muchos usuarios simultáneos (administradores, contadores, vendedores).</p>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-lock"></i> Pruebas de Seguridad</h3>
+          <p>El sistema maneja datos sensibles y tiene autenticación JWT con rate limiting.</p>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-sync"></i> Pruebas de Rendimiento</h3>
+          <p>Es clave que el login, ventas y reportes respondan rápido.</p>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-bug"></i> Pruebas de Regresión</h3>
+          <p>Para asegurar que nuevas funciones no afecten módulos existentes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-toolbox"></i> 3. Herramienta de Pruebas: Apache JMeter</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-info-circle"></i> ¿Por qué JMeter?</h3>
+          <p>Es una herramienta gratuita, potente y especializada en pruebas de carga y rendimiento.</p>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-download"></i> Instalación</h3>
+          <p>Descargado desde <a href="https://jmeter.apache.org" target="_blank">jmeter.apache.org</a> y ejecutado desde la carpeta <code>bin/jmeter.bat</code>.</p>
+        </div>
+      </div>
+      <div class="image-placeholder">
+        📊 Interfaz de Apache JMeter
+      </div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-play-circle"></i> 4. Pruebas Básicas con JMeter</h2>
+      <p>Se realizó una prueba de carga al endpoint de login: <code>POST /api/auth/login</code></p>
+      <h3>Configuración:</h3>
+      <ul style="margin: 1.5rem 0; padding-left: 1.5rem;">
+        <li><i class="fas fa-users icon"></i> <strong>Usuarios simulados:</strong> 5</li>
+        <li><i class="fas fa-tachometer-alt icon"></i> <strong>Ramp-Up Period:</strong> 60 segundos</li>
+        <li><i class="fas fa-plug icon"></i> <strong>Endpoint:</strong> <code>http://localhost:8081/api/auth/login</code></li>
+        <li><i class="fas fa-key icon"></i> <strong>Credenciales:</strong> admin@erp.com / Admin1234*</li>
+        <li><i class="fas fa-code icon"></i> <strong>Body:</strong> JSON con correo, password y token</li>
+        <li><i class="fas fa-thermometer-half icon"></i> <strong>Timer:</strong> 5000 ms entre solicitudes</li>
+      </ul>
+      <p>✅ Se agregó el header: <code>Content-Type: application/json</code></p>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-camera"></i> 5. Capturas de Pantalla</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-cogs"></i> Configuración JMeter</h3>
+          <img src="/frontend-erp/public/imagenes/config_test.png" alt="Configuración HTTP Request" style="width:100%; border-radius: 12px; margin-top: 1rem;" />
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-code"></i> Body Data JSON</h3>
+          <img src="/frontend-erp/public/imagenes/test_07_ok.png" alt="Body Data JSON" style="width:100%; border-radius: 12px; margin-top: 1rem;" />
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-check"></i> Resultado Exitoso</h3>
+          <img src="/frontend-erp/public/imagenes/test_07.png" alt="Respuesta exitosa con token JWT" style="width:100%; border-radius: 12px; margin-top: 1rem;" />
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-chart-bar"></i> Reporte de Rendimiento</h3>
+          <img src="/frontend-erp/public/imagenes/rendimiento.png" alt="Summary Report con 0% de errores" style="width:100%; border-radius: 12px; margin-top: 1rem;" />
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-clipboard-check"></i> 6. Resumen de las Pruebas</h2>
+      <p>Se realizaron pruebas de carga al módulo de autenticación del ERP_SENA_Final utilizando <strong>Apache JMeter</strong>. Inicialmente, se presentaron errores como:</p>
+      <ul style="margin: 1.5rem 0; padding-left: 1.5rem;">
+        <li><i class="fas fa-exclamation-triangle icon"></i> <strong>429 Too Many Requests:</strong> Debido al rate limiting del backend.</li>
+        <li><i class="fas fa-exclamation-triangle icon"></i> <strong>Connection refused:</strong> Por puerto incorrecto (8080 vs 8081).</li>
+        <li><i class="fas fa-exclamation-triangle icon"></i> <strong>401 Unauthorized:</strong> Por formato JSON incorrecto.</li>
+      </ul>
+      <p>✅ Estos errores se resolvieron ajustando:</p>
+      <ul style="margin: 1.5rem 0; padding-left: 1.5rem;">
+        <li>Reducción de usuarios a 5 con ramp-up de 60 segundos.</li>
+        <li>Uso del puerto correcto: <code>8081</code>.</li>
+        <li>Validación del JSON y headers.</li>
+      </ul>
+      <h3>Resultados Finales:</h3>
+      <table>
+        <tr>
+          <th>Métrica</th>
+          <th>Valor</th>
+        </tr>
+        <tr>
+          <td><strong>Tiempo promedio de respuesta</strong></td>
+          <td>120 ms</td>
+        </tr>
+        <tr>
+          <td><strong>Errores</strong></td>
+          <td>0%</td>
+        </tr>
+        <tr>
+          <td><strong>Código de respuesta</strong></td>
+          <td>200 OK</td>
+        </tr>
+        <tr>
+          <td><strong>Token JWT</strong></td>
+          <td>Recibido correctamente</td>
+        </tr>
+      </table>
+      <p>✅ <strong>Conclusión:</strong> El sistema es estable, seguro y eficiente bajo carga moderada. El mecanismo de rate limiting confirma que el sistema tiene buenas prácticas de seguridad.</p>
+    </section>
+
+    <div class="footer">
+      <p>🛠️ Desarrollado con <strong>Spring Boot</strong> | <strong>React</strong> | <strong>JMeter</strong></p>
+      <p><em>© 2025 ERP_SENA_Final. Todos los derechos reservados.</em></p>
+    </div>
+  </div>
+</body>
+</html>
