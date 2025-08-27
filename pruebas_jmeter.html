@@ -200,42 +200,308 @@
 
     <section>
       <h2><i class="fas fa-list"></i> 1. Tipos de Pruebas de Software</h2>
-      <table>
-        <tr>
-          <th>Tipo de Prueba</th>
-          <th>Características</th>
-          <th>Beneficios</th>
-        </tr>
-        <tr>
-          <td><strong>Pruebas de Carga</strong></td>
-          <td>Simula múltiples usuarios concurrentes</td>
-          <td>Mide rendimiento bajo carga realista</td>
-        </tr>
-        <tr>
-          <td><strong>Pruebas de Estrés</strong></td>
-          <td>Sobrepasa el límite de usuarios</td>
-          <td>Identifica el punto de ruptura del sistema</td>
-        </tr>
-        <tr>
-          <td><strong>Pruebas de Rendimiento</strong></td>
-          <td>Evalúa tiempos de respuesta y estabilidad</td>
-          <td>Asegura que el sistema sea rápido y confiable</td>
-        </tr>
-        <tr>
-          <td><strong>Pruebas de Seguridad</strong></td>
-          <td>Busca vulnerabilidades (JWT, CSRF, etc.)</td>
-          <td>Protege datos sensibles y autenticación</td>
-        </tr>
-        <tr>
-          <td><strong>Pruebas de Regresión</strong></td>
-          <td>Verifica que nuevas funciones no rompan lo existente</td>
-          <td>Mantiene la estabilidad del sistema</td>
-        </tr>
-      </table>
+      <p>Las pruebas de software son fundamentales para garantizar la calidad, funcionalidad y rendimiento de las aplicaciones. A continuación, se presentan los principales tipos de pruebas con sus características y beneficios:</p>
+      
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-users"></i> Pruebas de Carga (Load Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Simula múltiples usuarios concurrentes</li>
+            <li>Evalúa el comportamiento bajo carga normal</li>
+            <li>Mide tiempos de respuesta y throughput</li>
+            <li>Identifica cuellos de botella</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Garantiza que el sistema soporte la carga esperada</li>
+            <li>Optimiza el rendimiento antes del lanzamiento</li>
+            <li>Reduce riesgos de caídas en producción</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-fire"></i> Pruebas de Estrés (Stress Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Sobrepasa el límite máximo de usuarios</li>
+            <li>Evalúa el comportamiento en condiciones extremas</li>
+            <li>Identifica el punto de ruptura del sistema</li>
+            <li>Prueba la recuperación después del fallo</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Conoce los límites reales del sistema</li>
+            <li>Mejora la robustez y estabilidad</li>
+            <li>Planifica la escalabilidad futura</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-tachometer-alt"></i> Pruebas de Rendimiento (Performance Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Evalúa tiempos de respuesta y estabilidad</li>
+            <li>Mide el uso de recursos del sistema</li>
+            <li>Analiza la escalabilidad horizontal y vertical</li>
+            <li>Valida SLAs y métricas de calidad</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Asegura que el sistema sea rápido y confiable</li>
+            <li>Optimiza el uso de recursos</li>
+            <li>Mejora la experiencia del usuario</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-shield-alt"></i> Pruebas de Seguridad (Security Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Busca vulnerabilidades (JWT, CSRF, XSS, SQL Injection)</li>
+            <li>Evalúa la autenticación y autorización</li>
+            <li>Prueba el cifrado de datos sensibles</li>
+            <li>Valida el cumplimiento de estándares de seguridad</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Protege datos sensibles y autenticación</li>
+            <li>Previene ataques y brechas de seguridad</li>
+            <li>Cumple regulaciones y estándares</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-sync"></i> Pruebas de Regresión (Regression Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Verifica que nuevas funciones no rompan lo existente</li>
+            <li>Ejecuta casos de prueba automatizados</li>
+            <li>Valida la integridad del sistema</li>
+            <li>Se ejecuta después de cada cambio</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Mantiene la estabilidad del sistema</li>
+            <li>Reduce el tiempo de detección de errores</li>
+            <li>Facilita el desarrollo continuo</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-mobile-alt"></i> Pruebas de Usabilidad (Usability Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Evalúa la facilidad de uso de la interfaz</li>
+            <li>Prueba la accesibilidad y navegación</li>
+            <li>Valida la experiencia del usuario (UX)</li>
+            <li>Incluye pruebas de responsive design</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Mejora la satisfacción del usuario</li>
+            <li>Reduce la curva de aprendizaje</li>
+            <li>Aumenta la adopción del sistema</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-database"></i> Pruebas de Integración (Integration Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Verifica la comunicación entre módulos</li>
+            <li>Prueba APIs y servicios web</li>
+            <li>Valida la integración con bases de datos</li>
+            <li>Evalúa el flujo de datos entre componentes</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Asegura que los componentes trabajen juntos</li>
+            <li>Detecta problemas de comunicación</li>
+            <li>Valida la arquitectura del sistema</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-globe"></i> Pruebas de Compatibilidad (Compatibility Testing)</h3>
+          <p><strong>Características:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Prueba en diferentes navegadores y dispositivos</li>
+            <li>Valida la compatibilidad con sistemas operativos</li>
+            <li>Evalúa la responsividad en diferentes resoluciones</li>
+            <li>Prueba la funcionalidad offline/online</li>
+          </ul>
+          <p><strong>Beneficios:</strong></p>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+            <li>Garantiza acceso desde cualquier dispositivo</li>
+            <li>Amplía la base de usuarios potenciales</li>
+            <li>Mejora la experiencia multiplataforma</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #f0f8ff, #e6f3ff); border-left: 4px solid var(--primary);">
+        <h3><i class="fas fa-lightbulb"></i> ¿Por qué son importantes las pruebas de software?</h3>
+        <p>Las pruebas de software son esenciales porque:</p>
+        <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+          <li><strong>Reducen costos:</strong> Es más barato corregir errores en desarrollo que en producción</li>
+          <li><strong>Mejoran la calidad:</strong> Aseguran que el software cumpla con los requisitos</li>
+          <li><strong>Protegen la reputación:</strong> Evitan fallos que puedan dañar la imagen de la empresa</li>
+          <li><strong>Facilitan el mantenimiento:</strong> Código probado es más fácil de mantener y actualizar</li>
+          <li><strong>Cumplen estándares:</strong> Satisfacen requisitos de calidad y regulaciones</li>
+        </ul>
+      </div>
     </section>
 
     <section>
-      <h2><i class="fas fa-check-circle"></i> 2. Pruebas Aplicadas al Proyecto</h2>
+      <h2><i class="fas fa-tools"></i> 2. Herramientas Modernas de Testing</h2>
+      <p>El ecosistema de testing ha evolucionado significativamente. Aquí presentamos las herramientas más relevantes para diferentes tipos de pruebas:</p>
+      
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-chart-line"></i> Herramientas de Performance Testing</h3>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Apache JMeter:</strong> Gratuito, open-source, ideal para aplicaciones web</li>
+            <li><strong>K6:</strong> Moderno, basado en JavaScript, excelente para APIs</li>
+            <li><strong>Gatling:</strong> Scala-based, reportes detallados y escalable</li>
+            <li><strong>Artillery:</strong> Node.js, ideal para microservicios</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-shield-alt"></i> Herramientas de Security Testing</h3>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>OWASP ZAP:</strong> Detección automática de vulnerabilidades</li>
+            <li><strong>Burp Suite:</strong> Profesional para análisis de seguridad</li>
+            <li><strong>Nessus:</strong> Escaneo de vulnerabilidades de red</li>
+            <li><strong>SonarQube:</strong> Análisis de código y seguridad</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-code"></i> Herramientas de Functional Testing</h3>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Selenium:</strong> Automatización de navegadores web</li>
+            <li><strong>Cypress:</strong> Testing moderno para aplicaciones web</li>
+            <li><strong>Playwright:</strong> Microsoft, multi-navegador y multi-lenguaje</li>
+            <li><strong>Appium:</strong> Testing de aplicaciones móviles</li>
+          </ul>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-cloud"></i> Herramientas de API Testing</h3>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Postman:</strong> Testing manual y automatizado de APIs</li>
+            <li><strong>Insomnia:</strong> Alternativa moderna a Postman</li>
+            <li><strong>REST Assured:</strong> Testing de APIs REST en Java</li>
+            <li><strong>Newman:</strong> CLI para ejecutar colecciones de Postman</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #fff5f5, #ffe6e6); border-left: 4px solid #e53e3e;">
+        <h3><i class="fas fa-exclamation-triangle"></i> Tendencias Actuales en Testing</h3>
+        <div class="grid-2">
+          <div>
+            <h4><i class="fas fa-robot"></i> Testing Inteligente (AI/ML)</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+              <li>Generación automática de casos de prueba</li>
+              <li>Detección inteligente de anomalías</li>
+              <li>Optimización automática de scripts</li>
+              <li>Predicción de fallos basada en datos</li>
+            </ul>
+          </div>
+          <div>
+            <h4><i class="fas fa-infinity"></i> Testing Continuo (CT)</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+              <li>Integración con CI/CD pipelines</li>
+              <li>Testing automatizado en cada commit</li>
+              <li>Feedback rápido a desarrolladores</li>
+              <li>Calidad como parte del proceso</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-star"></i> 4. Mejores Prácticas y Metodologías</h2>
+      <p>Implementar un proceso de testing efectivo requiere seguir metodologías probadas y mejores prácticas establecidas por la industria:</p>
+      
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-code-branch"></i> Test-Driven Development (TDD)</h3>
+          <p><strong>Principio:</strong> "Red-Green-Refactor"</p>
+          <ol style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Red:</strong> Escribir test que falle</li>
+            <li><strong>Green:</strong> Implementar código que pase el test</li>
+            <li><strong>Refactor:</strong> Mejorar el código sin cambiar funcionalidad</li>
+          </ol>
+          <p><strong>Beneficios:</strong> Código más limpio, mejor cobertura, menos bugs</p>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-comments"></i> Behavior-Driven Development (BDD)</h3>
+          <p><strong>Enfoque:</strong> "Given-When-Then"</p>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Given:</strong> Contexto inicial del escenario</li>
+            <li><strong>When:</strong> Acción que se ejecuta</li>
+            <li><strong>Then:</strong> Resultado esperado</li>
+          </ul>
+          <p><strong>Ventaja:</strong> Tests legibles para no-técnicos</p>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-layer-group"></i> Pirámide de Testing</h3>
+          <p><strong>Estructura recomendada:</strong></p>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Base (70%):</strong> Tests unitarios - rápidos y baratos</li>
+            <li><strong>Medio (20%):</strong> Tests de integración</li>
+            <li><strong>Punta (10%):</strong> Tests end-to-end - lentos y costosos</li>
+          </ul>
+          <p><strong>Objetivo:</strong> Máxima cobertura con mínima inversión</p>
+        </div>
+        
+        <div class="card">
+          <h3><i class="fas fa-chart-pie"></i> Cobertura de Código</h3>
+          <p><strong>Métricas importantes:</strong></p>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+            <li><strong>Líneas de código:</strong> Porcentaje de líneas ejecutadas</li>
+            <li><strong>Ramas:</strong> Cobertura de decisiones condicionales</li>
+            <li><strong>Funciones:</strong> Métodos ejecutados al menos una vez</li>
+            <li><strong>Complejidad:</strong> Cobertura de caminos de ejecución</li>
+          </ul>
+          <p><strong>Meta:</strong> 80-90% de cobertura total</p>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #f0fff4, #e6fffa); border-left: 4px solid #38a169;">
+        <h3><i class="fas fa-lightbulb"></i> Consejos para Testing Efectivo</h3>
+        <div class="grid-2">
+          <div>
+            <h4><i class="fas fa-clock"></i> Planificación</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+              <li>Incluir testing en la estimación del proyecto</li>
+              <li>Definir criterios de aceptación claros</li>
+              <li>Establecer entornos de testing separados</li>
+              <li>Planificar pruebas de regresión</li>
+            </ul>
+          </div>
+          <div>
+            <h4><i class="fas fa-users"></i> Equipo</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-size: 0.9rem;">
+              <li>Involucrar testers desde el inicio</li>
+              <li>Capacitar al equipo en herramientas</li>
+              <li>Fomentar la colaboración Dev-QA</li>
+              <li>Documentar casos de prueba</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-check-circle"></i> 5. Pruebas Aplicadas al Proyecto ERP_SENA_Final</h2>
       <p>Para el proyecto <strong>ERP_SENA_Final</strong>, las pruebas más adecuadas son:</p>
       <div class="grid-2">
         <div class="card">
@@ -352,8 +618,48 @@
     </section>
 
     <div class="footer">
-      <p>🛠️ Desarrollado con <strong>Spring Boot</strong> | <strong>React</strong> | <strong>JMeter</strong></p>
-      <p><em>© 2025 ERP_SENA_Final. Todos los derechos reservados.</em></p>
+      <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 2rem; border-radius: var(--radius); margin-bottom: 1rem;">
+        <h3 style="text-align: center; margin-bottom: 1rem; color: white;">🚀 Recursos Adicionales</h3>
+        <div class="grid-2">
+          <div>
+            <h4 style="color: white; margin-bottom: 0.5rem;"><i class="fas fa-book"></i> Documentación</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: rgba(255,255,255,0.9); font-size: 0.9rem;">
+              <li><a href="https://jmeter.apache.org/usermanual/index.html" target="_blank" style="color: white;">Manual de JMeter</a></li>
+              <li><a href="https://owasp.org/www-project-top-ten/" target="_blank" style="color: white;">OWASP Top 10</a></li>
+              <li><a href="https://www.softwaretestinghelp.com/" target="_blank" style="color: white;">Software Testing Help</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="color: white; margin-bottom: 0.5rem;"><i class="fas fa-video"></i> Tutoriales</h4>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: rgba(255,255,255,0.9); font-size: 0.9rem;">
+              <li><a href="https://www.youtube.com/results?search_query=jmeter+tutorial" target="_blank" style="color: white;">JMeter en YouTube</a></li>
+              <li><a href="https://www.guru99.com/performance-testing.html" target="_blank" style="color: white;">Performance Testing</a></li>
+              <li><a href="https://www.testingexcellence.com/" target="_blank" style="color: white;">Testing Excellence</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center; padding: 1rem; background: var(--light); border-radius: var(--radius); margin-bottom: 1rem;">
+        <h4 style="color: var(--primary); margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Próximos Pasos Recomendados</h4>
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Para continuar mejorando el proceso de testing del ERP_SENA_Final:</p>
+        <ul style="display: inline-block; text-align: left; margin: 0.5rem 0; color: #666; font-size: 0.9rem;">
+          <li>Implementar tests automatizados para todos los endpoints</li>
+          <li>Configurar testing continuo en el pipeline de CI/CD</li>
+          <li>Establecer métricas de rendimiento en tiempo real</li>
+          <li>Capacitar al equipo en herramientas de testing avanzadas</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; padding: 1rem; color: #777; font-size: 0.9rem;">
+        <p>🛠️ Desarrollado con <strong>Spring Boot</strong> | <strong>React</strong> | <strong>JMeter</strong></p>
+        <p>📚 <strong>ERP_SENA_Final</strong> - Sistema de Gestión Empresarial Completo</p>
+        <p><em>© 2025 ERP_SENA_Final. Todos los derechos reservados.</em></p>
+        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.7;">
+          <i class="fas fa-heart" style="color: #e53e3e;"></i> 
+          Hecho con pasión por la calidad del software
+        </p>
+      </div>
     </div>
   </div>
 </body>
