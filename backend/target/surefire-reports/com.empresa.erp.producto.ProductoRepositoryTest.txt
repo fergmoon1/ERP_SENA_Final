@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.empresa.erp.producto.ProductoRepositoryTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 22.21 s -- in com.empresa.erp.producto.ProductoRepositoryTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 35.92 s -- in com.empresa.erp.producto.ProductoRepositoryTest

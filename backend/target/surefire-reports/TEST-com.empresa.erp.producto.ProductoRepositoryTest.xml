@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.empresa.erp.producto.ProductoRepositoryTest" time="22.206" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.empresa.erp.producto.ProductoRepositoryTest" time="35.919" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -16,8 +16,9 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CO"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-17.0.15.6-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\dimde\AppData\Local\Temp\surefire2597682201550724911\surefirebooter-20250905184118386_3.jar C:\Users\dimde\AppData\Local\Temp\surefire2597682201550724911 2025-09-05T18-41-16_659-jvmRun1 surefire-20250905184118386_1tmp surefire_0-20250905184118386_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\dimde\AppData\Local\Temp\surefire4214199508569650382\surefirebooter-20250906114004915_3.jar C:\Users\dimde\AppData\Local\Temp\surefire4214199508569650382 2025-09-06T11-40-04_077-jvmRun1 surefire-20250906114004915_1tmp surefire_0-20250906114004915_2tmp"/>
     <property name="jdk.debug" value="release"/>
+    <property name="test" value="*Producto*Test"/>
     <property name="surefire.test.class.path" value="C:\ERP_SENA_Final\backend\target\test-classes;C:\ERP_SENA_Final\backend\target\classes;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-web\3.2.5\spring-boot-starter-web-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter\3.2.5\spring-boot-starter-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot\3.2.5\spring-boot-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\3.2.5\spring-boot-autoconfigure-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-logging\3.2.5\spring-boot-starter-logging-3.2.5.jar;C:\Users\dimde\.m2\repository\ch\qos\logback\logback-classic\1.4.14\logback-classic-1.4.14.jar;C:\Users\dimde\.m2\repository\ch\qos\logback\logback-core\1.4.14\logback-core-1.4.14.jar;C:\Users\dimde\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.21.1\log4j-to-slf4j-2.21.1.jar;C:\Users\dimde\.m2\repository\org\apache\logging\log4j\log4j-api\2.21.1\log4j-api-2.21.1.jar;C:\Users\dimde\.m2\repository\org\slf4j\jul-to-slf4j\2.0.13\jul-to-slf4j-2.0.13.jar;C:\Users\dimde\.m2\repository\jakarta\annotation\jakarta.annotation-api\2.1.1\jakarta.annotation-api-2.1.1.jar;C:\Users\dimde\.m2\repository\org\yaml\snakeyaml\2.2\snakeyaml-2.2.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-json\3.2.5\spring-boot-starter-json-3.2.5.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jdk8\2.15.4\jackson-datatype-jdk8-2.15.4.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jsr310\2.15.4\jackson-datatype-jsr310-2.15.4.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\module\jackson-module-parameter-names\2.15.4\jackson-module-parameter-names-2.15.4.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-tomcat\3.2.5\spring-boot-starter-tomcat-3.2.5.jar;C:\Users\dimde\.m2\repository\org\apache\tomcat\embed\tomcat-embed-core\10.1.20\tomcat-embed-core-10.1.20.jar;C:\Users\dimde\.m2\repository\org\apache\tomcat\embed\tomcat-embed-el\10.1.20\tomcat-embed-el-10.1.20.jar;C:\Users\dimde\.m2\repository\org\apache\tomcat\embed\tomcat-embed-websocket\10.1.20\tomcat-embed-websocket-10.1.20.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-web\6.1.6\spring-web-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-beans\6.1.6\spring-beans-6.1.6.jar;C:\Users\dimde\.m2\repository\io\micrometer\micrometer-observation\1.12.5\micrometer-observation-1.12.5.jar;C:\Users\dimde\.m2\repository\io\micrometer\micrometer-commons\1.12.5\micrometer-commons-1.12.5.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-webmvc\6.1.6\spring-webmvc-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-context\6.1.6\spring-context-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-expression\6.1.6\spring-expression-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-data-jpa\3.2.5\spring-boot-starter-data-jpa-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-aop\3.2.5\spring-boot-starter-aop-3.2.5.jar;C:\Users\dimde\.m2\repository\org\aspectj\aspectjweaver\1.9.22\aspectjweaver-1.9.22.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\3.2.5\spring-boot-starter-jdbc-3.2.5.jar;C:\Users\dimde\.m2\repository\com\zaxxer\HikariCP\5.0.1\HikariCP-5.0.1.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-jdbc\6.1.6\spring-jdbc-6.1.6.jar;C:\Users\dimde\.m2\repository\org\hibernate\orm\hibernate-core\6.4.4.Final\hibernate-core-6.4.4.Final.jar;C:\Users\dimde\.m2\repository\jakarta\persistence\jakarta.persistence-api\3.1.0\jakarta.persistence-api-3.1.0.jar;C:\Users\dimde\.m2\repository\jakarta\transaction\jakarta.transaction-api\2.0.1\jakarta.transaction-api-2.0.1.jar;C:\Users\dimde\.m2\repository\org\jboss\logging\jboss-logging\3.5.3.Final\jboss-logging-3.5.3.Final.jar;C:\Users\dimde\.m2\repository\org\hibernate\common\hibernate-commons-annotations\6.0.6.Final\hibernate-commons-annotations-6.0.6.Final.jar;C:\Users\dimde\.m2\repository\io\smallrye\jandex\3.1.2\jandex-3.1.2.jar;C:\Users\dimde\.m2\repository\com\fasterxml\classmate\1.6.0\classmate-1.6.0.jar;C:\Users\dimde\.m2\repository\net\bytebuddy\byte-buddy\1.14.13\byte-buddy-1.14.13.jar;C:\Users\dimde\.m2\repository\jakarta\inject\jakarta.inject-api\2.0.1\jakarta.inject-api-2.0.1.jar;C:\Users\dimde\.m2\repository\org\antlr\antlr4-runtime\4.13.0\antlr4-runtime-4.13.0.jar;C:\Users\dimde\.m2\repository\org\springframework\data\spring-data-jpa\3.2.5\spring-data-jpa-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\data\spring-data-commons\3.2.5\spring-data-commons-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-orm\6.1.6\spring-orm-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-tx\6.1.6\spring-tx-6.1.6.jar;C:\Users\dimde\.m2\repository\org\slf4j\slf4j-api\2.0.13\slf4j-api-2.0.13.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-aspects\6.1.6\spring-aspects-6.1.6.jar;C:\Users\dimde\.m2\repository\com\mysql\mysql-connector-j\8.0.33\mysql-connector-j-8.0.33.jar;C:\Users\dimde\.m2\repository\org\projectlombok\lombok\1.18.32\lombok-1.18.32.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-test\3.2.5\spring-boot-starter-test-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-test\3.2.5\spring-boot-test-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\3.2.5\spring-boot-test-autoconfigure-3.2.5.jar;C:\Users\dimde\.m2\repository\com\jayway\jsonpath\json-path\2.9.0\json-path-2.9.0.jar;C:\Users\dimde\.m2\repository\jakarta\xml\bind\jakarta.xml.bind-api\4.0.2\jakarta.xml.bind-api-4.0.2.jar;C:\Users\dimde\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.3\jakarta.activation-api-2.1.3.jar;C:\Users\dimde\.m2\repository\net\minidev\json-smart\2.5.1\json-smart-2.5.1.jar;C:\Users\dimde\.m2\repository\net\minidev\accessors-smart\2.5.1\accessors-smart-2.5.1.jar;C:\Users\dimde\.m2\repository\org\ow2\asm\asm\9.6\asm-9.6.jar;C:\Users\dimde\.m2\repository\org\assertj\assertj-core\3.24.2\assertj-core-3.24.2.jar;C:\Users\dimde\.m2\repository\org\awaitility\awaitility\4.2.1\awaitility-4.2.1.jar;C:\Users\dimde\.m2\repository\org\hamcrest\hamcrest\2.2\hamcrest-2.2.jar;C:\Users\dimde\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\dimde\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\dimde\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\dimde\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\dimde\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\dimde\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\dimde\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\dimde\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\dimde\.m2\repository\org\mockito\mockito-core\5.7.0\mockito-core-5.7.0.jar;C:\Users\dimde\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.13\byte-buddy-agent-1.14.13.jar;C:\Users\dimde\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\dimde\.m2\repository\org\mockito\mockito-junit-jupiter\5.7.0\mockito-junit-jupiter-5.7.0.jar;C:\Users\dimde\.m2\repository\org\skyscreamer\jsonassert\1.5.1\jsonassert-1.5.1.jar;C:\Users\dimde\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-core\6.1.6\spring-core-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-jcl\6.1.6\spring-jcl-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-test\6.1.6\spring-test-6.1.6.jar;C:\Users\dimde\.m2\repository\org\xmlunit\xmlunit-core\2.9.1\xmlunit-core-2.9.1.jar;C:\Users\dimde\.m2\repository\com\h2database\h2\2.2.224\h2-2.2.224.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-test\6.2.4\spring-security-test-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-core\6.2.4\spring-security-core-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-crypto\6.2.4\spring-security-crypto-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-web\6.2.4\spring-security-web-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-security\3.2.5\spring-boot-starter-security-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\spring-aop\6.1.6\spring-aop-6.1.6.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-config\6.2.4\spring-security-config-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\boot\spring-boot-starter-oauth2-client\3.2.5\spring-boot-starter-oauth2-client-3.2.5.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-oauth2-client\6.2.4\spring-security-oauth2-client-6.2.4.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-oauth2-core\6.2.4\spring-security-oauth2-core-6.2.4.jar;C:\Users\dimde\.m2\repository\com\nimbusds\oauth2-oidc-sdk\9.43.3\oauth2-oidc-sdk-9.43.3.jar;C:\Users\dimde\.m2\repository\com\github\stephenc\jcip\jcip-annotations\1.0-1\jcip-annotations-1.0-1.jar;C:\Users\dimde\.m2\repository\com\nimbusds\content-type\2.2\content-type-2.2.jar;C:\Users\dimde\.m2\repository\com\nimbusds\lang-tag\1.7\lang-tag-1.7.jar;C:\Users\dimde\.m2\repository\org\springframework\security\spring-security-oauth2-jose\6.2.4\spring-security-oauth2-jose-6.2.4.jar;C:\Users\dimde\.m2\repository\com\nimbusds\nimbus-jose-jwt\9.24.4\nimbus-jose-jwt-9.24.4.jar;C:\Users\dimde\.m2\repository\io\jsonwebtoken\jjwt-api\0.11.5\jjwt-api-0.11.5.jar;C:\Users\dimde\.m2\repository\io\jsonwebtoken\jjwt-impl\0.11.5\jjwt-impl-0.11.5.jar;C:\Users\dimde\.m2\repository\io\jsonwebtoken\jjwt-jackson\0.11.5\jjwt-jackson-0.11.5.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.15.4\jackson-databind-2.15.4.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.15.4\jackson-annotations-2.15.4.jar;C:\Users\dimde\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.15.4\jackson-core-2.15.4.jar;C:\Users\dimde\.m2\repository\javax\xml\bind\jaxb-api\2.3.1\jaxb-api-2.3.1.jar;C:\Users\dimde\.m2\repository\javax\activation\javax.activation-api\1.2.0\javax.activation-api-1.2.0.jar;C:\Users\dimde\.m2\repository\org\glassfish\jaxb\jaxb-runtime\2.3.1\jaxb-runtime-2.3.1.jar;C:\Users\dimde\.m2\repository\org\glassfish\jaxb\txw2\4.0.5\txw2-4.0.5.jar;C:\Users\dimde\.m2\repository\com\sun\istack\istack-commons-runtime\4.1.2\istack-commons-runtime-4.1.2.jar;C:\Users\dimde\.m2\repository\org\jvnet\staxex\stax-ex\2.1.0\stax-ex-2.1.0.jar;C:\Users\dimde\.m2\repository\com\sun\xml\fastinfoset\FastInfoset\2.1.1\FastInfoset-2.1.1.jar;C:\Users\dimde\.m2\repository\com\bucket4j\bucket4j-core\8.7.0\bucket4j-core-8.7.0.jar;C:\Users\dimde\.m2\repository\com\bucket4j\bucket4j-caffeine\8.7.0\bucket4j-caffeine-8.7.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\dimde"/>
@@ -33,7 +34,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="FILE_LOG_CHARSET" value="UTF-8"/>
     <property name="java.awt.headless" value="true"/>
-    <property name="surefire.real.class.path" value="C:\Users\dimde\AppData\Local\Temp\surefire2597682201550724911\surefirebooter-20250905184118386_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\dimde\AppData\Local\Temp\surefire4214199508569650382\surefirebooter-20250906114004915_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.15+6"/>
@@ -47,12 +48,12 @@
     <property name="localRepository" value="C:\Users\dimde\.m2\repository"/>
     <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
     <property name="java.io.tmpdir" value="C:\Users\dimde\AppData\Local\Temp\"/>
-    <property name="com.zaxxer.hikari.pool_number" value="2"/>
+    <property name="com.zaxxer.hikari.pool_number" value="1"/>
     <property name="java.version" value="17.0.15"/>
     <property name="user.dir" value="C:\ERP_SENA_Final\backend"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="PID" value="27512"/>
+    <property name="PID" value="7380"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
     <property name="native.encoding" value="UTF-8"/>
@@ -64,9 +65,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="guardaYEncuentraProducto" classname="com.empresa.erp.producto.ProductoRepositoryTest" time="0.453">
-    <system-out><![CDATA[2025-09-05T18:42:01.568-05:00  INFO 27512 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.empresa.erp.producto.ProductoRepositoryTest]: ProductoRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2025-09-05T18:42:01.851-05:00  INFO 27512 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.empresa.erp.BackendApplication for test class com.empresa.erp.producto.ProductoRepositoryTest
+  <testcase name="guardaYEncuentraProducto" classname="com.empresa.erp.producto.ProductoRepositoryTest" time="0.173">
+    <system-out><![CDATA[11:40:17.189 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.empresa.erp.producto.ProductoRepositoryTest]: ProductoRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+11:40:17.858 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.empresa.erp.BackendApplication for test class com.empresa.erp.producto.ProductoRepositoryTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -76,25 +77,26 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.5)
 
-2025-09-05T18:42:02.488-05:00  INFO 27512 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : Starting ProductoRepositoryTest using Java 17.0.15 with PID 27512 (started by dimde in C:\ERP_SENA_Final\backend)
-2025-09-05T18:42:02.488-05:00  INFO 27512 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : The following 1 profile is active: "test"
-2025-09-05T18:42:02.585-05:00 DEBUG 27512 --- [           main] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@1228a579
-2025-09-05T18:42:05.615-05:00  INFO 27512 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-09-05T18:42:06.191-05:00  INFO 27512 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 575 ms. Found 16 JPA repository interfaces.
-2025-09-05T18:42:07.777-05:00  INFO 27512 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-09-05T18:42:07.807-05:00  INFO 27512 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-09-05T18:42:07.834-05:00  INFO 27512 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-09-05T18:42:07.838-05:00  INFO 27512 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2025-09-05T18:42:09.360-05:00  INFO 27512 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2025-09-05T18:42:09.360-05:00  INFO 27512 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2025-09-05T18:42:09.405-05:00  WARN 27512 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 2.2.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
-2025-09-05T18:42:09.405-05:00  WARN 27512 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-09-05T18:42:11.353-05:00  INFO 27512 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-09-06T11:40:19.659-05:00  INFO 7380 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : Starting ProductoRepositoryTest using Java 17.0.15 with PID 7380 (started by dimde in C:\ERP_SENA_Final\backend)
+2025-09-06T11:40:19.663-05:00  INFO 7380 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : The following 1 profile is active: "test"
+2025-09-06T11:40:20.070-05:00 DEBUG 7380 --- [           main] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@1cf336fd
+2025-09-06T11:40:23.893-05:00  INFO 7380 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-09-06T11:40:24.663-05:00  INFO 7380 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 695 ms. Found 16 JPA repository interfaces.
+2025-09-06T11:40:28.309-05:00  INFO 7380 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-09-06T11:40:28.688-05:00  INFO 7380 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2025-09-06T11:40:28.925-05:00  INFO 7380 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-09-06T11:40:29.481-05:00  INFO 7380 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-09-06T11:40:29.662-05:00  INFO 7380 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-09-06T11:40:30.659-05:00  INFO 7380 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2025-09-06T11:40:30.664-05:00  INFO 7380 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-09-06T11:40:30.813-05:00  WARN 7380 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 2.2.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2025-09-06T11:40:30.828-05:00  WARN 7380 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-09-06T11:40:34.768-05:00  INFO 7380 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
 Hibernate: 
     alter table compra 
        drop 
        foreign key FK5rv6m306dgdn4cn14eyhpexwu
-2025-09-05T18:42:11.371-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.863-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table compra 
        drop 
        foreign key FK5rv6m306dgdn4cn14eyhpexwu" via JDBC [Tabla "COMPRA" no encontrada
@@ -248,7 +250,7 @@ Hibernate:
     alter table detalle_compra 
        drop 
        foreign key FKqwu2j7ft8a7gg1t54pllqtqas
-2025-09-05T18:42:11.436-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.906-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table detalle_compra 
        drop 
        foreign key FKqwu2j7ft8a7gg1t54pllqtqas" via JDBC [Tabla "DETALLE_COMPRA" no encontrada
@@ -402,7 +404,7 @@ Hibernate:
     alter table detalle_compra 
        drop 
        foreign key FK8fysgqric0spig3y0hlkwe84e
-2025-09-05T18:42:11.453-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.919-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table detalle_compra 
        drop 
        foreign key FK8fysgqric0spig3y0hlkwe84e" via JDBC [Tabla "DETALLE_COMPRA" no encontrada
@@ -556,7 +558,7 @@ Hibernate:
     alter table detalle_pedido 
        drop 
        foreign key FKgqvba9e7dildyw45u0usdj1k2
-2025-09-05T18:42:11.472-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.925-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table detalle_pedido 
        drop 
        foreign key FKgqvba9e7dildyw45u0usdj1k2" via JDBC [Tabla "DETALLE_PEDIDO" no encontrada
@@ -710,7 +712,7 @@ Hibernate:
     alter table detalle_pedido 
        drop 
        foreign key FK2yc3nts8mdyqf6dw6ndosk67a
-2025-09-05T18:42:11.486-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.933-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table detalle_pedido 
        drop 
        foreign key FK2yc3nts8mdyqf6dw6ndosk67a" via JDBC [Tabla "DETALLE_PEDIDO" no encontrada
@@ -864,7 +866,7 @@ Hibernate:
     alter table movimiento_inventario 
        drop 
        foreign key FKd6bavqmj4o0mvn82ve46jac9v
-2025-09-05T18:42:11.491-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.945-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table movimiento_inventario 
        drop 
        foreign key FKd6bavqmj4o0mvn82ve46jac9v" via JDBC [Tabla "MOVIMIENTO_INVENTARIO" no encontrada
@@ -1018,7 +1020,7 @@ Hibernate:
     alter table movimiento_inventario 
        drop 
        foreign key FKt6p6ejpbblav1phv0lgjpeg4r
-2025-09-05T18:42:11.501-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.975-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table movimiento_inventario 
        drop 
        foreign key FKt6p6ejpbblav1phv0lgjpeg4r" via JDBC [Tabla "MOVIMIENTO_INVENTARIO" no encontrada
@@ -1172,7 +1174,7 @@ Hibernate:
     alter table notificacion 
        drop 
        foreign key FK5hnclv9lmmc1w4335x04warbm
-2025-09-05T18:42:11.505-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.990-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table notificacion 
        drop 
        foreign key FK5hnclv9lmmc1w4335x04warbm" via JDBC [Tabla "NOTIFICACION" no encontrada
@@ -1326,7 +1328,7 @@ Hibernate:
     alter table pedido 
        drop 
        foreign key FK30s8j2ktpay6of18lbyqn3632
-2025-09-05T18:42:11.527-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:34.997-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table pedido 
        drop 
        foreign key FK30s8j2ktpay6of18lbyqn3632" via JDBC [Tabla "PEDIDO" no encontrada
@@ -1480,7 +1482,7 @@ Hibernate:
     alter table pedido 
        drop 
        foreign key FK6uxomgomm93vg965o8brugt00
-2025-09-05T18:42:11.536-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:35.002-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table pedido 
        drop 
        foreign key FK6uxomgomm93vg965o8brugt00" via JDBC [Tabla "PEDIDO" no encontrada
@@ -1634,7 +1636,7 @@ Hibernate:
     alter table refresh_token 
        drop 
        foreign key FKpr5fysa08n2o6i1rxjumfl89q
-2025-09-05T18:42:11.544-05:00  WARN 27512 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+2025-09-06T11:40:35.007-05:00  WARN 7380 --- [           main] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
     alter table refresh_token 
        drop 
        foreign key FKpr5fysa08n2o6i1rxjumfl89q" via JDBC [Tabla "REFRESH_TOKEN" no encontrada
@@ -2063,7 +2065,7 @@ Hibernate:
        add constraint FKpr5fysa08n2o6i1rxjumfl89q 
        foreign key (usuario_id) 
        references usuario (id)
-2025-09-05T18:42:12.976-05:00  INFO 27512 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-09-06T11:40:35.424-05:00  INFO 7380 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
 Hibernate: 
     select
         count(*) 
@@ -2090,22 +2092,22 @@ Hibernate:
         (aprobar, crear, editar, eliminar, rol, ver) 
     values
         (?, ?, ?, ?, ?, ?)
-2025-09-05T18:42:19.024-05:00 DEBUG 27512 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : setHierarchy() - The following role hierarchy was set: ROLE_ADMIN > ROLE_SUPERVISOR 
+2025-09-06T11:40:44.901-05:00 DEBUG 7380 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : setHierarchy() - The following role hierarchy was set: ROLE_ADMIN > ROLE_SUPERVISOR 
  ROLE_SUPERVISOR > ROLE_USER
-2025-09-05T18:42:19.025-05:00 DEBUG 27512 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneStepMap() - From role ROLE_ADMIN one can reach role ROLE_SUPERVISOR in one step.
-2025-09-05T18:42:19.025-05:00 DEBUG 27512 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneStepMap() - From role ROLE_SUPERVISOR one can reach role ROLE_USER in one step.
-2025-09-05T18:42:19.026-05:00 DEBUG 27512 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_SUPERVISOR] in one or more steps.
-2025-09-05T18:42:19.027-05:00 DEBUG 27512 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_SUPERVISOR one can reach [ROLE_USER] in one or more steps.
-2025-09-05T18:42:19.273-05:00  WARN 27512 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-09-05T18:42:19.506-05:00 DEBUG 27512 --- [           main] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
-2025-09-05T18:42:20.419-05:00 DEBUG 27512 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 120 mappings in 'requestMappingHandlerMapping'
-2025-09-05T18:42:21.039-05:00 DEBUG 27512 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
-2025-09-05T18:42:21.452-05:00  INFO 27512 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@16d8a25e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3bd6ce4e, org.springframework.security.web.context.SecurityContextHolderFilter@2b60acb3, org.springframework.security.web.header.HeaderWriterFilter@f4352c6, org.springframework.web.filter.CorsFilter@164fba04, org.springframework.security.web.authentication.logout.LogoutFilter@234a8c1f, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@764b7ff7, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@1962f55, com.empresa.erp.config.RateLimitFilter@772dfe03, com.empresa.erp.config.JwtAuthenticationFilter@615ef647, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@a99f50e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@18211894, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2693d31f, org.springframework.security.web.access.ExceptionTranslationFilter@435a2e1f, org.springframework.security.web.access.intercept.AuthorizationFilter@76cb6d16]
-2025-09-05T18:42:21.573-05:00  INFO 27512 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure Or [Mvc [pattern='/oauth2/**'], Mvc [pattern='/login/oauth2/**']] with [org.springframework.security.web.session.DisableEncodeUrlFilter@525aae0c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2afba04b, org.springframework.security.web.context.SecurityContextHolderFilter@28ab0789, org.springframework.security.web.header.HeaderWriterFilter@2ff35182, org.springframework.web.filter.CorsFilter@559ac87f, org.springframework.security.web.authentication.logout.LogoutFilter@22e3d222, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@6a82a388, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@564c0e38, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@79036056, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@6391313a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@706b68e6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4c49471c, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@64bcd98a, org.springframework.security.web.access.ExceptionTranslationFilter@3b60efd8, org.springframework.security.web.access.intercept.AuthorizationFilter@46f7c5c1]
-2025-09-05T18:42:22.407-05:00 DEBUG 27512 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-09-05T18:42:22.437-05:00 DEBUG 27512 --- [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-09-05T18:42:22.773-05:00  INFO 27512 --- [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
-2025-09-05T18:42:23.074-05:00  INFO 27512 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : Started ProductoRepositoryTest in 21.203 seconds (process running for 63.739)
+2025-09-06T11:40:44.903-05:00 DEBUG 7380 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneStepMap() - From role ROLE_ADMIN one can reach role ROLE_SUPERVISOR in one step.
+2025-09-06T11:40:44.903-05:00 DEBUG 7380 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneStepMap() - From role ROLE_SUPERVISOR one can reach role ROLE_USER in one step.
+2025-09-06T11:40:44.904-05:00 DEBUG 7380 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_ADMIN one can reach [ROLE_USER, ROLE_SUPERVISOR] in one or more steps.
+2025-09-06T11:40:44.904-05:00 DEBUG 7380 --- [           main] o.s.s.a.h.RoleHierarchyImpl              : buildRolesReachableInOneOrMoreStepsMap() - From role ROLE_SUPERVISOR one can reach [ROLE_USER] in one or more steps.
+2025-09-06T11:40:45.091-05:00  WARN 7380 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-09-06T11:40:45.890-05:00 DEBUG 7380 --- [           main] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2025-09-06T11:40:47.093-05:00 DEBUG 7380 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 120 mappings in 'requestMappingHandlerMapping'
+2025-09-06T11:40:48.105-05:00 DEBUG 7380 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2025-09-06T11:40:48.877-05:00  INFO 7380 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@46eb5c0c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@72e1a349, org.springframework.security.web.context.SecurityContextHolderFilter@3b4aeacd, org.springframework.security.web.header.HeaderWriterFilter@bbe07e5, org.springframework.web.filter.CorsFilter@402e48d, org.springframework.security.web.authentication.logout.LogoutFilter@58030528, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@3a95898c, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@16344151, com.empresa.erp.config.RateLimitFilter@6b26839d, com.empresa.erp.config.JwtAuthenticationFilter@6cb2d5ea, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@78fdc1bb, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@74ed1b3d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1daf79ab, org.springframework.security.web.access.ExceptionTranslationFilter@46b4819c, org.springframework.security.web.access.intercept.AuthorizationFilter@2ed4e0e9]
+2025-09-06T11:40:49.000-05:00  INFO 7380 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure Or [Mvc [pattern='/oauth2/**'], Mvc [pattern='/login/oauth2/**']] with [org.springframework.security.web.session.DisableEncodeUrlFilter@18e69455, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4e850e68, org.springframework.security.web.context.SecurityContextHolderFilter@39081953, org.springframework.security.web.header.HeaderWriterFilter@7b7bfa82, org.springframework.web.filter.CorsFilter@5111de33, org.springframework.security.web.authentication.logout.LogoutFilter@6409a2e4, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@77dd0ac9, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@5eea8854, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@7252e3ec, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@5b33446d, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4dc34411, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@56d9bc5f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@775b3762, org.springframework.security.web.access.ExceptionTranslationFilter@31854086, org.springframework.security.web.access.intercept.AuthorizationFilter@7c95440d]
+2025-09-06T11:40:50.151-05:00 DEBUG 7380 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-09-06T11:40:50.318-05:00 DEBUG 7380 --- [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-09-06T11:40:50.692-05:00  INFO 7380 --- [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2025-09-06T11:40:51.448-05:00  INFO 7380 --- [           main] c.e.erp.producto.ProductoRepositoryTest  : Started ProductoRepositoryTest in 33.057 seconds (process running for 45.773)
 Hibernate: 
     insert 
     into
@@ -2125,7 +2127,7 @@ Hibernate:
         producto p1_0
 ]]></system-out>
   </testcase>
-  <testcase name="buscaProductoPorId" classname="com.empresa.erp.producto.ProductoRepositoryTest" time="0.107">
+  <testcase name="buscaProductoPorId" classname="com.empresa.erp.producto.ProductoRepositoryTest" time="0.052">
     <system-out><![CDATA[Hibernate: 
     insert 
     into
