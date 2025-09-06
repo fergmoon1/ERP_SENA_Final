@@ -662,5 +662,35 @@
       </div>
     </div>
   </div>
+  <!-- Librerías para parsear Markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.5.7/dist/purify.min.js"></script>
+
+<script>
+  // 1. Cambia esta URL según lo que necesites
+  // 👉 Para GitHub Pages (siempre actualizado):
+  // const RAW_README_URL = 'https://raw.githubusercontent.com/fergmoon1/ERP_SENA_Final/main/README.md';
+  
+  // 👉 Para pruebas locales (lee el README.md de tu disco):
+  const RAW_README_URL = '../README.md';
+
+  // 2. Crear un contenedor donde mostrar el README
+  const container = document.createElement("div");
+  container.id = "readme-container";
+  container.style.padding = "2rem";
+  document.body.prepend(container); // Lo ponemos arriba del todo (puedes moverlo donde quieras)
+
+  // 3. Leer y renderizar el README
+  fetch(RAW_README_URL)
+    .then(r => r.text())
+    .then(md => {
+      const html = marked.parse(md, { gfm: true, breaks: true });
+      container.innerHTML = DOMPurify.sanitize(html);
+    })
+    .catch(err => {
+      container.innerHTML = "<p style='color:red'>Error cargando README: " + err + "</p>";
+    });
+</script>
+
 </body>
 </html>
