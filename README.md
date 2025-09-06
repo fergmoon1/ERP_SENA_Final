@@ -148,7 +148,7 @@ El proyecto utiliza Git con las siguientes convenciones para commits:
 - ♻️ `refactor`: Refactorización
 - 🧪 `test`: Pruebas
 ```
-## 🧪 Pruebas
+### 🧪 Pruebas
 - ✅ Pruebas unitarias con JUnit
 - 🔄 Pruebas de integración
 - 🌐 Colecciones de Postman
