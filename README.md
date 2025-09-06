@@ -153,6 +153,335 @@ El proyecto utiliza Git con las siguientes convenciones para commits:
 - 🔄 Pruebas de integración
 - 🌐 Colecciones de Postman
 - 🔍 Pruebas end-to-end
+
+---
+
+## 🧪 Pruebas Unitarias con JUnit: CRUD Usuario y Producto
+
+Implementamos un sistema completo de pruebas unitarias utilizando **JUnit 5** y **Mockito** para validar el funcionamiento correcto de los módulos de Usuario y Producto del ERP. Estas pruebas garantizan la calidad y confiabilidad del código mediante la validación de cada componente de forma aislada.
+
+### 🎯 Objetivos de las Pruebas
+- ✅ **Validar operaciones CRUD** completas (Create, Read, Update, Delete)
+- 🔍 **Verificar lógica de negocio** en servicios
+- 🗄️ **Probar integración con base de datos** usando H2 en memoria
+- 🛡️ **Validar sistema de auditoría** en controladores
+- 📊 **Asegurar cobertura completa** de funcionalidades críticas
+
+### 🏗️ Arquitectura de Pruebas
+
+#### 📁 Estructura de Archivos de Prueba
+```
+backend/src/test/java/com/empresa/erp/
+├── usuario/
+│   ├── UsuarioRepositoryTest.java    # Tests de integración con BD
+│   ├── UsuarioServiceTest.java       # Tests unitarios con mocks
+│   └── UsuarioControllerTest.java    # Tests de controlador
+├── producto/
+│   ├── ProductoRepositoryTest.java   # Tests de integración con BD
+│   ├── ProductoServiceTest.java      # Tests unitarios con mocks
+│   └── ProductoControllerTest.java   # Tests de controlador
+└── DemoTest.java                     # Test básico de validación
+```
+
+### ⚙️ Configuración del Entorno de Pruebas
+
+#### 🔧 Dependencias en `pom.xml`
+```xml
+<!-- Spring Boot Test -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- H2 Database for testing -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- Spring Security Test -->
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+#### 🗄️ Configuración de Base de Datos de Pruebas
+**Archivo**: `src/test/resources/application-test.properties`
+```properties
+# Configuración para tests
+spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.h2.console.enabled=true
+spring.sql.init.mode=always
+spring.jpa.properties.hibernate.hbm2ddl.auto=create-drop
+```
+
+### 🧪 Tipos de Pruebas Implementadas
+
+#### 1️⃣ **Pruebas de Repositorio** (`@SpringBootTest`)
+- **Propósito**: Validar operaciones de base de datos
+- **Tecnología**: Spring Boot Test + H2 Database
+- **Características**:
+  - ✅ Creación y persistencia de entidades
+  - 🔍 Búsqueda por ID y listado completo
+  - 🗄️ Transacciones automáticas con `@Transactional`
+
+**Ejemplo - UsuarioRepositoryTest**:
+```java
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
+class UsuarioRepositoryTest {
+    
+    @Test
+    void guardaYEncuentraUsuario() {
+        Usuario u = new Usuario();
+        u.setNombre("Luis");
+        u.setCorreo("luis@test.com");
+        u.setPassword("12345");
+
+        repository.save(u);
+        List<Usuario> lista = repository.findAll();
+        
+        assertThat(lista).isNotEmpty();
+        assertThat(lista.get(0).getCorreo()).isEqualTo("luis@test.com");
+    }
+}
+```
+
+#### 2️⃣ **Pruebas de Servicio** (`@ExtendWith(MockitoExtension.class)`)
+- **Propósito**: Validar lógica de negocio aislada
+- **Tecnología**: JUnit 5 + Mockito
+- **Características**:
+  - 🎭 Mocks de dependencias externas
+  - 🔍 Validación de flujos de negocio
+  - ⚡ Ejecución rápida sin contexto Spring
+
+**Ejemplo - UsuarioServiceTest**:
+```java
+@ExtendWith(MockitoExtension.class)
+class UsuarioServiceTest {
+    
+    @Mock
+    private UsuarioRepository repository;
+    
+    @Mock
+    private PasswordPolicyService passwordPolicyService;
+    
+    @InjectMocks
+    private UsuarioService service;
+
+    @Test
+    void creaUsuario_ok() {
+        when(passwordPolicyService.getPolicy()).thenReturn(null);
+        when(repository.save(any(Usuario.class))).thenAnswer(inv -> {
+            Usuario saved = inv.getArgument(0);
+            saved.setId(1L);
+            return saved;
+        });
+
+        Usuario creado = service.save(new Usuario());
+        
+        assertThat(creado.getId()).isEqualTo(1L);
+        verify(repository).save(any(Usuario.class));
+    }
+}
+```
+
+#### 3️⃣ **Pruebas de Controlador** (`@ExtendWith(MockitoExtension.class)`)
+- **Propósito**: Validar endpoints y flujos HTTP
+- **Tecnología**: JUnit 5 + Mockito + Reflection
+- **Características**:
+  - 🌐 Validación de respuestas HTTP
+  - 🛡️ Verificación de sistema de auditoría
+  - 🔧 Inyección manual de dependencias
+
+**Ejemplo - ProductoControllerTest**:
+```java
+@ExtendWith(MockitoExtension.class)
+class ProductoControllerTest {
+    
+    @Mock
+    private ProductoService service;
+    
+    @Mock
+    private AuditLogService auditLogService;
+    
+    @Mock
+    private HttpServletRequest request;
+
+    @Test
+    void creaProducto_ok() {
+        controller = new ProductoController(service);
+        // Inyección manual del AuditLogService
+        try {
+            Field field = controller.getClass().getDeclaredField("auditLogService");
+            field.setAccessible(true);
+            field.set(controller, auditLogService);
+        } catch (Exception e) {}
+
+        when(service.save(any(Producto.class))).thenReturn(creado);
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
+        Producto resultado = controller.create(producto, request);
+        
+        assertThat(resultado.getId()).isEqualTo(1L);
+        verify(auditLogService).save(any());
+    }
+}
+```
+
+### 📊 Cobertura de Pruebas Implementada
+
+#### 👥 **Módulo Usuario** - 6 Tests
+| Test | Tipo | Funcionalidad | Estado |
+|------|------|---------------|--------|
+| `DemoTest.sumaBasica()` | Unitario | Validación básica | ✅ |
+| `UsuarioRepositoryTest.guardaYEncuentraUsuario()` | Integración | CRUD BD | ✅ |
+| `UsuarioServiceTest.creaUsuario_ok()` | Unitario | Lógica negocio | ✅ |
+| `UsuarioServiceTest.buscaUsuario_existente()` | Unitario | Búsqueda | ✅ |
+| `UsuarioControllerTest.listaUsuarios_ok()` | Unitario | Endpoint GET | ✅ |
+
+#### 📦 **Módulo Producto** - 11 Tests
+| Test | Tipo | Funcionalidad | Estado |
+|------|------|---------------|--------|
+| `ProductoRepositoryTest.guardaYEncuentraProducto()` | Integración | CRUD BD | ✅ |
+| `ProductoRepositoryTest.buscaProductoPorId()` | Integración | Búsqueda BD | ✅ |
+| `ProductoServiceTest.creaProducto_ok()` | Unitario | Lógica negocio | ✅ |
+| `ProductoServiceTest.buscaProducto_existente()` | Unitario | Búsqueda | ✅ |
+| `ProductoServiceTest.listaTodosLosProductos()` | Unitario | Listado | ✅ |
+| `ProductoServiceTest.eliminaProducto()` | Unitario | Eliminación | ✅ |
+| `ProductoControllerTest.listaProductos_ok()` | Unitario | Endpoint GET | ✅ |
+| `ProductoControllerTest.buscaProductoPorId_ok()` | Unitario | Endpoint GET ID | ✅ |
+| `ProductoControllerTest.creaProducto_ok()` | Unitario | Endpoint POST | ✅ |
+| `ProductoControllerTest.actualizaProducto_ok()` | Unitario | Endpoint PUT | ✅ |
+| `ProductoControllerTest.eliminaProducto_ok()` | Unitario | Endpoint DELETE | ✅ |
+
+### 🚀 Ejecución de Pruebas
+
+#### 📋 Comandos para Ejecutar Pruebas
+
+**Ejecutar todas las pruebas**:
+```bash
+cd backend
+mvn test
+```
+
+**Ejecutar pruebas específicas de Usuario**:
+```bash
+mvn test -Dtest="*Usuario*Test"
+```
+
+**Ejecutar pruebas específicas de Producto**:
+```bash
+mvn test -Dtest="*Producto*Test"
+```
+
+**Ejecutar una prueba específica**:
+```bash
+mvn test -Dtest="UsuarioServiceTest"
+```
+
+#### 📈 Resultados de Ejecución
+```
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+```
+
+### 🔧 Solución de Problemas Comunes
+
+#### ❌ **Error**: `Table "USUARIO" not found`
+**Causa**: Configuración incorrecta de H2 o entidades sin `@Table`
+**Solución**:
+```java
+@Entity
+@Table(name = "usuario")  // ← Agregar esta anotación
+public class Usuario {
+    // ...
+}
+```
+
+#### ❌ **Error**: `PasswordPolicyService cannot be resolved`
+**Causa**: Dependencia no mockeada en tests de servicio
+**Solución**:
+```java
+@Mock
+private PasswordPolicyService passwordPolicyService;
+
+@Test
+void test() {
+    when(passwordPolicyService.getPolicy()).thenReturn(null);
+    // ...
+}
+```
+
+#### ❌ **Error**: `HttpServletRequest.getRemoteAddr() is null`
+**Causa**: Mock no configurado para HttpServletRequest
+**Solución**:
+```java
+@Mock
+private HttpServletRequest request;
+
+@Test
+void test() {
+    when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+    // ...
+}
+```
+
+### 📸 Capturas de Pantalla de Resultados
+
+> 🔍 **Captura 1**: Ejecución exitosa de todas las pruebas
+> ![Resultados de Pruebas](./backend/uploads/readme/JUnit_test_01-01.png)
+> *Fuente: Terminal con resultados de `mvn test`*
+
+> 🔍 **Captura 2**: Detalle de pruebas de Usuario
+> ![Pruebas Usuario](./backend/uploads/readme/JUnit_test_01-02.png)
+> *Fuente: IDE mostrando ejecución de UsuarioServiceTest*
+
+> 🔍 **Captura 3**: Detalle de pruebas de Producto
+> ![Pruebas Producto](./backend/uploads/readme/JUnit_test_producto_01-01.png)
+> *Fuente: IDE mostrando ejecución de ProductoControllerTest*
+
+> 🔍 **Captura 4**: Configuración de H2 Console
+> ![H2 Console](./backend/uploads/readme/JUnit_test_usuarios_01-01.png)
+> *Fuente: H2 Console mostrando tablas creadas para pruebas*
+
+<!-- > 🔍 **Captura 5**: Logs de Hibernate durante pruebas
+> ![Logs Hibernate](ruta/a/imagen/logs-hibernate.png)
+> *Fuente: Console mostrando SQL generado por Hibernate* -->
+
+### ✅ Beneficios Obtenidos
+
+- 🛡️ **Confiabilidad**: Validación automática de funcionalidades críticas
+- 🚀 **Desarrollo ágil**: Detección temprana de errores
+- 📊 **Cobertura completa**: Tests para todas las capas (Repository, Service, Controller)
+- 🔄 **Integración continua**: Pruebas ejecutables en cualquier momento
+- 📚 **Documentación viva**: Tests como especificación del comportamiento
+- 🎯 **Calidad de código**: Refactoring seguro con tests como red de seguridad
+
+### 💡 Mejores Prácticas Aplicadas
+
+- ✅ **Nomenclatura clara**: Nombres descriptivos para tests (`creaUsuario_ok`, `buscaProducto_existente`)
+- 🎭 **Mocks apropiados**: Aislamiento de dependencias externas
+- 🔄 **Transacciones**: Rollback automático en tests de integración
+- 📊 **Assertions específicas**: Validaciones precisas con AssertJ
+- 🏗️ **Arquitectura de tests**: Separación clara por capas
+- 📝 **Documentación**: Comentarios explicativos en tests complejos
+
+---
+
+> 💡 **Nota**: Este sistema de pruebas unitarias garantiza la estabilidad y confiabilidad del ERP SENA, permitiendo desarrollos futuros con la seguridad de que las funcionalidades existentes continúan funcionando correctamente.
 ```
 ## 🧩 Componentes Reutilizables
 - 📝 Formularios genéricos
