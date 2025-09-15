@@ -227,23 +227,19 @@ public class SecurityConfig {
                     jwtCookie.setDomain("localhost"); // Configurar dominio específicamente
                     jwtCookie.setMaxAge(60 * 60 * 24); // 1 día
                     response.addCookie(jwtCookie);
-
+                    
                     jakarta.servlet.http.Cookie refreshCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
                     refreshCookie.setPath("/");
+                    refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7 días
                     refreshCookie.setHttpOnly(false); // Permitir acceso desde JavaScript
                     refreshCookie.setSecure(false); // Para localhost HTTP
                     refreshCookie.setDomain("localhost"); // Configurar dominio específicamente
-                    refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7 días
                     response.addCookie(refreshCookie);
 
                     // También agregar el token como parámetro en la URL de redirección
                     String redirectUrl = "http://localhost:3001/dashboard?token=" + jwt + "&refreshToken=" + refreshToken;
                     System.out.println("Redirecting to: " + redirectUrl);
-
                     response.sendRedirect(redirectUrl);
-                } else {
-                    System.out.println("Authentication is not OAuth2AuthenticationToken: " + authentication.getClass().getName());
-                    response.sendRedirect("http://localhost:3001/login?error=oauth_failed");
                 }
             }
         };

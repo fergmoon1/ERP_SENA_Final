@@ -15,12 +15,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/files")
 @CrossOrigin(origins = "*")
 public class FileUploadController {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+
     private final Path uploadPath = Paths.get("C:/ERP_SENA_Final/backend/uploads");
     private final Path clientesPath = Paths.get("C:/ERP_SENA_Final/backend/uploads/clientes");
     private final Path usuariosPath = Paths.get("C:/ERP_SENA_Final/backend/uploads/usuarios");
@@ -53,157 +57,56 @@ public class FileUploadController {
             
             // Generar nombre único
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String filename = UUID.randomUUID().toString() + extension;
+            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+            String uniqueFilename = UUID.randomUUID().toString() + extension;
             
             // Guardar archivo
+            Path targetPath = uploadPath.resolve(uniqueFilename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            
+            return ResponseEntity.ok().body(Map.of(
+                "filename", uniqueFilename,
+                "originalName", originalFilename,
+                "size", file.getSize(),
+                "contentType", contentType
+            ));
+            
+        } catch (IOException e) {
+            logger.error("Error al subir archivo: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body("Error al subir el archivo");
+        }
+    }
+    
+    @GetMapping("/{filename:.+}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+        try {
             Path filePath = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            return ResponseEntity.ok().body(Map.of(
-                "filename", filename,
-                "originalName", originalFilename,
-                "size", file.getSize(),
-                "url", "/api/files/" + filename
-            ));
-            
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("Error al subir el archivo: " + e.getMessage());
-        }
-    }
-    
-    @PostMapping("/upload/cliente")
-    public ResponseEntity<?> uploadClienteImage(@RequestParam("file") MultipartFile file) {
-        try {
-            // Validar tipo de archivo
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                return ResponseEntity.badRequest().body("Solo se permiten archivos de imagen");
-            }
-            
-            // Validar tamaño (máximo 5MB)
-            if (file.getSize() > 5 * 1024 * 1024) {
-                return ResponseEntity.badRequest().body("El archivo es demasiado grande. Máximo 5MB");
-            }
-            
-            // Generar nombre único
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String filename = "cliente_" + UUID.randomUUID().toString() + extension;
-            
-            // Guardar archivo en directorio de clientes
-            Path filePath = clientesPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            return ResponseEntity.ok().body(Map.of(
-                "filename", filename,
-                "originalName", originalFilename,
-                "size", file.getSize(),
-                "url", "/api/files/clientes/" + filename
-            ));
-            
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("Error al subir la imagen del cliente: " + e.getMessage());
-        }
-    }
-    
-    @PostMapping("/upload/usuario")
-    public ResponseEntity<?> uploadUsuarioImage(@RequestParam("file") MultipartFile file) {
-        try {
-            // Validar tipo de archivo
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                return ResponseEntity.badRequest().body("Solo se permiten archivos de imagen");
-            }
-            
-            // Validar tamaño (máximo 5MB)
-            if (file.getSize() > 5 * 1024 * 1024) {
-                return ResponseEntity.badRequest().body("El archivo es demasiado grande. Máximo 5MB");
-            }
-            
-            // Generar nombre único
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String filename = "usuario_" + UUID.randomUUID().toString() + extension;
-            
-            // Guardar archivo en directorio de usuarios
-            Path filePath = usuariosPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            return ResponseEntity.ok().body(Map.of(
-                "filename", filename,
-                "originalName", originalFilename,
-                "size", file.getSize(),
-                "url", "/api/files/usuarios/" + filename
-            ));
-            
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("Error al subir la imagen del usuario: " + e.getMessage());
-        }
-    }
-    
-    @GetMapping("/clientes/{filename:.+}")
-    public ResponseEntity<Resource> getClienteImage(@PathVariable String filename) {
-        try {
-            // Decodificar el nombre del archivo si viene codificado
-            String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
-            
-            Path filePath = clientesPath.resolve(decodedFilename);
             Resource resource = new UrlResource(filePath.toUri());
             
             if (resource.exists() && resource.isReadable()) {
-                // Determinar el tipo MIME basado en la extensión del archivo
-                String contentType = determineContentType(decodedFilename);
-                
+                String contentType = determineContentType(filename);
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
             } else {
-                // Log para debugging
-                System.out.println("Archivo de cliente no encontrado: " + decodedFilename);
-                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
-                return ResponseEntity.notFound()
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
+                return ResponseEntity.notFound().build();
             }
-        } catch (IOException e) {
-            System.out.println("Error accediendo al archivo de cliente: " + e.getMessage());
-            return ResponseEntity.internalServerError()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .header("Access-Control-Allow-Headers", "*")
-                .build();
+        } catch (Exception e) {
+            logger.error("Error sirviendo archivo: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
     
     @GetMapping("/usuarios/{filename:.+}")
     public ResponseEntity<Resource> getUsuarioImage(@PathVariable String filename) {
         try {
-            // Decodificar el nombre del archivo si viene codificado
             String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
-            
             Path filePath = usuariosPath.resolve(decodedFilename);
             Resource resource = new UrlResource(filePath.toUri());
-            
+
             if (resource.exists() && resource.isReadable()) {
-                // Determinar el tipo MIME basado en la extensión del archivo
                 String contentType = determineContentType(decodedFilename);
-                
                 return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
                     .header("Access-Control-Allow-Origin", "*")
@@ -212,9 +115,6 @@ public class FileUploadController {
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(resource);
             } else {
-                // Log para debugging
-                System.out.println("Archivo de usuario no encontrado: " + decodedFilename);
-                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
                 return ResponseEntity.notFound()
                     .header("Access-Control-Allow-Origin", "*")
                     .header("Access-Control-Allow-Methods", "GET")
@@ -222,7 +122,7 @@ public class FileUploadController {
                     .build();
             }
         } catch (Exception e) {
-            System.err.println("Error sirviendo imagen de usuario: " + e.getMessage());
+            logger.error("Error sirviendo imagen de usuario: {}", e.getMessage());
             return ResponseEntity.internalServerError()
                 .header("Access-Control-Allow-Origin", "*")
                 .header("Access-Control-Allow-Methods", "GET")
@@ -231,117 +131,8 @@ public class FileUploadController {
         }
     }
     
-    @GetMapping("/productos/{filename:.+}")
-    public ResponseEntity<Resource> getProductImage(@PathVariable String filename) {
-        try {
-            // Decodificar el nombre del archivo si viene codificado
-            String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
-            
-            Path filePath = productosPath.resolve(decodedFilename);
-            Resource resource = new UrlResource(filePath.toUri());
-            
-            if (resource.exists() && resource.isReadable()) {
-                // Determinar el tipo MIME basado en la extensión del archivo
-                String contentType = determineContentType(decodedFilename);
-                
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-            } else {
-                // Log para debugging
-                System.out.println("Archivo no encontrado: " + decodedFilename);
-                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
-                return ResponseEntity.notFound()
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
-            }
-        } catch (IOException e) {
-            System.out.println("Error accediendo al archivo: " + e.getMessage());
-            return ResponseEntity.internalServerError()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .header("Access-Control-Allow-Headers", "*")
-                .build();
-        }
-    }
-
-    @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        try {
-            // Decodificar el nombre del archivo si viene codificado
-            String decodedFilename = java.net.URLDecoder.decode(filename, "UTF-8");
-            
-            Path filePath = uploadPath.resolve(decodedFilename);
-            Resource resource = new UrlResource(filePath.toUri());
-            
-            if (resource.exists() && resource.isReadable()) {
-                // Determinar el tipo MIME basado en la extensión del archivo
-                String contentType = determineContentType(decodedFilename);
-                
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + decodedFilename + "\"")
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(resource);
-            } else {
-                // Log para debugging
-                System.out.println("Archivo no encontrado: " + decodedFilename);
-                System.out.println("Ruta completa: " + filePath.toAbsolutePath());
-                System.out.println("Archivos en uploads:");
-                try {
-                    Files.list(uploadPath).forEach(System.out::println);
-                } catch (IOException e) {
-                    System.out.println("Error listando archivos: " + e.getMessage());
-                }
-                return ResponseEntity.notFound()
-                    .header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
-            }
-        } catch (IOException e) {
-            System.out.println("Error accediendo al archivo: " + e.getMessage());
-            return ResponseEntity.internalServerError()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .header("Access-Control-Allow-Headers", "*")
-                .build();
-        }
-    }
-    
-    private String determineContentType(String filename) {
-        String extension = "";
-        if (filename.contains(".")) {
-            extension = filename.substring(filename.lastIndexOf(".")).toLowerCase();
-        }
-        
-        switch (extension) {
-            case ".png":
-                return "image/png";
-            case ".jpg":
-            case ".jpeg":
-                return "image/jpeg";
-            case ".gif":
-                return "image/gif";
-            case ".webp":
-                return "image/webp";
-            case ".bmp":
-                return "image/bmp";
-            default:
-                return "image/jpeg"; // Por defecto JPEG
-        }
-    }
-    
-    @DeleteMapping("/{filename}")
-    public ResponseEntity<?> deleteFile(@PathVariable String filename) {
+    @DeleteMapping("/{filename:.+}")
+    public ResponseEntity<String> deleteFile(@PathVariable String filename) {
         try {
             Path filePath = uploadPath.resolve(filename);
             if (Files.exists(filePath)) {
@@ -352,6 +143,23 @@ public class FileUploadController {
             }
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Error al eliminar el archivo: " + e.getMessage());
+        }
+    }
+    
+    private String determineContentType(String filename) {
+        String extension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+        switch (extension) {
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            case "pdf":
+                return "application/pdf";
+            default:
+                return "application/octet-stream";
         }
     }
 }
