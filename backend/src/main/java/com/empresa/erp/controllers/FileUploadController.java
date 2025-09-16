@@ -40,7 +40,6 @@ public class FileUploadController {
             throw new RuntimeException("No se pudo crear el directorio de uploads", e);
         }
     }
-    
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
