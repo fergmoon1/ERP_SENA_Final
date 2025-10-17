@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RolPermisoInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.services</a> &gt; <span class="el_source">RolPermisoInitializer.java</span></div><h1>RolPermisoInitializer.java</h1><pre class="source lang-java linenums">package com.empresa.erp.services;
+
+import com.empresa.erp.models.RolPermiso;
+import com.empresa.erp.repositories.RolPermisoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
+
+@Component
+<span class="fc" id="L13">public class RolPermisoInitializer {</span>
+
+    @Autowired
+    private RolPermisoRepository repo;
+
+    @PostConstruct
+    public void init() {
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (repo.count() == 0) {</span>
+<span class="fc" id="L21">            List&lt;RolPermiso&gt; permisosPorDefecto = Arrays.asList(</span>
+<span class="fc" id="L22">                crear(&quot;Admin&quot;, true, true, true, true, true),</span>
+<span class="fc" id="L23">                crear(&quot;Usuario&quot;, true, true, true, false, false),</span>
+<span class="fc" id="L24">                crear(&quot;Supervisor&quot;, true, false, true, false, true)</span>
+            );
+<span class="fc" id="L26">            repo.saveAll(permisosPorDefecto);</span>
+        }
+<span class="fc" id="L28">    }</span>
+
+    private RolPermiso crear(String rol, boolean ver, boolean crear, boolean editar, boolean eliminar, boolean aprobar) {
+<span class="fc" id="L31">        RolPermiso rp = new RolPermiso();</span>
+<span class="fc" id="L32">        rp.setRol(rol);</span>
+<span class="fc" id="L33">        rp.setVer(ver);</span>
+<span class="fc" id="L34">        rp.setCrear(crear);</span>
+<span class="fc" id="L35">        rp.setEditar(editar);</span>
+<span class="fc" id="L36">        rp.setEliminar(eliminar);</span>
+<span class="fc" id="L37">        rp.setAprobar(aprobar);</span>
+<span class="fc" id="L38">        return rp;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

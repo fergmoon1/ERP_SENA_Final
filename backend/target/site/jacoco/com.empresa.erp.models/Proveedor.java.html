@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Proveedor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.models</a> &gt; <span class="el_source">Proveedor.java</span></div><h1>Proveedor.java</h1><pre class="source lang-java linenums">package com.empresa.erp.models;
+
+import jakarta.persistence.*;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Table(name = &quot;proveedor&quot;)
+public class Proveedor {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false, length = 100)
+    private String nombre;
+    
+    @Column(length = 100)
+    private String correo;
+    
+    @Column(length = 20)
+    private String telefono;
+    
+    @Column(length = 200)
+    private String direccion;
+    
+    @Column(length = 50)
+    private String tipo; // &quot;Nacional&quot;, &quot;Internacional&quot;, &quot;Distribuidor&quot;, &quot;Fabricante&quot;
+    
+    @Column(length = 20)
+    private String nit; // Número de Identificación Tributaria
+    
+    @Column(length = 100)
+    private String contacto; // Nombre del contacto principal
+    
+    @Column(length = 20)
+    private String telefonoContacto;
+    
+    @Column(length = 500)
+    private String descripcion;
+    
+<span class="pc" id="L43">    @Column</span>
+<span class="pc" id="L44">    private Boolean activo = true;</span>
+    
+    // Relación con compras (opcional, para consultas)
+    @JsonIgnore
+    @OneToMany(mappedBy = &quot;proveedor&quot;, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List&lt;Compra&gt; compras;
+    
+    // Constructor por defecto
+<span class="fc" id="L52">    public Proveedor() {}</span>
+    
+    // Constructor con parámetros básicos
+<span class="nc" id="L55">    public Proveedor(String nombre, String correo, String telefono, String direccion) {</span>
+<span class="nc" id="L56">        this.nombre = nombre;</span>
+<span class="nc" id="L57">        this.correo = correo;</span>
+<span class="nc" id="L58">        this.telefono = telefono;</span>
+<span class="nc" id="L59">        this.direccion = direccion;</span>
+<span class="nc" id="L60">        this.activo = true;</span>
+<span class="nc" id="L61">    }</span>
+    
+    // Constructor completo
+    public Proveedor(String nombre, String correo, String telefono, String direccion, 
+                    String tipo, String nit, String contacto, String telefonoContacto, 
+<span class="nc" id="L66">                    String descripcion) {</span>
+<span class="nc" id="L67">        this.nombre = nombre;</span>
+<span class="nc" id="L68">        this.correo = correo;</span>
+<span class="nc" id="L69">        this.telefono = telefono;</span>
+<span class="nc" id="L70">        this.direccion = direccion;</span>
+<span class="nc" id="L71">        this.tipo = tipo;</span>
+<span class="nc" id="L72">        this.nit = nit;</span>
+<span class="nc" id="L73">        this.contacto = contacto;</span>
+<span class="nc" id="L74">        this.telefonoContacto = telefonoContacto;</span>
+<span class="nc" id="L75">        this.descripcion = descripcion;</span>
+<span class="nc" id="L76">        this.activo = true;</span>
+<span class="nc" id="L77">    }</span>
+    
+    // Getters y Setters
+    public Long getId() {
+<span class="nc" id="L81">        return id;</span>
+    }
+    
+    public void setId(Long id) {
+<span class="nc" id="L85">        this.id = id;</span>
+<span class="nc" id="L86">    }</span>
+    
+    public String getNombre() {
+<span class="nc" id="L89">        return nombre;</span>
+    }
+    
+    public void setNombre(String nombre) {
+<span class="nc" id="L93">        this.nombre = nombre;</span>
+<span class="nc" id="L94">    }</span>
+    
+    public String getCorreo() {
+<span class="nc" id="L97">        return correo;</span>
+    }
+    
+    public void setCorreo(String correo) {
+<span class="nc" id="L101">        this.correo = correo;</span>
+<span class="nc" id="L102">    }</span>
+    
+    public String getTelefono() {
+<span class="nc" id="L105">        return telefono;</span>
+    }
+    
+    public void setTelefono(String telefono) {
+<span class="nc" id="L109">        this.telefono = telefono;</span>
+<span class="nc" id="L110">    }</span>
+    
+    public String getDireccion() {
+<span class="nc" id="L113">        return direccion;</span>
+    }
+    
+    public void setDireccion(String direccion) {
+<span class="nc" id="L117">        this.direccion = direccion;</span>
+<span class="nc" id="L118">    }</span>
+    
+    public String getTipo() {
+<span class="nc" id="L121">        return tipo;</span>
+    }
+    
+    public void setTipo(String tipo) {
+<span class="nc" id="L125">        this.tipo = tipo;</span>
+<span class="nc" id="L126">    }</span>
+    
+    public String getNit() {
+<span class="nc" id="L129">        return nit;</span>
+    }
+    
+    public void setNit(String nit) {
+<span class="nc" id="L133">        this.nit = nit;</span>
+<span class="nc" id="L134">    }</span>
+    
+    public String getContacto() {
+<span class="nc" id="L137">        return contacto;</span>
+    }
+    
+    public void setContacto(String contacto) {
+<span class="nc" id="L141">        this.contacto = contacto;</span>
+<span class="nc" id="L142">    }</span>
+    
+    public String getTelefonoContacto() {
+<span class="nc" id="L145">        return telefonoContacto;</span>
+    }
+    
+    public void setTelefonoContacto(String telefonoContacto) {
+<span class="nc" id="L149">        this.telefonoContacto = telefonoContacto;</span>
+<span class="nc" id="L150">    }</span>
+    
+    public String getDescripcion() {
+<span class="nc" id="L153">        return descripcion;</span>
+    }
+    
+    public void setDescripcion(String descripcion) {
+<span class="nc" id="L157">        this.descripcion = descripcion;</span>
+<span class="nc" id="L158">    }</span>
+    
+    public Boolean getActivo() {
+<span class="nc" id="L161">        return activo;</span>
+    }
+    
+    public void setActivo(Boolean activo) {
+<span class="nc" id="L165">        this.activo = activo;</span>
+<span class="nc" id="L166">    }</span>
+    
+    public List&lt;Compra&gt; getCompras() {
+<span class="nc" id="L169">        return compras;</span>
+    }
+    
+    public void setCompras(List&lt;Compra&gt; compras) {
+<span class="nc" id="L173">        this.compras = compras;</span>
+<span class="nc" id="L174">    }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

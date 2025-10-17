@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompraController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.controllers</a> &gt; <span class="el_source">CompraController.java</span></div><h1>CompraController.java</h1><pre class="source lang-java linenums">package com.empresa.erp.controllers;
+
+import com.empresa.erp.models.Compra;
+import com.empresa.erp.services.CompraService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+
+@RestController
+@RequestMapping(&quot;/api/compras&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L17">public class CompraController {</span>
+    @Autowired
+    private CompraService compraService;
+
+    @GetMapping(&quot;/test&quot;)
+    public ResponseEntity&lt;String&gt; test() {
+<span class="nc" id="L23">        return ResponseEntity.ok(&quot;Endpoint de compras funcionando correctamente&quot;);</span>
+    }
+
+    @GetMapping(&quot;/diagnostico&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; diagnostico() {
+<span class="nc" id="L28">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+<span class="nc" id="L30">            List&lt;Compra&gt; compras = compraService.findAll();</span>
+<span class="nc" id="L31">            response.put(&quot;totalCompras&quot;, compras.size());</span>
+<span class="nc" id="L32">            response.put(&quot;status&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L33">            response.put(&quot;message&quot;, &quot;Diagnóstico completado&quot;);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            if (!compras.isEmpty()) {</span>
+<span class="nc" id="L35">                response.put(&quot;primeraCompra&quot;, Map.of(</span>
+<span class="nc" id="L36">                    &quot;id&quot;, compras.get(0).getId(),</span>
+<span class="nc" id="L37">                    &quot;fecha&quot;, compras.get(0).getFecha(),</span>
+<span class="nc" id="L38">                    &quot;total&quot;, compras.get(0).getTotal()</span>
+                ));
+            }
+<span class="nc" id="L41">        } catch (Exception e) {</span>
+<span class="nc" id="L42">            response.put(&quot;status&quot;, &quot;error&quot;);</span>
+<span class="nc" id="L43">            response.put(&quot;message&quot;, e.getMessage());</span>
+<span class="nc" id="L44">            response.put(&quot;totalCompras&quot;, 0);</span>
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">        return ResponseEntity.ok(response);</span>
+    }
+
+    // Endpoint de prueba simple sin relaciones
+    @GetMapping(&quot;/test-simple&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; testSimple() {
+<span class="nc" id="L52">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+<span class="nc" id="L54">            response.put(&quot;status&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L55">            response.put(&quot;message&quot;, &quot;Endpoint de prueba simple funcionando&quot;);</span>
+<span class="nc" id="L56">            response.put(&quot;timestamp&quot;, java.time.LocalDateTime.now().toString());</span>
+<span class="nc" id="L57">            response.put(&quot;totalCompras&quot;, 0);</span>
+<span class="nc" id="L58">            response.put(&quot;compras&quot;, List.of());</span>
+<span class="nc" id="L59">        } catch (Exception e) {</span>
+<span class="nc" id="L60">            response.put(&quot;status&quot;, &quot;error&quot;);</span>
+<span class="nc" id="L61">            response.put(&quot;message&quot;, e.getMessage());</span>
+<span class="nc" id="L62">        }</span>
+<span class="nc" id="L63">        return ResponseEntity.ok(response);</span>
+    }
+
+    // Endpoint completamente público para desarrollo
+    @GetMapping(&quot;/demo&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getDemo() {
+<span class="nc" id="L69">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+            // Primero probar la conexión a la base de datos
+<span class="nc" id="L72">            List&lt;Compra&gt; compras = compraService.findAll();</span>
+            
+            // Convertir a una estructura más simple para evitar problemas de serialización
+<span class="nc" id="L75">            List&lt;Map&lt;String, Object&gt;&gt; comprasSimplificadas = new ArrayList&lt;&gt;();</span>
+            
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (Compra compra : compras) {</span>
+<span class="nc" id="L78">                Map&lt;String, Object&gt; compraMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L79">                compraMap.put(&quot;id&quot;, compra.getId());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                compraMap.put(&quot;fecha&quot;, compra.getFecha() != null ? compra.getFecha().toString() : null);</span>
+<span class="nc" id="L81">                compraMap.put(&quot;numeroFactura&quot;, compra.getNumeroFactura());</span>
+<span class="nc" id="L82">                compraMap.put(&quot;estado&quot;, compra.getEstado());</span>
+<span class="nc" id="L83">                compraMap.put(&quot;subtotal&quot;, compra.getSubtotal());</span>
+<span class="nc" id="L84">                compraMap.put(&quot;descuentoTotal&quot;, compra.getDescuentoTotal());</span>
+<span class="nc" id="L85">                compraMap.put(&quot;iva&quot;, compra.getIva());</span>
+<span class="nc" id="L86">                compraMap.put(&quot;total&quot;, compra.getTotal());</span>
+<span class="nc" id="L87">                compraMap.put(&quot;observaciones&quot;, compra.getObservaciones());</span>
+<span class="nc" id="L88">                compraMap.put(&quot;usuario&quot;, compra.getUsuario());</span>
+                
+                // Información del proveedor simplificada
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (compra.getProveedor() != null) {</span>
+<span class="nc" id="L92">                    Map&lt;String, Object&gt; proveedorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L93">                    proveedorMap.put(&quot;id&quot;, compra.getProveedor().getId());</span>
+<span class="nc" id="L94">                    proveedorMap.put(&quot;nombre&quot;, compra.getProveedor().getNombre());</span>
+<span class="nc" id="L95">                    compraMap.put(&quot;proveedor&quot;, proveedorMap);</span>
+                }
+                
+<span class="nc" id="L98">                comprasSimplificadas.add(compraMap);</span>
+<span class="nc" id="L99">            }</span>
+            
+<span class="nc" id="L101">            response.put(&quot;status&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L102">            response.put(&quot;message&quot;, &quot;Datos de compras cargados correctamente&quot;);</span>
+<span class="nc" id="L103">            response.put(&quot;compras&quot;, comprasSimplificadas);</span>
+<span class="nc" id="L104">            response.put(&quot;total&quot;, compras.size());</span>
+<span class="nc" id="L105">            response.put(&quot;timestamp&quot;, java.time.LocalDateTime.now().toString());</span>
+            
+<span class="nc" id="L107">        } catch (Exception e) {</span>
+<span class="nc" id="L108">            response.put(&quot;status&quot;, &quot;error&quot;);</span>
+<span class="nc" id="L109">            response.put(&quot;message&quot;, &quot;Error al cargar compras: &quot; + e.getMessage());</span>
+<span class="nc" id="L110">            response.put(&quot;compras&quot;, List.of());</span>
+<span class="nc" id="L111">            response.put(&quot;total&quot;, 0);</span>
+<span class="nc" id="L112">            response.put(&quot;timestamp&quot;, java.time.LocalDateTime.now().toString());</span>
+            
+            // Log del error para debugging
+<span class="nc" id="L115">            System.err.println(&quot;Error en endpoint /demo: &quot; + e.getMessage());</span>
+<span class="nc" id="L116">            e.printStackTrace();</span>
+<span class="nc" id="L117">        }</span>
+<span class="nc" id="L118">        return ResponseEntity.ok(response);</span>
+    }
+
+    // Endpoint temporal para permitir acceso a todos los usuarios autenticados
+    @GetMapping(&quot;/public&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getAllPublic() {
+<span class="nc" id="L124">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+<span class="nc" id="L126">            List&lt;Compra&gt; compras = compraService.findAll();</span>
+<span class="nc" id="L127">            response.put(&quot;compras&quot;, compras);</span>
+<span class="nc" id="L128">            response.put(&quot;total&quot;, compras.size());</span>
+<span class="nc" id="L129">            response.put(&quot;status&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L130">        } catch (Exception e) {</span>
+<span class="nc" id="L131">            response.put(&quot;status&quot;, &quot;error&quot;);</span>
+<span class="nc" id="L132">            response.put(&quot;message&quot;, e.getMessage());</span>
+<span class="nc" id="L133">            response.put(&quot;compras&quot;, List.of());</span>
+<span class="nc" id="L134">            response.put(&quot;total&quot;, 0);</span>
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">        return ResponseEntity.ok(response);</span>
+    }
+
+    @GetMapping
+    public List&lt;Compra&gt; getAll() {
+<span class="nc" id="L141">        return compraService.findAll();</span>
+    }
+
+    @GetMapping(&quot;/proveedor/{proveedorId}&quot;)
+    public List&lt;Compra&gt; getByProveedor(@PathVariable Long proveedorId) {
+<span class="nc" id="L146">        return compraService.findAll().stream()</span>
+<span class="nc bnc" id="L147" title="All 4 branches missed.">            .filter(c -&gt; c.getProveedor() != null &amp;&amp; c.getProveedor().getId().equals(proveedorId))</span>
+<span class="nc" id="L148">            .toList();</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Compra&gt; getById(@PathVariable Long id) {
+<span class="nc" id="L153">        Optional&lt;Compra&gt; compra = compraService.findById(id);</span>
+<span class="nc" id="L154">        return compra.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @PostMapping
+    public Compra create(@RequestBody Compra compra) {
+<span class="nc" id="L159">        return compraService.save(compra);</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Compra&gt; update(@PathVariable Long id, @RequestBody Compra compra) {
+<span class="nc" id="L164">        compra.setId(id);</span>
+<span class="nc" id="L165">        Compra updated = compraService.save(compra);</span>
+<span class="nc" id="L166">        return ResponseEntity.ok(updated);</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+<span class="nc" id="L171">        compraService.deleteById(id);</span>
+<span class="nc" id="L172">        return ResponseEntity.ok().build();</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

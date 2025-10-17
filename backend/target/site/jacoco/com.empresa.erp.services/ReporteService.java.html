@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.services</a> &gt; <span class="el_source">ReporteService.java</span></div><h1>ReporteService.java</h1><pre class="source lang-java linenums">package com.empresa.erp.services;
+
+import com.empresa.erp.models.MovimientoInventario;
+import com.empresa.erp.models.Pedido;
+import com.empresa.erp.models.Producto;
+import com.empresa.erp.models.ReporteVentasPorClienteDTO;
+import com.empresa.erp.models.Cliente;
+import com.empresa.erp.models.ReporteProductosMasVendidosDTO;
+import com.empresa.erp.models.ReporteStockBajoDTO;
+import com.empresa.erp.repositories.MovimientoInventarioRepository;
+import com.empresa.erp.repositories.PedidoRepository;
+import com.empresa.erp.repositories.ProductoRepository;
+import com.empresa.erp.repositories.ClienteRepository;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class ReporteService {
+    
+    private final ProductoRepository productoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final MovimientoInventarioRepository movimientoInventarioRepository;
+    private final ClienteRepository clienteRepository;
+    
+    public ReporteService(ProductoRepository productoRepository,
+                         PedidoRepository pedidoRepository,
+                         MovimientoInventarioRepository movimientoInventarioRepository,
+<span class="fc" id="L32">                         ClienteRepository clienteRepository) {</span>
+<span class="fc" id="L33">        this.productoRepository = productoRepository;</span>
+<span class="fc" id="L34">        this.pedidoRepository = pedidoRepository;</span>
+<span class="fc" id="L35">        this.movimientoInventarioRepository = movimientoInventarioRepository;</span>
+<span class="fc" id="L36">        this.clienteRepository = clienteRepository;</span>
+<span class="fc" id="L37">    }</span>
+    
+    // ===== REPORTES DE INVENTARIO =====
+    
+    /**
+     * Obtiene el estado actual del inventario con información detallada
+     */
+    public List&lt;Map&lt;String, Object&gt;&gt; getEstadoInventario() {
+<span class="nc" id="L45">        List&lt;Producto&gt; productos = productoRepository.findAll();</span>
+<span class="nc" id="L46">        List&lt;Map&lt;String, Object&gt;&gt; estadoInventario = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (Producto producto : productos) {</span>
+<span class="nc" id="L49">            Map&lt;String, Object&gt; info = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">            info.put(&quot;id&quot;, producto.getId());</span>
+<span class="nc" id="L51">            info.put(&quot;nombre&quot;, producto.getNombre());</span>
+<span class="nc" id="L52">            info.put(&quot;stockActual&quot;, producto.getStock());</span>
+<span class="nc" id="L53">            info.put(&quot;precio&quot;, producto.getPrecio());</span>
+<span class="nc" id="L54">            info.put(&quot;valorTotal&quot;, producto.getStock() * producto.getPrecio());</span>
+            
+            // Calcular valor total del inventario
+<span class="nc" id="L57">            estadoInventario.add(info);</span>
+<span class="nc" id="L58">        }</span>
+        
+<span class="nc" id="L60">        return estadoInventario;</span>
+    }
+    
+    /**
+     * Obtiene productos con stock bajo (menos de 5 unidades)
+     */
+    public List&lt;Map&lt;String, Object&gt;&gt; getProductosStockBajo(int stockMinimo) {
+<span class="nc" id="L67">        List&lt;Producto&gt; productos = productoRepository.findAll();</span>
+<span class="nc" id="L68">        return productos.stream()</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                .filter(p -&gt; p.getStock() &lt;= stockMinimo)</span>
+<span class="nc" id="L70">                .map(p -&gt; {</span>
+<span class="nc" id="L71">                    Map&lt;String, Object&gt; info = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">                    info.put(&quot;id&quot;, p.getId());</span>
+<span class="nc" id="L73">                    info.put(&quot;nombre&quot;, p.getNombre());</span>
+<span class="nc" id="L74">                    info.put(&quot;stockActual&quot;, p.getStock());</span>
+<span class="nc" id="L75">                    info.put(&quot;stockMinimo&quot;, stockMinimo);</span>
+<span class="nc" id="L76">                    info.put(&quot;necesitaReposicion&quot;, stockMinimo - p.getStock());</span>
+<span class="nc" id="L77">                    return info;</span>
+                })
+<span class="nc" id="L79">                .collect(Collectors.toList());</span>
+    }
+    
+    /**
+     * Obtiene el historial de movimientos de un producto con resumen
+     */
+    public Map&lt;String, Object&gt; getHistorialProducto(Long productoId) {
+<span class="nc" id="L86">        List&lt;MovimientoInventario&gt; movimientos = movimientoInventarioRepository.findByProductoIdOrderByFechaDesc(productoId);</span>
+<span class="nc" id="L87">        Optional&lt;Producto&gt; productoOpt = productoRepository.findById(productoId);</span>
+        
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (productoOpt.isEmpty()) {</span>
+<span class="nc" id="L90">            throw new RuntimeException(&quot;Producto no encontrado con id: &quot; + productoId);</span>
+        }
+        
+<span class="nc" id="L93">        Producto producto = productoOpt.get();</span>
+        
+        // Calcular estadísticas
+<span class="nc" id="L96">        int totalEntradas = 0;</span>
+<span class="nc" id="L97">        int totalSalidas = 0;</span>
+<span class="nc" id="L98">        double valorEntradas = 0;</span>
+<span class="nc" id="L99">        double valorSalidas = 0;</span>
+        
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (MovimientoInventario movimiento : movimientos) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (movimiento.getTipo() == MovimientoInventario.TipoMovimiento.ENTRADA) {</span>
+<span class="nc" id="L103">                totalEntradas += movimiento.getCantidad();</span>
+<span class="nc" id="L104">                valorEntradas += movimiento.getCantidad() * producto.getPrecio();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            } else if (movimiento.getTipo() == MovimientoInventario.TipoMovimiento.SALIDA) {</span>
+<span class="nc" id="L106">                totalSalidas += movimiento.getCantidad();</span>
+<span class="nc" id="L107">                valorSalidas += movimiento.getCantidad() * producto.getPrecio();</span>
+            }
+<span class="nc" id="L109">        }</span>
+        
+<span class="nc" id="L111">        Map&lt;String, Object&gt; resultado = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L112">        resultado.put(&quot;producto&quot;, producto);</span>
+<span class="nc" id="L113">        resultado.put(&quot;movimientos&quot;, movimientos);</span>
+<span class="nc" id="L114">        resultado.put(&quot;totalEntradas&quot;, totalEntradas);</span>
+<span class="nc" id="L115">        resultado.put(&quot;totalSalidas&quot;, totalSalidas);</span>
+<span class="nc" id="L116">        resultado.put(&quot;valorEntradas&quot;, valorEntradas);</span>
+<span class="nc" id="L117">        resultado.put(&quot;valorSalidas&quot;, valorSalidas);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        resultado.put(&quot;rotacion&quot;, totalSalidas &gt; 0 ? (double) totalSalidas / producto.getStock() : 0);</span>
+        
+<span class="nc" id="L120">        return resultado;</span>
+    }
+    
+    // ===== REPORTES DE VENTAS =====
+    
+    /**
+     * Obtiene resumen de ventas por período
+     */
+    public Map&lt;String, Object&gt; getResumenVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+<span class="nc" id="L129">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+        
+        // Filtrar pedidos por fecha
+<span class="nc" id="L132">        List&lt;Pedido&gt; pedidosFiltrados = pedidos.stream()</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                .filter(p -&gt; p.getFecha() != null &amp;&amp; </span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                           p.getFecha().atStartOfDay().isAfter(fechaInicio) &amp;&amp; </span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                           p.getFecha().atStartOfDay().isBefore(fechaFin))</span>
+<span class="nc" id="L136">                .collect(Collectors.toList());</span>
+        
+        // Calcular estadísticas
+<span class="nc" id="L139">        int totalPedidos = pedidosFiltrados.size();</span>
+<span class="nc" id="L140">        double totalVentas = pedidosFiltrados.stream().mapToDouble(Pedido::getTotal).sum();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        double promedioVenta = totalPedidos &gt; 0 ? totalVentas / totalPedidos : 0;</span>
+        
+        // Productos más vendidos
+<span class="nc" id="L144">        Map&lt;Long, Integer&gt; productosVendidos = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (Pedido pedido : pedidosFiltrados) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            for (var detalle : pedido.getDetalles()) {</span>
+<span class="nc" id="L147">                Long productoId = detalle.getProducto().getId();</span>
+<span class="nc" id="L148">                productosVendidos.merge(productoId, detalle.getCantidad(), Integer::sum);</span>
+<span class="nc" id="L149">            }</span>
+<span class="nc" id="L150">        }</span>
+        
+<span class="nc" id="L152">        Map&lt;String, Object&gt; resultado = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L153">        resultado.put(&quot;fechaInicio&quot;, fechaInicio);</span>
+<span class="nc" id="L154">        resultado.put(&quot;fechaFin&quot;, fechaFin);</span>
+<span class="nc" id="L155">        resultado.put(&quot;totalPedidos&quot;, totalPedidos);</span>
+<span class="nc" id="L156">        resultado.put(&quot;totalVentas&quot;, totalVentas);</span>
+<span class="nc" id="L157">        resultado.put(&quot;promedioVenta&quot;, promedioVenta);</span>
+<span class="nc" id="L158">        resultado.put(&quot;productosVendidos&quot;, productosVendidos);</span>
+<span class="nc" id="L159">        resultado.put(&quot;pedidos&quot;, pedidosFiltrados);</span>
+        
+<span class="nc" id="L161">        return resultado;</span>
+    }
+    
+    /**
+     * Obtiene los productos más vendidos
+     */
+    public List&lt;Map&lt;String, Object&gt;&gt; getProductosMasVendidos(int limite) {
+<span class="nc" id="L168">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc" id="L169">        Map&lt;Long, Integer&gt; productosVendidos = new HashMap&lt;&gt;();</span>
+        
+        // Contar ventas por producto
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            for (var detalle : pedido.getDetalles()) {</span>
+<span class="nc" id="L174">                Long productoId = detalle.getProducto().getId();</span>
+<span class="nc" id="L175">                productosVendidos.merge(productoId, detalle.getCantidad(), Integer::sum);</span>
+<span class="nc" id="L176">            }</span>
+<span class="nc" id="L177">        }</span>
+        
+        // Ordenar por cantidad vendida y obtener los top
+<span class="nc" id="L180">        return productosVendidos.entrySet().stream()</span>
+<span class="nc" id="L181">                .sorted(Map.Entry.&lt;Long, Integer&gt;comparingByValue().reversed())</span>
+<span class="nc" id="L182">                .limit(limite)</span>
+<span class="nc" id="L183">                .map(entry -&gt; {</span>
+<span class="nc" id="L184">                    Optional&lt;Producto&gt; productoOpt = productoRepository.findById(entry.getKey());</span>
+<span class="nc" id="L185">                    Map&lt;String, Object&gt; info = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                    if (productoOpt.isPresent()) {</span>
+<span class="nc" id="L187">                        Producto producto = productoOpt.get();</span>
+<span class="nc" id="L188">                        info.put(&quot;id&quot;, producto.getId());</span>
+<span class="nc" id="L189">                        info.put(&quot;nombre&quot;, producto.getNombre());</span>
+<span class="nc" id="L190">                        info.put(&quot;cantidadVendida&quot;, entry.getValue());</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                        Double precio = producto.getPrecio() != null ? producto.getPrecio() : 0.0;</span>
+<span class="nc" id="L192">                        info.put(&quot;precio&quot;, precio);</span>
+<span class="nc" id="L193">                        double ingreso = entry.getValue() * precio;</span>
+<span class="nc" id="L194">                        info.put(&quot;valorVendido&quot;, ingreso);</span>
+<span class="nc" id="L195">                        info.put(&quot;ingreso&quot;, ingreso);</span>
+                    }
+<span class="nc" id="L197">                    return info;</span>
+                })
+<span class="nc" id="L199">                .collect(Collectors.toList());</span>
+    }
+    
+    // ===== REPORTES DE MOVIMIENTOS =====
+    
+    /**
+     * Obtiene resumen de movimientos por tipo
+     */
+    public Map&lt;String, Object&gt; getResumenMovimientos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+<span class="nc" id="L208">        List&lt;MovimientoInventario&gt; movimientos = movimientoInventarioRepository.findByFechaBetweenOrderByFechaDesc(fechaInicio, fechaFin);</span>
+        
+<span class="nc" id="L210">        Map&lt;MovimientoInventario.TipoMovimiento, Integer&gt; resumenPorTipo = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L211">        Map&lt;Long, Integer&gt; resumenPorProducto = new HashMap&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (MovimientoInventario movimiento : movimientos) {</span>
+            // Contar por tipo
+<span class="nc" id="L215">            resumenPorTipo.merge(movimiento.getTipo(), movimiento.getCantidad(), Integer::sum);</span>
+            
+            // Contar por producto
+<span class="nc" id="L218">            Long productoId = movimiento.getProducto().getId();</span>
+<span class="nc" id="L219">            resumenPorProducto.merge(productoId, movimiento.getCantidad(), Integer::sum);</span>
+<span class="nc" id="L220">        }</span>
+        
+<span class="nc" id="L222">        Map&lt;String, Object&gt; resultado = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L223">        resultado.put(&quot;fechaInicio&quot;, fechaInicio);</span>
+<span class="nc" id="L224">        resultado.put(&quot;fechaFin&quot;, fechaFin);</span>
+<span class="nc" id="L225">        resultado.put(&quot;totalMovimientos&quot;, movimientos.size());</span>
+<span class="nc" id="L226">        resultado.put(&quot;resumenPorTipo&quot;, resumenPorTipo);</span>
+<span class="nc" id="L227">        resultado.put(&quot;resumenPorProducto&quot;, resumenPorProducto);</span>
+<span class="nc" id="L228">        resultado.put(&quot;movimientos&quot;, movimientos);</span>
+        
+<span class="nc" id="L230">        return resultado;</span>
+    }
+    
+    // ===== REPORTES GENERALES =====
+    
+    /**
+     * Obtiene dashboard con estadísticas generales
+     */
+    public Map&lt;String, Object&gt; getDashboard() {
+<span class="nc" id="L239">        Map&lt;String, Object&gt; dashboard = new HashMap&lt;&gt;();</span>
+        // Totales
+<span class="nc" id="L241">        int totalClientes = clienteRepository.findAll().size();</span>
+<span class="nc" id="L242">        int totalProductos = productoRepository.findAll().size();</span>
+<span class="nc" id="L243">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc" id="L244">        int totalPedidos = pedidos.size();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        double totalVentas = pedidos.stream().mapToDouble(p -&gt; p.getTotal() != null ? p.getTotal() : 0.0).sum();</span>
+<span class="nc" id="L246">        dashboard.put(&quot;totalClientes&quot;, totalClientes);</span>
+<span class="nc" id="L247">        dashboard.put(&quot;totalProductos&quot;, totalProductos);</span>
+<span class="nc" id="L248">        dashboard.put(&quot;totalPedidos&quot;, totalPedidos);</span>
+<span class="nc" id="L249">        dashboard.put(&quot;totalVentas&quot;, totalVentas);</span>
+
+        // Producto más vendido
+<span class="nc" id="L252">        Map&lt;Long, Integer&gt; ventasPorProducto = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            if (pedido.getDetalles() == null) continue;</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            for (var detalle : pedido.getDetalles()) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                if (detalle.getProducto() == null) continue;</span>
+<span class="nc" id="L257">                ventasPorProducto.put(</span>
+<span class="nc" id="L258">                    detalle.getProducto().getId(),</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                    ventasPorProducto.getOrDefault(detalle.getProducto().getId(), 0) + (detalle.getCantidad() != null ? detalle.getCantidad() : 0)</span>
+                );
+<span class="nc" id="L261">            }</span>
+<span class="nc" id="L262">        }</span>
+<span class="nc" id="L263">        Producto productoMasVendido = null;</span>
+<span class="nc" id="L264">        int maxCantidad = 0;</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        for (var entry : ventasPorProducto.entrySet()) {</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">            if (entry.getValue() &gt; maxCantidad) {</span>
+<span class="nc" id="L267">                maxCantidad = entry.getValue();</span>
+<span class="nc" id="L268">                productoMasVendido = productoRepository.findById(entry.getKey()).orElse(null);</span>
+            }
+<span class="nc" id="L270">        }</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (productoMasVendido != null) {</span>
+<span class="nc" id="L272">            Map&lt;String, Object&gt; prod = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L273">            prod.put(&quot;productoId&quot;, productoMasVendido.getId());</span>
+<span class="nc" id="L274">            prod.put(&quot;nombre&quot;, productoMasVendido.getNombre());</span>
+<span class="nc" id="L275">            prod.put(&quot;cantidadVendida&quot;, maxCantidad);</span>
+<span class="nc" id="L276">            dashboard.put(&quot;productoMasVendido&quot;, prod);</span>
+        }
+
+        // Cliente con más compras
+<span class="nc" id="L280">        Map&lt;Long, Double&gt; comprasPorCliente = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">            if (pedido.getCliente() == null) continue;</span>
+<span class="nc" id="L283">            comprasPorCliente.put(</span>
+<span class="nc" id="L284">                pedido.getCliente().getId(),</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                comprasPorCliente.getOrDefault(pedido.getCliente().getId(), 0.0) + (pedido.getTotal() != null ? pedido.getTotal() : 0.0)</span>
+            );
+<span class="nc" id="L287">        }</span>
+<span class="nc" id="L288">        Cliente clienteTop = null;</span>
+<span class="nc" id="L289">        double maxCompras = 0.0;</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        for (var entry : comprasPorCliente.entrySet()) {</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">            if (entry.getValue() &gt; maxCompras) {</span>
+<span class="nc" id="L292">                maxCompras = entry.getValue();</span>
+<span class="nc" id="L293">                clienteTop = clienteRepository.findById(entry.getKey()).orElse(null);</span>
+            }
+<span class="nc" id="L295">        }</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if (clienteTop != null) {</span>
+<span class="nc" id="L297">            Map&lt;String, Object&gt; cli = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L298">            cli.put(&quot;clienteId&quot;, clienteTop.getId());</span>
+<span class="nc" id="L299">            cli.put(&quot;nombre&quot;, clienteTop.getNombre());</span>
+<span class="nc" id="L300">            cli.put(&quot;totalCompras&quot;, maxCompras);</span>
+<span class="nc" id="L301">            dashboard.put(&quot;clienteTop&quot;, cli);</span>
+        }
+
+        // Agrupar pedidos por estado
+<span class="nc" id="L305">        Map&lt;String, Long&gt; agrupados = pedidos.stream()</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">            .filter(p -&gt; p.getEstado() != null)</span>
+<span class="nc" id="L307">            .collect(java.util.stream.Collectors.groupingBy(Pedido::getEstado, java.util.stream.Collectors.counting()));</span>
+<span class="nc" id="L308">        java.util.List&lt;java.util.Map&lt;String, Object&gt;&gt; pedidosPorEstado = new java.util.ArrayList&lt;&gt;();</span>
+<span class="nc" id="L309">        java.util.Map&lt;String, String&gt; colores = java.util.Map.of(</span>
+            &quot;Pendiente&quot;, &quot;yellow&quot;,
+            &quot;Enviado&quot;, &quot;blue&quot;,
+            &quot;Entregado&quot;, &quot;green&quot;,
+            &quot;Cancelado&quot;, &quot;red&quot;
+        );
+<span class="nc bnc" id="L315" title="All 2 branches missed.">        for (java.util.Map.Entry&lt;String, Long&gt; entry : agrupados.entrySet()) {</span>
+<span class="nc" id="L316">            java.util.Map&lt;String, Object&gt; obj = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc" id="L317">            obj.put(&quot;estado&quot;, entry.getKey());</span>
+<span class="nc" id="L318">            obj.put(&quot;cantidad&quot;, entry.getValue());</span>
+<span class="nc" id="L319">            obj.put(&quot;color&quot;, colores.getOrDefault(entry.getKey(), &quot;gray&quot;));</span>
+<span class="nc" id="L320">            pedidosPorEstado.add(obj);</span>
+<span class="nc" id="L321">        }</span>
+<span class="nc" id="L322">        dashboard.put(&quot;pedidosPorEstado&quot;, pedidosPorEstado);</span>
+
+        // === VENTAS DEL MES ===
+<span class="nc" id="L325">        java.time.LocalDate primerDiaMes = java.time.LocalDate.now().withDayOfMonth(1);</span>
+<span class="nc" id="L326">        java.time.LocalDate ultimoDiaMes = java.time.LocalDate.now().withDayOfMonth(java.time.LocalDate.now().lengthOfMonth());</span>
+<span class="nc" id="L327">        double ventasMes = pedidos.stream()</span>
+<span class="nc bnc" id="L328" title="All 6 branches missed.">            .filter(p -&gt; p.getFecha() != null &amp;&amp; !p.getFecha().isBefore(primerDiaMes) &amp;&amp; !p.getFecha().isAfter(ultimoDiaMes))</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">            .mapToDouble(p -&gt; p.getTotal() != null ? p.getTotal() : 0.0)</span>
+<span class="nc" id="L330">            .sum();</span>
+<span class="nc" id="L331">        dashboard.put(&quot;ventasMes&quot;, ventasMes);</span>
+
+        // === PEDIDOS PENDIENTES ===
+<span class="nc" id="L334">        long pedidosPendientes = pedidos.stream()</span>
+<span class="nc" id="L335">            .filter(p -&gt; &quot;Pendiente&quot;.equalsIgnoreCase(p.getEstado()))</span>
+<span class="nc" id="L336">            .count();</span>
+<span class="nc" id="L337">        dashboard.put(&quot;pedidosPendientes&quot;, pedidosPendientes);</span>
+
+        // === ALERTAS DE STOCK ===
+<span class="nc" id="L340">        long alertasStock = productoRepository.findAll().stream()</span>
+<span class="nc bnc" id="L341" title="All 4 branches missed.">            .filter(p -&gt; p.getStock() != null &amp;&amp; p.getStock() &lt;= 5)</span>
+<span class="nc" id="L342">            .count();</span>
+<span class="nc" id="L343">        dashboard.put(&quot;alertasStock&quot;, alertasStock);</span>
+
+        // === CLIENTES NUEVOS DEL MES ===
+<span class="nc" id="L346">        long clientesNuevos = clienteRepository.findAll().stream()</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">            .filter(c -&gt; c.getFechaCreacion() != null &amp;&amp;</span>
+<span class="nc bnc" id="L348" title="All 4 branches missed.">                !c.getFechaCreacion().isBefore(primerDiaMes) &amp;&amp; !c.getFechaCreacion().isAfter(ultimoDiaMes))</span>
+<span class="nc" id="L349">            .count();</span>
+<span class="nc" id="L350">        dashboard.put(&quot;clientesNuevos&quot;, clientesNuevos);</span>
+
+<span class="nc" id="L352">        return dashboard;</span>
+    }
+
+    public List&lt;ReporteVentasPorClienteDTO&gt; obtenerVentasPorCliente() {
+<span class="nc" id="L356">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc" id="L357">        Map&lt;Long, ReporteVentasPorClienteDTO&gt; reporte = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc" id="L360">            Cliente cliente = pedido.getCliente();</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            if (cliente == null) continue;</span>
+<span class="nc" id="L362">            ReporteVentasPorClienteDTO dto = reporte.get(cliente.getId());</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">            if (dto == null) {</span>
+<span class="nc" id="L364">                dto = new ReporteVentasPorClienteDTO(</span>
+<span class="nc" id="L365">                    cliente.getId(),</span>
+<span class="nc" id="L366">                    cliente.getNombre(),</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                    pedido.getTotal() != null ? pedido.getTotal() : 0.0,</span>
+<span class="nc" id="L368">                    1L</span>
+                );
+            } else {
+<span class="nc bnc" id="L371" title="All 2 branches missed.">                dto.setTotalVentas(dto.getTotalVentas() + (pedido.getTotal() != null ? pedido.getTotal() : 0.0));</span>
+<span class="nc" id="L372">                dto.setCantidadPedidos(dto.getCantidadPedidos() + 1);</span>
+            }
+<span class="nc" id="L374">            reporte.put(cliente.getId(), dto);</span>
+<span class="nc" id="L375">        }</span>
+<span class="nc" id="L376">        return new ArrayList&lt;&gt;(reporte.values());</span>
+    }
+
+    public List&lt;ReporteProductosMasVendidosDTO&gt; obtenerProductosMasVendidos() {
+<span class="nc" id="L380">        Map&lt;Long, ReporteProductosMasVendidosDTO&gt; reporte = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L381">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">            if (pedido.getDetalles() == null) continue;</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">            for (var detalle : pedido.getDetalles()) {</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">                if (detalle.getProducto() == null) continue;</span>
+<span class="nc" id="L386">                Long productoId = detalle.getProducto().getId();</span>
+<span class="nc" id="L387">                String nombre = detalle.getProducto().getNombre();</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">                Integer cantidad = detalle.getCantidad() != null ? detalle.getCantidad() : 0;</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">                Double total = detalle.getPrecioUnitario() != null ? detalle.getPrecioUnitario() * cantidad : 0.0;</span>
+<span class="nc" id="L390">                ReporteProductosMasVendidosDTO dto = reporte.get(productoId);</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">                if (dto == null) {</span>
+<span class="nc" id="L392">                    dto = new ReporteProductosMasVendidosDTO(productoId, nombre, cantidad, total);</span>
+                } else {
+<span class="nc" id="L394">                    dto.setCantidadVendida(dto.getCantidadVendida() + cantidad);</span>
+<span class="nc" id="L395">                    dto.setTotalVentas(dto.getTotalVentas() + total);</span>
+                }
+<span class="nc" id="L397">                reporte.put(productoId, dto);</span>
+<span class="nc" id="L398">            }</span>
+<span class="nc" id="L399">        }</span>
+        // Ordenar por cantidad vendida descendente
+<span class="nc" id="L401">        return reporte.values().stream()</span>
+<span class="nc" id="L402">                .sorted((a, b) -&gt; b.getCantidadVendida().compareTo(a.getCantidadVendida()))</span>
+<span class="nc" id="L403">                .toList();</span>
+    }
+
+    public List&lt;ReporteStockBajoDTO&gt; obtenerProductosStockBajo(int umbral) {
+<span class="nc" id="L407">        List&lt;ReporteStockBajoDTO&gt; resultado = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L408">        List&lt;Producto&gt; productos = productoRepository.findAll();</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        for (Producto producto : productos) {</span>
+<span class="nc bnc" id="L410" title="All 4 branches missed.">            if (producto.getStock() != null &amp;&amp; producto.getStock() &lt;= umbral) {</span>
+<span class="nc" id="L411">                resultado.add(new ReporteStockBajoDTO(</span>
+<span class="nc" id="L412">                    producto.getId(),</span>
+<span class="nc" id="L413">                    producto.getNombre(),</span>
+<span class="nc" id="L414">                    producto.getStock()</span>
+                ));
+            }
+<span class="nc" id="L417">        }</span>
+<span class="nc" id="L418">        return resultado;</span>
+    }
+
+    public List&lt;Pedido&gt; obtenerPedidosPorFecha(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L422">        return pedidoRepository.findAll().stream()</span>
+<span class="nc bnc" id="L423" title="All 6 branches missed.">            .filter(p -&gt; p.getFecha() != null &amp;&amp; !p.getFecha().isBefore(desde) &amp;&amp; !p.getFecha().isAfter(hasta))</span>
+<span class="nc" id="L424">            .collect(Collectors.toList());</span>
+    }
+
+    public Map&lt;String, Object&gt; obtenerResumenVentas(LocalDate desde, LocalDate hasta) {
+<span class="nc" id="L428">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll().stream()</span>
+<span class="nc bnc" id="L429" title="All 6 branches missed.">            .filter(p -&gt; p.getFecha() != null &amp;&amp; !p.getFecha().isBefore(desde) &amp;&amp; !p.getFecha().isAfter(hasta))</span>
+<span class="nc" id="L430">            .collect(Collectors.toList());</span>
+
+<span class="nc bnc" id="L432" title="All 2 branches missed.">        double totalVentas = pedidos.stream().mapToDouble(p -&gt; p.getTotal() != null ? p.getTotal() : 0.0).sum();</span>
+<span class="nc" id="L433">        int totalPedidos = pedidos.size();</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">        double promedioPorPedido = totalPedidos &gt; 0 ? totalVentas / totalPedidos : 0.0;</span>
+
+<span class="nc" id="L436">        Map&lt;String, Object&gt; resumen = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L437">        resumen.put(&quot;totalPedidos&quot;, totalPedidos);</span>
+<span class="nc" id="L438">        resumen.put(&quot;totalVentas&quot;, totalVentas);</span>
+<span class="nc" id="L439">        resumen.put(&quot;promedioPorPedido&quot;, promedioPorPedido);</span>
+<span class="nc" id="L440">        return resumen;</span>
+    }
+
+    // ===== INGRESOS POR MES =====
+    public List&lt;Map&lt;String, Object&gt;&gt; getIngresosPorMes() {
+<span class="nc" id="L445">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc" id="L446">        Map&lt;String, Double&gt; ingresosPorMes = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">        for (Pedido pedido : pedidos) {</span>
+<span class="nc bnc" id="L448" title="All 4 branches missed.">            if (pedido.getFecha() == null || pedido.getTotal() == null) continue;</span>
+<span class="nc" id="L449">            String mes = pedido.getFecha().getYear() + &quot;-&quot; + String.format(&quot;%02d&quot;, pedido.getFecha().getMonthValue());</span>
+<span class="nc" id="L450">            ingresosPorMes.put(mes, ingresosPorMes.getOrDefault(mes, 0.0) + pedido.getTotal());</span>
+<span class="nc" id="L451">        }</span>
+<span class="nc" id="L452">        List&lt;Map&lt;String, Object&gt;&gt; resultado = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L453">        ingresosPorMes.entrySet().stream()</span>
+<span class="nc" id="L454">            .sorted(Map.Entry.comparingByKey())</span>
+<span class="nc" id="L455">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L456">                Map&lt;String, Object&gt; obj = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L457">                obj.put(&quot;mes&quot;, entry.getKey());</span>
+<span class="nc" id="L458">                obj.put(&quot;ingreso&quot;, entry.getValue());</span>
+<span class="nc" id="L459">                resultado.add(obj);</span>
+<span class="nc" id="L460">            });</span>
+<span class="nc" id="L461">        return resultado;</span>
+    }
+
+    // ===== CLIENTES NUEVOS POR MES =====
+    public List&lt;Map&lt;String, Object&gt;&gt; getClientesNuevosPorMes() {
+<span class="nc" id="L466">        List&lt;com.empresa.erp.models.Cliente&gt; clientes = clienteRepository.findAll();</span>
+<span class="nc" id="L467">        Map&lt;String, Long&gt; clientesPorMes = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">        for (com.empresa.erp.models.Cliente cliente : clientes) {</span>
+<span class="nc bnc" id="L469" title="All 2 branches missed.">            if (cliente.getFechaCreacion() == null) continue;</span>
+<span class="nc" id="L470">            String mes = cliente.getFechaCreacion().getYear() + &quot;-&quot; + String.format(&quot;%02d&quot;, cliente.getFechaCreacion().getMonthValue());</span>
+<span class="nc" id="L471">            clientesPorMes.put(mes, clientesPorMes.getOrDefault(mes, 0L) + 1);</span>
+<span class="nc" id="L472">        }</span>
+<span class="nc" id="L473">        List&lt;Map&lt;String, Object&gt;&gt; resultado = new java.util.ArrayList&lt;&gt;();</span>
+<span class="nc" id="L474">        clientesPorMes.entrySet().stream()</span>
+<span class="nc" id="L475">            .sorted(java.util.Map.Entry.comparingByKey())</span>
+<span class="nc" id="L476">            .forEach(entry -&gt; {</span>
+<span class="nc" id="L477">                Map&lt;String, Object&gt; obj = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc" id="L478">                obj.put(&quot;mes&quot;, entry.getKey());</span>
+<span class="nc" id="L479">                obj.put(&quot;cantidad&quot;, entry.getValue());</span>
+<span class="nc" id="L480">                resultado.add(obj);</span>
+<span class="nc" id="L481">            });</span>
+<span class="nc" id="L482">        return resultado;</span>
+    }
+
+    // ===== PEDIDOS POR ESTADO =====
+    public List&lt;Map&lt;String, Object&gt;&gt; getPedidosPorEstado() {
+<span class="nc" id="L487">        List&lt;Pedido&gt; pedidos = pedidoRepository.findAll();</span>
+<span class="nc" id="L488">        Map&lt;String, Long&gt; agrupados = pedidos.stream()</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">            .filter(p -&gt; p.getEstado() != null)</span>
+<span class="nc" id="L490">            .collect(java.util.stream.Collectors.groupingBy(Pedido::getEstado, java.util.stream.Collectors.counting()));</span>
+        
+<span class="nc" id="L492">        List&lt;Map&lt;String, Object&gt;&gt; pedidosPorEstado = new java.util.ArrayList&lt;&gt;();</span>
+<span class="nc" id="L493">        java.util.Map&lt;String, String&gt; colores = java.util.Map.of(</span>
+            &quot;Pendiente&quot;, &quot;yellow&quot;,
+            &quot;Enviado&quot;, &quot;blue&quot;,
+            &quot;Entregado&quot;, &quot;green&quot;,
+            &quot;Cancelado&quot;, &quot;red&quot;
+        );
+        
+<span class="nc bnc" id="L500" title="All 2 branches missed.">        for (java.util.Map.Entry&lt;String, Long&gt; entry : agrupados.entrySet()) {</span>
+<span class="nc" id="L501">            Map&lt;String, Object&gt; obj = new java.util.HashMap&lt;&gt;();</span>
+<span class="nc" id="L502">            obj.put(&quot;estado&quot;, entry.getKey());</span>
+<span class="nc" id="L503">            obj.put(&quot;cantidad&quot;, entry.getValue());</span>
+<span class="nc" id="L504">            obj.put(&quot;color&quot;, colores.getOrDefault(entry.getKey(), &quot;gray&quot;));</span>
+<span class="nc" id="L505">            pedidosPorEstado.add(obj);</span>
+<span class="nc" id="L506">        }</span>
+        
+<span class="nc" id="L508">        return pedidosPorEstado;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

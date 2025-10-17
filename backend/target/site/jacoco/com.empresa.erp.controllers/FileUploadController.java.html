@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileUploadController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.controllers</a> &gt; <span class="el_source">FileUploadController.java</span></div><h1>FileUploadController.java</h1><pre class="source lang-java linenums">package com.empresa.erp.controllers;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Map;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@RestController
+@RequestMapping(&quot;/api/files&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+public class FileUploadController {
+
+<span class="fc" id="L26">    private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);</span>
+
+<span class="fc" id="L28">    private final Path uploadPath = Paths.get(&quot;C:/ERP_SENA_Final/backend/uploads&quot;);</span>
+<span class="fc" id="L29">    private final Path clientesPath = Paths.get(&quot;C:/ERP_SENA_Final/backend/uploads/clientes&quot;);</span>
+<span class="fc" id="L30">    private final Path usuariosPath = Paths.get(&quot;C:/ERP_SENA_Final/backend/uploads/usuarios&quot;);</span>
+<span class="fc" id="L31">    private final Path productosPath = Paths.get(&quot;C:/ERP_SENA_Final/backend/uploads/productos&quot;);</span>
+    
+<span class="fc" id="L33">    public FileUploadController() {</span>
+        try {
+<span class="fc" id="L35">            Files.createDirectories(uploadPath);</span>
+<span class="fc" id="L36">            Files.createDirectories(clientesPath);</span>
+<span class="fc" id="L37">            Files.createDirectories(usuariosPath);</span>
+<span class="fc" id="L38">            Files.createDirectories(productosPath);</span>
+<span class="nc" id="L39">        } catch (IOException e) {</span>
+<span class="nc" id="L40">            throw new RuntimeException(&quot;No se pudo crear el directorio de uploads&quot;, e);</span>
+<span class="fc" id="L41">        }</span>
+<span class="fc" id="L42">    }</span>
+    @PostMapping(&quot;/upload&quot;)
+    public ResponseEntity&lt;?&gt; uploadFile(@RequestParam(&quot;file&quot;) MultipartFile file) {
+        try {
+            // Validar tipo de archivo
+<span class="nc" id="L47">            String contentType = file.getContentType();</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">            if (contentType == null || !contentType.startsWith(&quot;image/&quot;)) {</span>
+<span class="nc" id="L49">                return ResponseEntity.badRequest().body(&quot;Solo se permiten archivos de imagen&quot;);</span>
+            }
+            
+            // Validar tamaño (máximo 5MB)
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (file.getSize() &gt; 5 * 1024 * 1024) {</span>
+<span class="nc" id="L54">                return ResponseEntity.badRequest().body(&quot;El archivo es demasiado grande. Máximo 5MB&quot;);</span>
+            }
+            
+            // Generar nombre único
+<span class="nc" id="L58">            String originalFilename = file.getOriginalFilename();</span>
+<span class="nc" id="L59">            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));</span>
+<span class="nc" id="L60">            String uniqueFilename = UUID.randomUUID().toString() + extension;</span>
+            
+            // Guardar archivo
+<span class="nc" id="L63">            Path targetPath = uploadPath.resolve(uniqueFilename);</span>
+<span class="nc" id="L64">            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);</span>
+            
+<span class="nc" id="L66">            return ResponseEntity.ok().body(Map.of(</span>
+                &quot;filename&quot;, uniqueFilename,
+                &quot;originalName&quot;, originalFilename,
+<span class="nc" id="L69">                &quot;size&quot;, file.getSize(),</span>
+                &quot;contentType&quot;, contentType
+            ));
+            
+<span class="nc" id="L73">        } catch (IOException e) {</span>
+<span class="nc" id="L74">            logger.error(&quot;Error al subir archivo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L75">            return ResponseEntity.internalServerError().body(&quot;Error al subir el archivo&quot;);</span>
+        }
+    }
+    
+    @GetMapping(&quot;/{filename:.+}&quot;)
+    public ResponseEntity&lt;Resource&gt; getFile(@PathVariable String filename) {
+        try {
+<span class="nc" id="L82">            Path filePath = uploadPath.resolve(filename);</span>
+<span class="nc" id="L83">            Resource resource = new UrlResource(filePath.toUri());</span>
+            
+<span class="nc bnc" id="L85" title="All 4 branches missed.">            if (resource.exists() &amp;&amp; resource.isReadable()) {</span>
+<span class="nc" id="L86">                String contentType = determineContentType(filename);</span>
+<span class="nc" id="L87">                return ResponseEntity.ok()</span>
+<span class="nc" id="L88">                    .header(HttpHeaders.CONTENT_DISPOSITION, &quot;inline; filename=\&quot;&quot; + filename + &quot;\&quot;&quot;)</span>
+<span class="nc" id="L89">                    .contentType(MediaType.parseMediaType(contentType))</span>
+<span class="nc" id="L90">                    .body(resource);</span>
+            } else {
+<span class="nc" id="L92">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L94">        } catch (Exception e) {</span>
+<span class="nc" id="L95">            logger.error(&quot;Error sirviendo archivo: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L96">            return ResponseEntity.internalServerError().build();</span>
+        }
+    }
+    
+    @GetMapping(&quot;/usuarios/{filename:.+}&quot;)
+    public ResponseEntity&lt;Resource&gt; getUsuarioImage(@PathVariable String filename) {
+        try {
+<span class="nc" id="L103">            String decodedFilename = java.net.URLDecoder.decode(filename, &quot;UTF-8&quot;);</span>
+<span class="nc" id="L104">            Path filePath = usuariosPath.resolve(decodedFilename);</span>
+<span class="nc" id="L105">            Resource resource = new UrlResource(filePath.toUri());</span>
+
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            if (resource.exists() &amp;&amp; resource.isReadable()) {</span>
+<span class="nc" id="L108">                String contentType = determineContentType(decodedFilename);</span>
+<span class="nc" id="L109">                return ResponseEntity.ok()</span>
+<span class="nc" id="L110">                    .header(HttpHeaders.CONTENT_DISPOSITION, &quot;inline; filename=\&quot;&quot; + decodedFilename + &quot;\&quot;&quot;)</span>
+<span class="nc" id="L111">                    .header(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L112">                    .header(&quot;Access-Control-Allow-Methods&quot;, &quot;GET&quot;)</span>
+<span class="nc" id="L113">                    .header(&quot;Access-Control-Allow-Headers&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L114">                    .contentType(MediaType.parseMediaType(contentType))</span>
+<span class="nc" id="L115">                    .body(resource);</span>
+            } else {
+<span class="nc" id="L117">                return ResponseEntity.notFound()</span>
+<span class="nc" id="L118">                    .header(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L119">                    .header(&quot;Access-Control-Allow-Methods&quot;, &quot;GET&quot;)</span>
+<span class="nc" id="L120">                    .header(&quot;Access-Control-Allow-Headers&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L121">                    .build();</span>
+            }
+<span class="nc" id="L123">        } catch (Exception e) {</span>
+<span class="nc" id="L124">            logger.error(&quot;Error sirviendo imagen de usuario: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L125">            return ResponseEntity.internalServerError()</span>
+<span class="nc" id="L126">                .header(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L127">                .header(&quot;Access-Control-Allow-Methods&quot;, &quot;GET&quot;)</span>
+<span class="nc" id="L128">                .header(&quot;Access-Control-Allow-Headers&quot;, &quot;*&quot;)</span>
+<span class="nc" id="L129">                .build();</span>
+        }
+    }
+    
+    @DeleteMapping(&quot;/{filename:.+}&quot;)
+    public ResponseEntity&lt;String&gt; deleteFile(@PathVariable String filename) {
+        try {
+<span class="nc" id="L136">            Path filePath = uploadPath.resolve(filename);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (Files.exists(filePath)) {</span>
+<span class="nc" id="L138">                Files.delete(filePath);</span>
+<span class="nc" id="L139">                return ResponseEntity.ok().body(&quot;Archivo eliminado correctamente&quot;);</span>
+            } else {
+<span class="nc" id="L141">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L143">        } catch (IOException e) {</span>
+<span class="nc" id="L144">            return ResponseEntity.internalServerError().body(&quot;Error al eliminar el archivo: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    private String determineContentType(String filename) {
+<span class="nc" id="L149">        String extension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();</span>
+<span class="nc bnc" id="L150" title="All 5 branches missed.">        switch (extension) {</span>
+            case &quot;jpg&quot;:
+            case &quot;jpeg&quot;:
+<span class="nc" id="L153">                return &quot;image/jpeg&quot;;</span>
+            case &quot;png&quot;:
+<span class="nc" id="L155">                return &quot;image/png&quot;;</span>
+            case &quot;gif&quot;:
+<span class="nc" id="L157">                return &quot;image/gif&quot;;</span>
+            case &quot;pdf&quot;:
+<span class="nc" id="L159">                return &quot;application/pdf&quot;;</span>
+            default:
+<span class="nc" id="L161">                return &quot;application/octet-stream&quot;;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

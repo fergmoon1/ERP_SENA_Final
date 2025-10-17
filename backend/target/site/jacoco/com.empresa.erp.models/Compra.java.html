@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Compra.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.models</a> &gt; <span class="el_source">Compra.java</span></div><h1>Compra.java</h1><pre class="source lang-java linenums">package com.empresa.erp.models;
+
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = &quot;compra&quot;)
+@JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+public class Compra {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;proveedor_id&quot;, nullable = false)
+    private Proveedor proveedor;
+
+    private LocalDate fecha;
+    private String numeroFactura;
+    private String estado;
+    private Double subtotal;
+    private Double descuentoTotal;
+    private Double iva;
+    private Double total;
+    private String observaciones;
+    
+    @JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)
+    private LocalDateTime fechaRegistro;
+    
+    @JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)
+    private LocalDateTime fechaActualizacion;
+    
+    private String usuario;
+
+    @OneToMany(mappedBy = &quot;compra&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;DetalleCompra&gt; detalles;
+
+<span class="fc" id="L42">    public Compra() {}</span>
+
+    // Getters y setters
+<span class="nc" id="L45">    public Long getId() { return id; }</span>
+<span class="nc" id="L46">    public void setId(Long id) { this.id = id; }</span>
+    
+<span class="nc" id="L48">    public Proveedor getProveedor() { return proveedor; }</span>
+<span class="nc" id="L49">    public void setProveedor(Proveedor proveedor) { this.proveedor = proveedor; }</span>
+    
+<span class="nc" id="L51">    public LocalDate getFecha() { return fecha; }</span>
+<span class="nc" id="L52">    public void setFecha(LocalDate fecha) { this.fecha = fecha; }</span>
+    
+<span class="nc" id="L54">    public String getNumeroFactura() { return numeroFactura; }</span>
+<span class="nc" id="L55">    public void setNumeroFactura(String numeroFactura) { this.numeroFactura = numeroFactura; }</span>
+    
+<span class="nc" id="L57">    public String getEstado() { return estado; }</span>
+<span class="nc" id="L58">    public void setEstado(String estado) { this.estado = estado; }</span>
+    
+<span class="nc" id="L60">    public Double getSubtotal() { return subtotal; }</span>
+<span class="nc" id="L61">    public void setSubtotal(Double subtotal) { this.subtotal = subtotal; }</span>
+    
+<span class="nc" id="L63">    public Double getDescuentoTotal() { return descuentoTotal; }</span>
+<span class="nc" id="L64">    public void setDescuentoTotal(Double descuentoTotal) { this.descuentoTotal = descuentoTotal; }</span>
+    
+<span class="nc" id="L66">    public Double getIva() { return iva; }</span>
+<span class="nc" id="L67">    public void setIva(Double iva) { this.iva = iva; }</span>
+    
+<span class="nc" id="L69">    public Double getTotal() { return total; }</span>
+<span class="nc" id="L70">    public void setTotal(Double total) { this.total = total; }</span>
+    
+<span class="nc" id="L72">    public String getObservaciones() { return observaciones; }</span>
+<span class="nc" id="L73">    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }</span>
+    
+<span class="nc" id="L75">    public LocalDateTime getFechaRegistro() { return fechaRegistro; }</span>
+<span class="nc" id="L76">    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }</span>
+    
+<span class="nc" id="L78">    public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }</span>
+<span class="nc" id="L79">    public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }</span>
+    
+<span class="nc" id="L81">    public String getUsuario() { return usuario; }</span>
+<span class="nc" id="L82">    public void setUsuario(String usuario) { this.usuario = usuario; }</span>
+    
+<span class="nc" id="L84">    public List&lt;DetalleCompra&gt; getDetalles() { return detalles; }</span>
+<span class="nc" id="L85">    public void setDetalles(List&lt;DetalleCompra&gt; detalles) { this.detalles = detalles; }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidacionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.services</a> &gt; <span class="el_source">ValidacionService.java</span></div><h1>ValidacionService.java</h1><pre class="source lang-java linenums">package com.empresa.erp.services;
+
+import com.empresa.erp.models.Cliente;
+import com.empresa.erp.models.DetallePedido;
+import com.empresa.erp.models.MovimientoInventario;
+import com.empresa.erp.models.Pedido;
+import com.empresa.erp.models.Producto;
+import com.empresa.erp.models.Proveedor;
+import com.empresa.erp.models.Compra;
+import com.empresa.erp.models.DetalleCompra;
+import com.empresa.erp.repositories.ClienteRepository;
+import com.empresa.erp.repositories.ProductoRepository;
+import com.empresa.erp.repositories.ProveedorRepository;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.regex.Pattern;
+
+@Service
+public class ValidacionService {
+    
+    private final ClienteRepository clienteRepository;
+    private final ProductoRepository productoRepository;
+    private final ProveedorRepository proveedorRepository;
+    
+    // Patrones de validación
+<span class="fc" id="L28">    private static final Pattern EMAIL_PATTERN = Pattern.compile(&quot;^[A-Za-z0-9+_.-]+@(.+)$&quot;);</span>
+<span class="fc" id="L29">    private static final Pattern PHONE_PATTERN = Pattern.compile(&quot;^[0-9]{7,15}$&quot;);</span>
+<span class="fc" id="L30">    private static final Pattern NAME_PATTERN = Pattern.compile(&quot;^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,100}$&quot;);</span>
+    
+<span class="fc" id="L32">    public ValidacionService(ClienteRepository clienteRepository, ProductoRepository productoRepository, ProveedorRepository proveedorRepository) {</span>
+<span class="fc" id="L33">        this.clienteRepository = clienteRepository;</span>
+<span class="fc" id="L34">        this.productoRepository = productoRepository;</span>
+<span class="fc" id="L35">        this.proveedorRepository = proveedorRepository;</span>
+<span class="fc" id="L36">    }</span>
+    
+    // ===== VALIDACIONES DE CLIENTE =====
+    
+    /**
+     * Valida los datos de un cliente
+     */
+    public void validarCliente(Cliente cliente) {
+<span class="nc" id="L44">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar nombre
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        if (cliente.getNombre() == null || cliente.getNombre().trim().isEmpty()) {</span>
+<span class="nc" id="L48">            errores.add(&quot;El nombre del cliente es obligatorio&quot;);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        } else if (!NAME_PATTERN.matcher(cliente.getNombre()).matches()) {</span>
+<span class="nc" id="L50">            errores.add(&quot;El nombre del cliente debe contener solo letras y espacios (2-100 caracteres)&quot;);</span>
+        }
+        
+        // Validar correo si se proporciona
+<span class="nc bnc" id="L54" title="All 4 branches missed.">        if (cliente.getCorreo() != null &amp;&amp; !cliente.getCorreo().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (!EMAIL_PATTERN.matcher(cliente.getCorreo()).matches()) {</span>
+<span class="nc" id="L56">                errores.add(&quot;El formato del correo electrónico no es válido&quot;);</span>
+            }
+        }
+        
+        // Validar teléfono si se proporciona
+<span class="nc bnc" id="L61" title="All 4 branches missed.">        if (cliente.getTelefono() != null &amp;&amp; !cliente.getTelefono().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (!PHONE_PATTERN.matcher(cliente.getTelefono()).matches()) {</span>
+<span class="nc" id="L63">                errores.add(&quot;El formato del teléfono no es válido (7-15 dígitos)&quot;);</span>
+            }
+        }
+        
+        // Validar tipo
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (cliente.getTipo() != null &amp;&amp; !cliente.getTipo().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">            if (!cliente.getTipo().equals(&quot;Persona&quot;) &amp;&amp; !cliente.getTipo().equals(&quot;Empresa&quot;)) {</span>
+<span class="nc" id="L70">                errores.add(&quot;El tipo de cliente debe ser 'Persona' o 'Empresa'&quot;);</span>
+            }
+        }
+        
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L75">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L77">    }</span>
+    
+    /**
+     * Valida que no exista un cliente con el mismo correo
+     */
+    public void validarCorreoUnico(Cliente cliente) {
+<span class="nc bnc" id="L83" title="All 4 branches missed.">        if (cliente.getCorreo() != null &amp;&amp; !cliente.getCorreo().trim().isEmpty()) {</span>
+<span class="nc" id="L84">            List&lt;Cliente&gt; clientesExistentes = clienteRepository.findAll();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            for (Cliente existente : clientesExistentes) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                if (!existente.getId().equals(cliente.getId()) &amp;&amp; </span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                    cliente.getCorreo().equalsIgnoreCase(existente.getCorreo())) {</span>
+<span class="nc" id="L88">                    throw new RuntimeException(&quot;Ya existe un cliente con el correo: &quot; + cliente.getCorreo());</span>
+                }
+<span class="nc" id="L90">            }</span>
+        }
+<span class="nc" id="L92">    }</span>
+    
+    // ===== VALIDACIONES DE PRODUCTO =====
+    
+    /**
+     * Valida los datos de un producto
+     */
+    public void validarProducto(Producto producto) {
+<span class="nc" id="L100">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar nombre
+<span class="nc bnc" id="L103" title="All 4 branches missed.">        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {</span>
+<span class="nc" id="L104">            errores.add(&quot;El nombre del producto es obligatorio&quot;);</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        } else if (producto.getNombre().length() &lt; 2 || producto.getNombre().length() &gt; 100) {</span>
+<span class="nc" id="L106">            errores.add(&quot;El nombre del producto debe tener entre 2 y 100 caracteres&quot;);</span>
+        }
+        
+        // Validar descripción
+<span class="nc bnc" id="L110" title="All 4 branches missed.">        if (producto.getDescripcion() != null &amp;&amp; producto.getDescripcion().length() &gt; 500) {</span>
+<span class="nc" id="L111">            errores.add(&quot;La descripción del producto no puede exceder 500 caracteres&quot;);</span>
+        }
+        
+        // Validar precio
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (producto.getPrecio() == null || producto.getPrecio() &lt;= 0) {</span>
+<span class="nc" id="L116">            errores.add(&quot;El precio del producto debe ser mayor a 0&quot;);</span>
+        }
+        
+        // Validar stock
+<span class="nc bnc" id="L120" title="All 4 branches missed.">        if (producto.getStock() == null || producto.getStock() &lt; 0) {</span>
+<span class="nc" id="L121">            errores.add(&quot;El stock del producto no puede ser negativo&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L125">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L127">    }</span>
+    
+    /**
+     * Valida que no exista un producto con el mismo nombre
+     */
+    public void validarNombreProductoUnico(Producto producto) {
+<span class="nc" id="L133">        List&lt;Producto&gt; productosExistentes = productoRepository.findAll();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (Producto existente : productosExistentes) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (!existente.getId().equals(producto.getId()) &amp;&amp; </span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                producto.getNombre().equalsIgnoreCase(existente.getNombre())) {</span>
+<span class="nc" id="L137">                throw new RuntimeException(&quot;Ya existe un producto con el nombre: &quot; + producto.getNombre());</span>
+            }
+<span class="nc" id="L139">        }</span>
+<span class="nc" id="L140">    }</span>
+    
+    // ===== VALIDACIONES DE PEDIDO =====
+    
+    /**
+     * Valida los datos de un pedido
+     */
+    public void validarPedido(Pedido pedido) {
+<span class="nc" id="L148">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar cliente
+<span class="nc bnc" id="L151" title="All 4 branches missed.">        if (pedido.getCliente() == null || pedido.getCliente().getId() == null) {</span>
+<span class="nc" id="L152">            errores.add(&quot;El cliente del pedido es obligatorio&quot;);</span>
+        } else {
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (!clienteRepository.existsById(pedido.getCliente().getId())) {</span>
+<span class="nc" id="L155">                errores.add(&quot;El cliente especificado no existe&quot;);</span>
+            }
+        }
+        
+        // Validar detalles
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {</span>
+<span class="nc" id="L161">            errores.add(&quot;El pedido debe tener al menos un detalle&quot;);</span>
+        } else {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            for (int i = 0; i &lt; pedido.getDetalles().size(); i++) {</span>
+<span class="nc" id="L164">                DetallePedido detalle = pedido.getDetalles().get(i);</span>
+<span class="nc" id="L165">                errores.addAll(validarDetallePedido(detalle, i + 1));</span>
+            }
+        }
+        
+        // Validar fecha
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (pedido.getFecha() == null) {</span>
+<span class="nc" id="L171">            errores.add(&quot;La fecha del pedido es obligatoria&quot;);</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        } else if (pedido.getFecha().isAfter(LocalDate.now())) {</span>
+<span class="nc" id="L173">            errores.add(&quot;La fecha del pedido no puede ser futura&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L177">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L179">    }</span>
+    
+    /**
+     * Valida un detalle de pedido específico
+     */
+    private List&lt;String&gt; validarDetallePedido(DetallePedido detalle, int numeroDetalle) {
+<span class="nc" id="L185">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar producto
+<span class="nc bnc" id="L188" title="All 4 branches missed.">        if (detalle.getProducto() == null || detalle.getProducto().getId() == null) {</span>
+<span class="nc" id="L189">            errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: El producto es obligatorio&quot;);</span>
+        } else {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (!productoRepository.existsById(detalle.getProducto().getId())) {</span>
+<span class="nc" id="L192">                errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: El producto especificado no existe&quot;);</span>
+            }
+        }
+        
+        // Validar cantidad
+<span class="nc bnc" id="L197" title="All 4 branches missed.">        if (detalle.getCantidad() == null || detalle.getCantidad() &lt;= 0) {</span>
+<span class="nc" id="L198">            errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: La cantidad debe ser mayor a 0&quot;);</span>
+        }
+        
+<span class="nc" id="L201">        return errores;</span>
+    }
+    
+    // ===== VALIDACIONES DE MOVIMIENTO DE INVENTARIO =====
+    
+    /**
+     * Valida los datos de un movimiento de inventario
+     */
+    public void validarMovimientoInventario(MovimientoInventario movimiento) {
+<span class="nc" id="L210">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar producto
+<span class="nc bnc" id="L213" title="All 4 branches missed.">        if (movimiento.getProducto() == null || movimiento.getProducto().getId() == null) {</span>
+<span class="nc" id="L214">            errores.add(&quot;El producto del movimiento es obligatorio&quot;);</span>
+        } else {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">            if (!productoRepository.existsById(movimiento.getProducto().getId())) {</span>
+<span class="nc" id="L217">                errores.add(&quot;El producto especificado no existe&quot;);</span>
+            }
+        }
+        
+        // Validar tipo
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (movimiento.getTipo() == null) {</span>
+<span class="nc" id="L223">            errores.add(&quot;El tipo de movimiento es obligatorio&quot;);</span>
+        }
+        
+        // Validar cantidad
+<span class="nc bnc" id="L227" title="All 4 branches missed.">        if (movimiento.getCantidad() == null || movimiento.getCantidad() &lt;= 0) {</span>
+<span class="nc" id="L228">            errores.add(&quot;La cantidad del movimiento debe ser mayor a 0&quot;);</span>
+        }
+        
+        // Validar motivo
+<span class="nc bnc" id="L232" title="All 4 branches missed.">        if (movimiento.getMotivo() != null &amp;&amp; movimiento.getMotivo().length() &gt; 500) {</span>
+<span class="nc" id="L233">            errores.add(&quot;El motivo del movimiento no puede exceder 500 caracteres&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L237">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L239">    }</span>
+    
+    // ===== VALIDACIONES DE NEGOCIO =====
+    
+    /**
+     * Valida que haya suficiente stock para un pedido
+     */
+    public void validarStockSuficiente(Pedido pedido) {
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        for (DetallePedido detalle : pedido.getDetalles()) {</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">            if (detalle.getProducto() != null &amp;&amp; detalle.getProducto().getId() != null) {</span>
+<span class="nc" id="L249">                Producto producto = productoRepository.findById(detalle.getProducto().getId())</span>
+<span class="nc" id="L250">                        .orElseThrow(() -&gt; new RuntimeException(&quot;Producto no encontrado&quot;));</span>
+                
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                if (producto.getStock() &lt; detalle.getCantidad()) {</span>
+<span class="nc" id="L253">                    throw new RuntimeException(&quot;Stock insuficiente para el producto '&quot; + </span>
+<span class="nc" id="L254">                                             producto.getNombre() + &quot;'. Stock disponible: &quot; + </span>
+<span class="nc" id="L255">                                             producto.getStock() + &quot;, Cantidad solicitada: &quot; + </span>
+<span class="nc" id="L256">                                             detalle.getCantidad());</span>
+                }
+            }
+<span class="nc" id="L259">        }</span>
+<span class="nc" id="L260">    }</span>
+    
+    /**
+     * Valida que un pedido no esté vacío
+     */
+    public void validarPedidoNoVacio(Pedido pedido) {
+<span class="nc bnc" id="L266" title="All 4 branches missed.">        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {</span>
+<span class="nc" id="L267">            throw new RuntimeException(&quot;El pedido debe contener al menos un producto&quot;);</span>
+        }
+<span class="nc" id="L269">    }</span>
+    
+    /**
+     * Valida que un producto no tenga stock negativo después de una operación
+     */
+    public void validarStockNoNegativo(Producto producto) {
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (producto.getStock() &lt; 0) {</span>
+<span class="nc" id="L276">            throw new RuntimeException(&quot;El stock del producto '&quot; + producto.getNombre() + </span>
+<span class="nc" id="L277">                                     &quot;' no puede ser negativo. Stock actual: &quot; + producto.getStock());</span>
+        }
+<span class="nc" id="L279">    }</span>
+    
+    // ===== VALIDACIONES DE PROVEEDOR =====
+    
+    /**
+     * Valida los datos de un proveedor
+     */
+    public void validarProveedor(Proveedor proveedor) {
+<span class="nc" id="L287">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar nombre
+<span class="nc bnc" id="L290" title="All 4 branches missed.">        if (proveedor.getNombre() == null || proveedor.getNombre().trim().isEmpty()) {</span>
+<span class="nc" id="L291">            errores.add(&quot;El nombre del proveedor es obligatorio&quot;);</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        } else if (!NAME_PATTERN.matcher(proveedor.getNombre()).matches()) {</span>
+<span class="nc" id="L293">            errores.add(&quot;El nombre del proveedor debe contener solo letras y espacios (2-100 caracteres)&quot;);</span>
+        }
+        
+        // Validar correo si se proporciona
+<span class="nc bnc" id="L297" title="All 4 branches missed.">        if (proveedor.getCorreo() != null &amp;&amp; !proveedor.getCorreo().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">            if (!EMAIL_PATTERN.matcher(proveedor.getCorreo()).matches()) {</span>
+<span class="nc" id="L299">                errores.add(&quot;El formato del correo electrónico no es válido&quot;);</span>
+            }
+        }
+        
+        // Validar teléfono si se proporciona
+<span class="nc bnc" id="L304" title="All 4 branches missed.">        if (proveedor.getTelefono() != null &amp;&amp; !proveedor.getTelefono().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            if (!PHONE_PATTERN.matcher(proveedor.getTelefono()).matches()) {</span>
+<span class="nc" id="L306">                errores.add(&quot;El formato del teléfono no es válido (7-15 dígitos)&quot;);</span>
+            }
+        }
+        
+        // Validar teléfono de contacto si se proporciona
+<span class="nc bnc" id="L311" title="All 4 branches missed.">        if (proveedor.getTelefonoContacto() != null &amp;&amp; !proveedor.getTelefonoContacto().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">            if (!PHONE_PATTERN.matcher(proveedor.getTelefonoContacto()).matches()) {</span>
+<span class="nc" id="L313">                errores.add(&quot;El formato del teléfono de contacto no es válido (7-15 dígitos)&quot;);</span>
+            }
+        }
+        
+        // Validar tipo si se proporciona
+<span class="nc bnc" id="L318" title="All 4 branches missed.">        if (proveedor.getTipo() != null &amp;&amp; !proveedor.getTipo().trim().isEmpty()) {</span>
+<span class="nc" id="L319">            String[] tiposValidos = {&quot;Nacional&quot;, &quot;Internacional&quot;, &quot;Distribuidor&quot;, &quot;Fabricante&quot;};</span>
+<span class="nc" id="L320">            boolean tipoValido = false;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">            for (String tipo : tiposValidos) {</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                if (tipo.equals(proveedor.getTipo())) {</span>
+<span class="nc" id="L323">                    tipoValido = true;</span>
+<span class="nc" id="L324">                    break;</span>
+                }
+            }
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            if (!tipoValido) {</span>
+<span class="nc" id="L328">                errores.add(&quot;El tipo de proveedor debe ser: Nacional, Internacional, Distribuidor o Fabricante&quot;);</span>
+            }
+        }
+        
+        // Validar NIT si se proporciona
+<span class="nc bnc" id="L333" title="All 4 branches missed.">        if (proveedor.getNit() != null &amp;&amp; !proveedor.getNit().trim().isEmpty()) {</span>
+<span class="nc bnc" id="L334" title="All 4 branches missed.">            if (proveedor.getNit().length() &lt; 8 || proveedor.getNit().length() &gt; 20) {</span>
+<span class="nc" id="L335">                errores.add(&quot;El NIT debe tener entre 8 y 20 caracteres&quot;);</span>
+            }
+        }
+        
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L340">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L342">    }</span>
+    
+    /**
+     * Valida que no exista un proveedor con el mismo NIT
+     */
+    public void validarNitUnico(Proveedor proveedor) {
+<span class="nc bnc" id="L348" title="All 4 branches missed.">        if (proveedor.getNit() != null &amp;&amp; !proveedor.getNit().trim().isEmpty()) {</span>
+<span class="nc" id="L349">            List&lt;Proveedor&gt; proveedoresExistentes = proveedorRepository.findAll();</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">            for (Proveedor existente : proveedoresExistentes) {</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                if (!existente.getId().equals(proveedor.getId()) &amp;&amp; </span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">                    proveedor.getNit().equalsIgnoreCase(existente.getNit())) {</span>
+<span class="nc" id="L353">                    throw new RuntimeException(&quot;Ya existe un proveedor con el NIT: &quot; + proveedor.getNit());</span>
+                }
+<span class="nc" id="L355">            }</span>
+        }
+<span class="nc" id="L357">    }</span>
+    
+    /**
+     * Valida que no exista un proveedor con el mismo correo
+     */
+    public void validarCorreoProveedorUnico(Proveedor proveedor) {
+<span class="nc bnc" id="L363" title="All 4 branches missed.">        if (proveedor.getCorreo() != null &amp;&amp; !proveedor.getCorreo().trim().isEmpty()) {</span>
+<span class="nc" id="L364">            List&lt;Proveedor&gt; proveedoresExistentes = proveedorRepository.findAll();</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">            for (Proveedor existente : proveedoresExistentes) {</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">                if (!existente.getId().equals(proveedor.getId()) &amp;&amp; </span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                    proveedor.getCorreo().equalsIgnoreCase(existente.getCorreo())) {</span>
+<span class="nc" id="L368">                    throw new RuntimeException(&quot;Ya existe un proveedor con el correo: &quot; + proveedor.getCorreo());</span>
+                }
+<span class="nc" id="L370">            }</span>
+        }
+<span class="nc" id="L372">    }</span>
+    
+    // ===== VALIDACIONES DE COMPRA =====
+    
+    /**
+     * Valida los datos de una compra
+     */
+    public void validarCompra(Compra compra) {
+<span class="nc" id="L380">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar proveedor
+<span class="nc bnc" id="L383" title="All 4 branches missed.">        if (compra.getProveedor() == null || compra.getProveedor().getId() == null) {</span>
+<span class="nc" id="L384">            errores.add(&quot;El proveedor de la compra es obligatorio&quot;);</span>
+        }
+        
+        // Validar fecha
+<span class="nc bnc" id="L388" title="All 2 branches missed.">        if (compra.getFecha() == null) {</span>
+<span class="nc" id="L389">            errores.add(&quot;La fecha de la compra es obligatoria&quot;);</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">        } else if (compra.getFecha().isAfter(LocalDate.now())) {</span>
+<span class="nc" id="L391">            errores.add(&quot;La fecha de la compra no puede ser futura&quot;);</span>
+        }
+        
+        // Validar detalles
+<span class="nc bnc" id="L395" title="All 4 branches missed.">        if (compra.getDetalles() == null || compra.getDetalles().isEmpty()) {</span>
+<span class="nc" id="L396">            errores.add(&quot;La compra debe tener al menos un detalle&quot;);</span>
+        } else {
+<span class="nc bnc" id="L398" title="All 2 branches missed.">            for (int i = 0; i &lt; compra.getDetalles().size(); i++) {</span>
+<span class="nc" id="L399">                DetalleCompra detalle = compra.getDetalles().get(i);</span>
+<span class="nc" id="L400">                errores.addAll(validarDetalleCompra(detalle, i + 1));</span>
+            }
+        }
+        
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        if (!errores.isEmpty()) {</span>
+<span class="nc" id="L405">            throw new RuntimeException(&quot;Errores de validación: &quot; + String.join(&quot;, &quot;, errores));</span>
+        }
+<span class="nc" id="L407">    }</span>
+    
+    /**
+     * Valida un detalle de compra específico
+     */
+    private List&lt;String&gt; validarDetalleCompra(DetalleCompra detalle, int numeroDetalle) {
+<span class="nc" id="L413">        List&lt;String&gt; errores = new java.util.ArrayList&lt;&gt;();</span>
+        
+        // Validar producto
+<span class="nc bnc" id="L416" title="All 4 branches missed.">        if (detalle.getProducto() == null || detalle.getProducto().getId() == null) {</span>
+<span class="nc" id="L417">            errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: El producto es obligatorio&quot;);</span>
+        } else {
+<span class="nc bnc" id="L419" title="All 2 branches missed.">            if (!productoRepository.existsById(detalle.getProducto().getId())) {</span>
+<span class="nc" id="L420">                errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: El producto especificado no existe&quot;);</span>
+            }
+        }
+        
+        // Validar cantidad
+<span class="nc bnc" id="L425" title="All 4 branches missed.">        if (detalle.getCantidad() == null || detalle.getCantidad() &lt;= 0) {</span>
+<span class="nc" id="L426">            errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: La cantidad debe ser mayor a 0&quot;);</span>
+        }
+        
+        // Validar precio unitario
+<span class="nc bnc" id="L430" title="All 4 branches missed.">        if (detalle.getPrecioUnitario() == null || detalle.getPrecioUnitario() &lt;= 0) {</span>
+<span class="nc" id="L431">            errores.add(&quot;Detalle &quot; + numeroDetalle + &quot;: El precio unitario debe ser mayor a 0&quot;);</span>
+        }
+        
+        // Todas las referencias a compra.getNumeroFactura(), compra.getEstado(), detalle.getDescuento() y sus validaciones han sido eliminadas o comentadas para evitar errores de compilación.
+        
+<span class="nc" id="L436">        return errores;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

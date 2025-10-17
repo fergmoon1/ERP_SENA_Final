@@ -1,0 +1,8 @@
+com\empresa\erp\BackendApplicationTests.class
+com\empresa\erp\DemoTest.class
+com\empresa\erp\usuario\UsuarioControllerTest.class
+com\empresa\erp\usuario\UsuarioServiceTest.class
+com\empresa\erp\producto\ProductoServiceTest.class
+com\empresa\erp\usuario\UsuarioRepositoryTest.class
+com\empresa\erp\producto\ProductoRepositoryTest.class
+com\empresa\erp\producto\ProductoControllerTest.class

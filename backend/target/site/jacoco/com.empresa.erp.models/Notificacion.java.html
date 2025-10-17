@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Notificacion.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.models</a> &gt; <span class="el_source">Notificacion.java</span></div><h1>Notificacion.java</h1><pre class="source lang-java linenums">package com.empresa.erp.models;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@
+        Entity
+public class Notificacion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;usuario_id&quot;)
+    private Usuario usuario;
+
+    private String titulo;
+    private String mensaje;
+<span class="pc" id="L19">    private boolean leida = false;</span>
+<span class="pc" id="L20">    private LocalDateTime fechaCreacion = LocalDateTime.now();</span>
+
+<span class="fc" id="L22">    public Notificacion() {}</span>
+
+<span class="nc" id="L24">    public Notificacion(Usuario usuario, String titulo, String mensaje) {</span>
+<span class="nc" id="L25">        this.usuario = usuario;</span>
+<span class="nc" id="L26">        this.titulo = titulo;</span>
+<span class="nc" id="L27">        this.mensaje = mensaje;</span>
+<span class="nc" id="L28">        this.leida = false;</span>
+<span class="nc" id="L29">        this.fechaCreacion = LocalDateTime.now();</span>
+<span class="nc" id="L30">    }</span>
+
+    // Getters y setters
+<span class="nc" id="L33">    public Long getId() { return id; }</span>
+<span class="nc" id="L34">    public Usuario getUsuario() { return usuario; }</span>
+<span class="nc" id="L35">    public void setUsuario(Usuario usuario) { this.usuario = usuario; }</span>
+<span class="nc" id="L36">    public String getTitulo() { return titulo; }</span>
+<span class="nc" id="L37">    public void setTitulo(String titulo) { this.titulo = titulo; }</span>
+<span class="nc" id="L38">    public String getMensaje() { return mensaje; }</span>
+<span class="nc" id="L39">    public void setMensaje(String mensaje) { this.mensaje = mensaje; }</span>
+<span class="nc" id="L40">    public boolean isLeida() { return leida; }</span>
+<span class="nc" id="L41">    public void setLeida(boolean leida) { this.leida = leida; }</span>
+<span class="nc" id="L42">    public LocalDateTime getFechaCreacion() { return fechaCreacion; }</span>
+<span class="nc" id="L43">    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

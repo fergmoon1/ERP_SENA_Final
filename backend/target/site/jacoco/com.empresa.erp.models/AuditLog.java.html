@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuditLog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.models</a> &gt; <span class="el_source">AuditLog.java</span></div><h1>AuditLog.java</h1><pre class="source lang-java linenums">package com.empresa.erp.models;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = &quot;audit_log&quot;)
+public class AuditLog {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String usuario;
+    private String accion;
+    private String modulo;
+    @Column(length = 1000)
+    private String detalle;
+    private String severidad;
+    private LocalDateTime fecha;
+
+<span class="fc" id="L21">    public AuditLog() {}</span>
+
+<span class="fc" id="L23">    public AuditLog(String usuario, String accion, String modulo, String detalle, String severidad) {</span>
+<span class="fc" id="L24">        this.usuario = usuario;</span>
+<span class="fc" id="L25">        this.accion = accion;</span>
+<span class="fc" id="L26">        this.modulo = modulo;</span>
+<span class="fc" id="L27">        this.detalle = detalle;</span>
+<span class="fc" id="L28">        this.severidad = severidad;</span>
+<span class="fc" id="L29">        this.fecha = LocalDateTime.now();</span>
+<span class="fc" id="L30">    }</span>
+
+    // Getters y setters
+<span class="nc" id="L33">    public Long getId() { return id; }</span>
+<span class="nc" id="L34">    public void setId(Long id) { this.id = id; }</span>
+<span class="nc" id="L35">    public String getUsuario() { return usuario; }</span>
+<span class="nc" id="L36">    public void setUsuario(String usuario) { this.usuario = usuario; }</span>
+<span class="nc" id="L37">    public String getAccion() { return accion; }</span>
+<span class="nc" id="L38">    public void setAccion(String accion) { this.accion = accion; }</span>
+<span class="nc" id="L39">    public String getModulo() { return modulo; }</span>
+<span class="nc" id="L40">    public void setModulo(String modulo) { this.modulo = modulo; }</span>
+<span class="nc" id="L41">    public String getDetalle() { return detalle; }</span>
+<span class="nc" id="L42">    public void setDetalle(String detalle) { this.detalle = detalle; }</span>
+<span class="nc" id="L43">    public String getSeveridad() { return severidad; }</span>
+<span class="nc" id="L44">    public void setSeveridad(String severidad) { this.severidad = severidad; }</span>
+<span class="nc" id="L45">    public LocalDateTime getFecha() { return fecha; }</span>
+<span class="nc" id="L46">    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

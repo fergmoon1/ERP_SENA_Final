@@ -1,0 +1,6 @@
+projectKey=Intellij_ERP
+serverUrl=http://localhost:9000
+serverVersion=25.9.0.112764
+dashboardUrl=http://localhost:9000/dashboard?id=Intellij_ERP
+ceTaskId=f1cf9f1b-3d1f-41f7-9f7b-3c2de68fa7b3
+ceTaskUrl=http://localhost:9000/api/ce/task?id=f1cf9f1b-3d1f-41f7-9f7b-3c2de68fa7b3

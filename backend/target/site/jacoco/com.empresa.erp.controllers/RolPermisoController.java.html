@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RolPermisoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.controllers</a> &gt; <span class="el_source">RolPermisoController.java</span></div><h1>RolPermisoController.java</h1><pre class="source lang-java linenums">package com.empresa.erp.controllers;
+
+import com.empresa.erp.models.RolPermiso;
+import com.empresa.erp.services.RolPermisoService;
+import com.empresa.erp.services.AuditLogService;
+import com.empresa.erp.models.AuditLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequestMapping(&quot;/api/roles-permisos&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L16">public class RolPermisoController {</span>
+    @Autowired
+    private RolPermisoService rolPermisoService;
+    @Autowired
+    private AuditLogService auditLogService;
+
+    @GetMapping
+    public List&lt;RolPermiso&gt; getAll() {
+<span class="nc" id="L24">        return rolPermisoService.getAll();</span>
+    }
+
+    @PutMapping
+    public List&lt;RolPermiso&gt; saveAll(@RequestBody List&lt;RolPermiso&gt; rolesPermisos, HttpServletRequest request) {
+<span class="nc" id="L29">        List&lt;RolPermiso&gt; result = rolPermisoService.saveAll(rolesPermisos);</span>
+<span class="nc" id="L30">        auditLogService.save(new AuditLog(</span>
+            &quot;sistema&quot;,
+            &quot;EDITAR&quot;, &quot;RolesPermisos&quot;,
+<span class="nc" id="L33">            &quot;Roles y permisos modificados desde IP: &quot; + request.getRemoteAddr(),</span>
+            &quot;info&quot;
+        ));
+<span class="nc" id="L36">        return result;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

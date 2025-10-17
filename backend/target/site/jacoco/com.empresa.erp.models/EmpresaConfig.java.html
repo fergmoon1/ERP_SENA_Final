@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmpresaConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.empresa.erp.models</a> &gt; <span class="el_source">EmpresaConfig.java</span></div><h1>EmpresaConfig.java</h1><pre class="source lang-java linenums">package com.empresa.erp.models;
+
+import jakarta.persistence.*;
+
+@Entity
+<span class="fc" id="L6">public class EmpresaConfig {</span>
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String nombreEmpresa;
+    private String direccionEmpresa;
+    private String telefonoEmpresa;
+    private String emailEmpresa;
+    private String sitioWeb;
+    private String horarioLaboral;
+    private String zonaHoraria;
+    private String logoUrl;
+
+    // Getters y Setters
+<span class="nc" id="L21">    public Long getId() { return id; }</span>
+<span class="nc" id="L22">    public void setId(Long id) { this.id = id; }</span>
+
+<span class="nc" id="L24">    public String getNombreEmpresa() { return nombreEmpresa; }</span>
+<span class="nc" id="L25">    public void setNombreEmpresa(String nombreEmpresa) { this.nombreEmpresa = nombreEmpresa; }</span>
+
+<span class="nc" id="L27">    public String getDireccionEmpresa() { return direccionEmpresa; }</span>
+<span class="nc" id="L28">    public void setDireccionEmpresa(String direccionEmpresa) { this.direccionEmpresa = direccionEmpresa; }</span>
+
+<span class="nc" id="L30">    public String getTelefonoEmpresa() { return telefonoEmpresa; }</span>
+<span class="nc" id="L31">    public void setTelefonoEmpresa(String telefonoEmpresa) { this.telefonoEmpresa = telefonoEmpresa; }</span>
+
+<span class="nc" id="L33">    public String getEmailEmpresa() { return emailEmpresa; }</span>
+<span class="nc" id="L34">    public void setEmailEmpresa(String emailEmpresa) { this.emailEmpresa = emailEmpresa; }</span>
+
+<span class="nc" id="L36">    public String getSitioWeb() { return sitioWeb; }</span>
+<span class="nc" id="L37">    public void setSitioWeb(String sitioWeb) { this.sitioWeb = sitioWeb; }</span>
+
+<span class="nc" id="L39">    public String getHorarioLaboral() { return horarioLaboral; }</span>
+<span class="nc" id="L40">    public void setHorarioLaboral(String horarioLaboral) { this.horarioLaboral = horarioLaboral; }</span>
+
+<span class="nc" id="L42">    public String getZonaHoraria() { return zonaHoraria; }</span>
+<span class="nc" id="L43">    public void setZonaHoraria(String zonaHoraria) { this.zonaHoraria = zonaHoraria; }</span>
+
+<span class="nc" id="L45">    public String getLogoUrl() { return logoUrl; }</span>
+<span class="nc" id="L46">    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
