@@ -13,7 +13,7 @@ Aca el code que genera el archivo readme en github, junto con la imagen que mues
   [![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](  https://www.mysql.com/  )
   [![Version](https://img.shields.io/badge/Versi  ón-1.0.0-blue?style=flat-square)](https://github.com/tu-repo/erp-sena  )
   [![Estado](https://img.shields.io/badge/Estado-En_Desarrollo-green?style=flat-square)](  https://github.com/tu-repo/erp-sena  )
-</div>
+
 
 ## 🌟 Visión General
 ERP SENA es una solución empresarial moderna y robusta diseñada para optimizar y automatizar los procesos de gestión empresarial. Desarrollada con tecnologías de última generación, nuestra plataforma ofrece una experiencia fluida y eficiente para la administración de recursos empresariales.
